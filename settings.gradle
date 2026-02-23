@@ -1,0 +1,5 @@
+rootProject.name = 'bank-app'
+include 'account-service'
+include 'cash-service'
+include 'bank-ui'
+include 'notification-service'
