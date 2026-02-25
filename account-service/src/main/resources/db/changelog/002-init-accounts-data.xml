@@ -1,0 +1,37 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="insert_accounts_data" author="alexlakers">
+
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="accounts"/>
+            <sqlCheck expectedResult="0">SELECT COUNT(*)
+                                         FROM accounts</sqlCheck>
+        </preConditions>
+
+        <insert tableName="accounts">
+            <column name="username" value="alexeev"/>
+            <column name="name" value="Alexeev Alexey"/>
+           <!-- <column name="first_name" value="Alex"/>
+            <column name="last_name" value="Lakersov"/>-->
+            <column name="birth_date" value="1993-01-21"/>
+            <column name="balance" valueNumeric="10000.00"/>
+        </insert>
+
+        <insert tableName="accounts">
+            <column name="username" value="sergeev"/>
+            <column name="name" value="Sergeev Sergey"/>
+         <!--   <column name="first_name" value="Serg"/>
+            <column name="last_name" value="Sergeev"/>-->
+            <column name="birth_date" value="1995-02-25"/>
+            <column name="balance" valueNumeric="5000.00"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="accounts">
+                <where>username IN ('alexeev','sergeev')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
