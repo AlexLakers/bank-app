@@ -16,6 +16,12 @@ spring:
     contexts: dev
     change-log: db/changelog/db.changelog-master.xml
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/bank-realm
+          jwk-set-uri: http://localhost:8080/realms/bank-realm/protocol/openid-connect/certs
 
 
 logging:
