@@ -48,5 +48,20 @@ public class AccountController {
                 .body(accountService.updateAccount(accountEditDto, SecurityUtil.getCurrentUsernameFromJwtToken(jwt)));
     }
 
+    @PreAuthorize("hasRole('SERVICE') and hasAuthority('ACCOUNTS_WRITE')")
+    @PatchMapping("/{owner}/balance/increase")
+    public ResponseEntity<BigDecimal> increaseMoneyToBalanceAccount(@PathVariable String owner,
+                                                                                @Validated @RequestBody MoneyOperationRequest moneyReq){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountService.increaseBalance(owner,moneyReq.amount()));
+    }
+    @PreAuthorize("hasRole('SERVICE') and hasAuthority('ACCOUNTS_WRITE')")
+    @PatchMapping("/{owner}/balance/decrease")
+    public ResponseEntity<BigDecimal> decreaseMoneyFromBalanceAccount(@PathVariable String owner,
+                                                                                  @Validated @RequestBody MoneyOperationRequest moneyReq){
+       return ResponseEntity.status(HttpStatus.OK)
+               .body(accountService.decreaseBalance(owner,moneyReq.amount()));
+    }
+
 
 }
