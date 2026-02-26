@@ -33,6 +33,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public AccountDto updateAccount(AccountEditDto accountEditDto, String username) {
         return accountRepository.findAccountByUsername(username)
                 .map(account -> {
