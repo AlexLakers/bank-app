@@ -52,4 +52,28 @@ public class AccountServiceImpl implements AccountService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public BigDecimal increaseBalance(String username, BigDecimal amount) {
+        if (accountRepository.increaseBalanceByUsername(username, amount) > 0)
+           return getCurrentBalance(username);
+        throw new AccountNotFoundException(username);
+
+    }
+
+    @Override
+    @Transactional
+    public BigDecimal decreaseBalance(String username, BigDecimal amount) {
+        if (accountRepository.decreaseBalanceByUsername(username, amount) > 0)
+           return getCurrentBalance(username);
+        if (accountRepository.existsByUsername(username)) throw new InsufficientFundsException(amount,username);
+        throw new AccountNotFoundException(username);
+    }
+
+    private BigDecimal getCurrentBalance(String username) {
+        return accountRepository.findAccountByUsername(username)
+                .map(Account::getBalance)
+                .orElseThrow(() -> new AccountNotFoundException(username));
+
+    }
 }

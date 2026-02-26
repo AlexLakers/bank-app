@@ -15,7 +15,9 @@ public interface AccountService {
 
     List<AccountDto> getAccountsExcludeOwner(String username);
 
+    BigDecimal increaseBalance(String username, BigDecimal amount);
 
+    BigDecimal decreaseBalance(String username, BigDecimal amount);
 
 
 }
