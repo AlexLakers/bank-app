@@ -6,6 +6,7 @@ import com.alex.bank.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
+    @PreAuthorize("hasRole('SERVICE') and hasAuthority('NOTIFICATION_WRITE')")
     public ResponseEntity<NotificationResponse> processNotification(@Validated NotificationRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(notificationService.processNotification(request));
