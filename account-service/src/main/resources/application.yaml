@@ -18,6 +18,16 @@ spring:
 
   security:
     oauth2:
+      client:
+        registration:
+          account-service:
+            provider: keycloak
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/bank-realm
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/bank-realm

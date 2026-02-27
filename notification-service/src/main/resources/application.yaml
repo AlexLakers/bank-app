@@ -14,7 +14,7 @@ logging:
     root: WARN
     com.alex.bank.notification: INFO
   file:
-    name: ${NOTIFICATION_STORAGE_DIR:/home/alexlakers/storage-notification-service}/app.log}
+    name: ${NOTIFICATION_STORAGE_DIR:/home/alexlakers/storage-notification-service}/app.log
 
 server:
   port: 8086
