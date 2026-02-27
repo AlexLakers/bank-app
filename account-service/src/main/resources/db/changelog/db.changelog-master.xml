@@ -8,5 +8,6 @@
         <tagDatabase tag="full_accounts_schema_v1.0"/>
     </changeSet>
     <include file="002-init-accounts-data.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="003-init-outbox-schema.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
