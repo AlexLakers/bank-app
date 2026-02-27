@@ -36,7 +36,27 @@ public class FrontMainController {
         return "redirect:/account";
     }
 
+    @PostMapping("/account")
+    public String updateAccount(@Validated @ModelAttribute AccountEditDto accountEditDto,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            String errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("errors", errors);
 
+            return "redirect:/account";
+        }
+
+        ApiResult<AccountDto> updatingResult = accountServiceClient.updateAuthAccount(accountEditDto);
+        if (updatingResult.isSuccess()) {
+            redirectAttributes.addFlashAttribute("info", "Данные успешно обновлены");
+        } else {
+            redirectAttributes.addFlashAttribute("errors", List.of(updatingResult.error()));
+        }
+        return "redirect:/account";
+    }
 
     @GetMapping("/account")
     public String showMainPage(Model model) {
@@ -73,12 +93,12 @@ public class FrontMainController {
     }
 
     @PostMapping("/cash")
-    public String cash( CashTransactionRequest cashTransactionRequest,
+    public String cash(CashTransactionRequest cashTransactionRequest,
                        RedirectAttributes redirectAttributes) {
 
-      //TODO
+        //TODO
 
-     return "redirect:/account";
+        return "redirect:/account";
     }
 
     @PostMapping("/transfer")
