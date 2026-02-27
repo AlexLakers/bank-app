@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(CreatingPayloadOutboxException.class)
+    public ResponseEntity<String> handleCreatingPayloadOutboxException(CreatingPayloadOutboxException ex) {
+        log.warn("Creating payload outbox failed: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
