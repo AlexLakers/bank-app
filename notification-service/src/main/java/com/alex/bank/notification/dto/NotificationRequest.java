@@ -17,6 +17,8 @@ public record NotificationRequest(
         @NotNull(message = "Тип события не может быть null")
         EventType eventType,
 
-        @NotBlank(message = "Полезные данные не указаны")
-        String payload) {
+        String message,
+
+        @NotNull(message = "Полезные данные не указаны")
+        Map<String,Object> payload) {
 }

@@ -17,4 +17,4 @@ logging:
     name: ${NOTIFICATION_STORAGE_DIR:/home/alexlakers/storage-notification-service}/app.log}
 
 server:
-  port: 8082
+  port: 8086
