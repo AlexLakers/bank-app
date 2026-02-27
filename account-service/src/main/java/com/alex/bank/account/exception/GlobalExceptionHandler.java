@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleException(Exception ex) {
         log.error("Unexpected error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Внутренняя ошибка сервера");
+                .body("Неожиданная ошибка: %s".formatted(ex.getMessage()));
     }
 
 
