@@ -9,18 +9,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/notifications/")
+@RequestMapping("/notifications")
 public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
     @PreAuthorize("hasRole('SERVICE') and hasAuthority('NOTIFICATION_WRITE')")
-    public ResponseEntity<NotificationResponse> processNotification(@Validated NotificationRequest request) {
+    public ResponseEntity<NotificationResponse> processNotification(@Validated @RequestBody NotificationRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(notificationService.processNotification(request));
     }
