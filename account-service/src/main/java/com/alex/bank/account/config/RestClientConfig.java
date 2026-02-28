@@ -55,7 +55,7 @@ public class RestClientConfig {
             request.getHeaders().setBearerAuth(token);
             return execution.execute(request, body);
         };
-       // localhost:8086
+
         return restClientBuilder
                 .baseUrl("http://notification-service")
                 .requestInterceptor(tokenInterceptor)

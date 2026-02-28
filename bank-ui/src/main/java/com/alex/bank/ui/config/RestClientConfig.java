@@ -28,7 +28,7 @@ public class RestClientConfig {
     @Bean
     public RestClient accountsRestClient(RestClient.Builder restClientBuilder) {
         return restClientBuilder
-                .baseUrl("http://account-service")
+                .baseUrl("http://api-gateway")
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }

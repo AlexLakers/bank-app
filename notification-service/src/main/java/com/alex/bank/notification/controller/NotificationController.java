@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/notifications")
+@RequestMapping("/api/v1/notifications")
 public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
-    @PreAuthorize("hasRole('SERVICE') and hasAuthority('NOTIFICATION_WRITE')")
+   @PreAuthorize("hasRole('SERVICE') and hasAuthority('NOTIFICATION_WRITE')")
     public ResponseEntity<NotificationResponse> processNotification(@Validated @RequestBody NotificationRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(notificationService.processNotification(request));

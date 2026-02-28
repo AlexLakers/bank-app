@@ -36,4 +36,7 @@ spring:
 logging:
   level:
     com.alex.bank.ui: INFO
+    root: WARN
+  file:
+    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
 

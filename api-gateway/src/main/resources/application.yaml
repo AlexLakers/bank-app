@@ -1,6 +1,6 @@
 spring:
   application:
-    name: notification-service
+    name: api-gateway
 
   security:
     oauth2:
@@ -8,6 +8,8 @@ spring:
         jwt:
           jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
           issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
@@ -18,15 +20,29 @@ spring:
         enabled: true
         defaultContext: application
         data-key: data
+
+
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: account-service
+              uri: lb://account-service
+              predicates:
+                  - Path=/accounts/**
+              filters:
+              - RewritePath=/(?<path>.*), /api/v1/$\{path}
+              - name: JwtTokenRelay
+
   config:
     import: "consul:"
 
 logging:
   level:
-    com.alex.bank.notification: INFO
+    com.alex.bank.gateway: INFO
     root: WARN
   file:
     name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
-  port: 8086
+  port: 8888
