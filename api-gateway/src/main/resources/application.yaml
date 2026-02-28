@@ -26,19 +26,14 @@ spring:
       server:
         webflux:
           routes:
-              # Имя маршрута (используется в логах и конфигурации)
             - id: account-service
-              # Куда Gateway проксирует запросы, подходящие под предикаты
-              # Здесь это transfer-service
               uri: lb://account-service
               predicates:
-                  # Все запросы с путём /transfers/** попадут на этот маршрут
                   - Path=/accounts/**
               filters:
-                  # Подключаем кастомный фильтр Token Relay
-                  # Он берёт JWT и добавляет заголовок Authorization к исходящему запросу
               - RewritePath=/(?<path>.*), /api/v1/$\{path}
               - name: JwtTokenRelay
+
   config:
     import: "consul:"
 
