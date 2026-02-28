@@ -23,7 +23,7 @@ public class NotificationServiceImpl implements NotificationService {
             log.debug("Дублирующее событие отколнено: {}", request.eventId());
             return new NotificationResponse(request.eventId(), EventStatus.DUPLICATED, LocalDateTime.now());
         }
-        log.info("Событие [{} тип:{} отправитель:{} сообщение {} данные {}]",
+        log.info("Событие [{} тип:{} отправитель:{} сообщение:{} данные:{}]",
                 request.eventId(), request.eventType(), request.source(), request.message(), request.payload());
         processedEvents.add(request.eventId());
 
