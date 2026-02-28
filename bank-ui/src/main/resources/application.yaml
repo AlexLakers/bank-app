@@ -18,4 +18,10 @@ spring:
             scope: openid, profile, email
             redirect-uri: http://localhost:8083/login/oauth2/code/keycloak
             provider: keycloak
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
 

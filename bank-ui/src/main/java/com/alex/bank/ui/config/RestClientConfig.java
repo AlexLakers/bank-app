@@ -1,6 +1,7 @@
 package com.alex.bank.ui.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -17,22 +18,29 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
     private final OAuth2AuthorizedClientService authorizedClientService;
 
+
     @Bean
-    public RestClient accountsRestClient() {
-        return RestClient.builder()
-                .baseUrl("http://localhost:8082")
+    @LoadBalanced
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
+    }
+
+    @Bean
+    public RestClient accountsRestClient(RestClient.Builder restClientBuilder) {
+        return restClientBuilder
+                .baseUrl("http://account-service")
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
     @Bean
-    public RestClient cashRestClient() {
+    public RestClient cashRestClient(RestClient.Builder restClientBuilder) {
         return RestClient.builder()
                 .baseUrl("http://localhost:8084")
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
     @Bean
-    public RestClient transferRestClient() {
+    public RestClient transferRestClient(RestClient.Builder restClientBuilder) {
         return RestClient.builder()
                 .baseUrl("http://localhost:8085")
                 .requestInterceptor(getAuthorizationInterceptor())
