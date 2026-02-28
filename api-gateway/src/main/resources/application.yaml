@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+
+
+    gateway:
+      server:
+        webflux:
+          routes:
+              # Имя маршрута (используется в логах и конфигурации)
+            - id: account-service
+              # Куда Gateway проксирует запросы, подходящие под предикаты
+              # Здесь это transfer-service
+              uri: lb://account-service
+              predicates:
+                  # Все запросы с путём /transfers/** попадут на этот маршрут
+                  - Path=/accounts/**
+              filters:
+                  # Подключаем кастомный фильтр Token Relay
+                  # Он берёт JWT и добавляет заголовок Authorization к исходящему запросу
+              - RewritePath=/(?<path>.*), /api/v1/$\{path}
+              - name: JwtTokenRelay
+  config:
+    import: "consul:"
+
+logging:
+  level:
+    com.alex.bank.gateway: INFO
+    root: WARN
+  file:
+    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+
+server:
+  port: 8888
