@@ -2,25 +2,22 @@ spring:
   application:
     name: notification-service
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/bank-realm
-          jwk-set-uri: http://localhost:8080/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "consul:"
 
 logging:
   level:
-    root: WARN
     com.alex.bank.notification: INFO
-  file:
-    name: ${NOTIFICATION_STORAGE_DIR:/home/alexlakers/storage-notification-service}/app.log
 
 server:
   port: 8086

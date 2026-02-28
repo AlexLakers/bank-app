@@ -1,8 +1,10 @@
 server:
   port: 8083
+
 spring:
   application:
     name: bank-ui
+
   security:
     oauth2:
       client:
@@ -20,8 +22,18 @@ spring:
             provider: keycloak
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "consul:"
+
+logging:
+  level:
+    com.alex.bank.ui: INFO
 
