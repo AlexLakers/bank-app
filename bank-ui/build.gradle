@@ -14,7 +14,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-/*	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'*/
+	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
