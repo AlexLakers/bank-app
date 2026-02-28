@@ -33,6 +33,12 @@ spring:
           issuer-uri: http://localhost:8080/realms/bank-realm
           jwk-set-uri: http://localhost:8080/realms/bank-realm/protocol/openid-connect/certs
 
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
 
 logging:
   level:
