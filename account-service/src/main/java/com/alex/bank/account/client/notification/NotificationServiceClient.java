@@ -15,7 +15,7 @@ public class NotificationServiceClient {
     public NotificationResponse sendNotification(NotificationRequest notificationRequest) {
 
        return notificationRestClient.post()
-                .uri("/notifications")
+                .uri("/api/v1/notifications")
                 .body(notificationRequest)
                 .retrieve()
                 .toEntity(NotificationResponse.class).getBody();

@@ -57,7 +57,7 @@ public class RestClientConfig {
         };
 
         return restClientBuilder
-                .baseUrl("http://api-gateway")
+                .baseUrl("http://notification-service")
                 .requestInterceptor(tokenInterceptor)
                 .build();
     }
