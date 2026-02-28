@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-@RequestMapping("/accounts")
+@RequestMapping("api/v1/accounts")
 @RequiredArgsConstructor
 @RestController
 public class AccountController {
