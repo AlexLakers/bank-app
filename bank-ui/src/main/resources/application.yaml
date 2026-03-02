@@ -33,6 +33,10 @@ spring:
   config:
     import: "consul:"
 
+bank:
+  gateway:
+    baseUrl: http://api-gateway
+
 logging:
   level:
     com.alex.bank.ui: INFO

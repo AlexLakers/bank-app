@@ -6,11 +6,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "accounts")
+@ConfigurationProperties(prefix = "accounts.notification-service")
 @Component
 @Getter
 @Setter
 public class AccountServicePropertiesConfig {
 
-    private String baseUrl="http://localhost:8086";
+    private String baseUrl = "http://localhost:8086";
 }
