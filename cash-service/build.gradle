@@ -15,9 +15,9 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'org.springframework.boot:spring-boot-testcontainers'
-   /* implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'*/
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-    /*implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'*/
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 
     implementation 'org.liquibase:liquibase-core'
 
@@ -30,9 +30,11 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
 }
 
