@@ -6,6 +6,7 @@ import com.alex.bank.cash.exception.AccountValidationException;
 import com.alex.bank.cash.exception.ExternalServiceException;
 import com.alex.bank.cash.exception.InsufficientFundsException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,13 @@ import java.math.BigDecimal;
 import java.util.function.Supplier;
 
 @Component
-@RequiredArgsConstructor
 public class AccountServiceClient {
 
     private final RestClient accountRestClient;
+
+    public AccountServiceClient(@Qualifier("accountsRestClient") RestClient accountRestClient) {
+        this.accountRestClient = accountRestClient;
+    }
 
     public BigDecimal withdrawCash(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()

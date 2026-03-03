@@ -15,11 +15,11 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class RestClientConfig {
+
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientService authorizedClientService
-    ) {
+            OAuth2AuthorizedClientService authorizedClientService) {
         OAuth2AuthorizedClientProvider authorizedClientProvider =
                 OAuth2AuthorizedClientProviderBuilder.builder()
                         .clientCredentials()
@@ -28,8 +28,7 @@ public class RestClientConfig {
         AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
                 new AuthorizedClientServiceOAuth2AuthorizedClientManager(
                         clientRegistrationRepository,
-                        authorizedClientService
-                );
+                        authorizedClientService);
         manager.setAuthorizedClientProvider(authorizedClientProvider);
         return manager;
     }
@@ -40,12 +39,10 @@ public class RestClientConfig {
         return RestClient.builder();
     }
 
-    @Bean
-    public RestClient accountsRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder
-    ) {
-        ClientHttpRequestInterceptor tokenInterceptor = (request, body, execution) -> {
+
+    private ClientHttpRequestInterceptor createTokenInterceptor(
+            OAuth2AuthorizedClientManager authorizedClientManager) {
+        return (request, body, execution) -> {
             OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
                     .withClientRegistrationId("cash-service")
                     .principal("cash-service")
@@ -56,14 +53,28 @@ public class RestClientConfig {
                 throw new IllegalStateException("No authorized client for registration 'cash-service'");
             }
 
-            String token = authorizedClient.getAccessToken().getTokenValue();
-            request.getHeaders().setBearerAuth(token);
+            request.getHeaders().setBearerAuth(authorizedClient.getAccessToken().getTokenValue());
             return execution.execute(request, body);
         };
+    }
 
+    @Bean
+    public RestClient accountsRestClient(
+            OAuth2AuthorizedClientManager authorizedClientManager,
+            RestClient.Builder restClientBuilder) {
         return restClientBuilder
                 .baseUrl("http://account-service")
-                .requestInterceptor(tokenInterceptor)
+                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
+                .build();
+    }
+
+    @Bean
+    public RestClient notificationRestClient(
+            OAuth2AuthorizedClientManager authorizedClientManager,
+            RestClient.Builder restClientBuilder) {
+        return restClientBuilder
+                .baseUrl("http://notification-service")
+                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
                 .build();
     }
 }
