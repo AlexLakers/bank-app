@@ -26,11 +26,13 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient accountsRestClient(RestClient.Builder restClientBuilder) {
+    public RestClient accountsRestClient(RestClient.Builder restClientBuilder,
+                                         BankConfigProperties bankConfigProperties) {
         return restClientBuilder
-                .baseUrl("http://api-gateway")
+                .baseUrl(bankConfigProperties.getBaseUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
+       // "http://api-gateway"
     }
     @Bean
     public RestClient cashRestClient(RestClient.Builder restClientBuilder) {

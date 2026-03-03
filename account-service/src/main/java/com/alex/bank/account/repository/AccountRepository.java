@@ -15,13 +15,11 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
 
     List<Account> findAccountsByUsernameNot(String username);
 
-    @Query("UPDATE accounts SET balance=balance - :amount WHERE username=:username AND balance >=:amount")
-    @Modifying
-    Long decreaseBalanceByUsername(String username, BigDecimal amount);
+    @Query("UPDATE accounts SET balance = balance - :amount WHERE username = :username AND balance >= :amount RETURNING balance")
+    Optional<BigDecimal> decreaseBalanceByUsername(String username, BigDecimal amount);
 
-    @Query("UPDATE accounts SET balance=balance + :amount WHERE username=:username")
-    @Modifying
-    Long increaseBalanceByUsername(String username, BigDecimal amount);
+    @Query("UPDATE accounts SET balance = balance + :amount WHERE username = :username RETURNING balance")
+    Optional<BigDecimal> increaseBalanceByUsername(String username, BigDecimal amount);
 
     boolean existsByUsername(String username);
 

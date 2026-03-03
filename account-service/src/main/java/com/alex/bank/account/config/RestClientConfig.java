@@ -1,5 +1,6 @@
 package com.alex.bank.account.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,9 @@ public class RestClientConfig {
     @Bean
     public RestClient notificationsRestClient(
             OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder
+            RestClient.Builder restClientBuilder,
+            AccountServicePropertiesConfig accountServicePropertiesConfig
+            /*@Value("${accounts.notification-service.base-url}") String baseUrl*/
     ) {
         ClientHttpRequestInterceptor tokenInterceptor = (request, body, execution) -> {
             OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
@@ -55,9 +58,9 @@ public class RestClientConfig {
             request.getHeaders().setBearerAuth(token);
             return execution.execute(request, body);
         };
-
+//"http://notification-service"
         return restClientBuilder
-                .baseUrl("http://notification-service")
+                .baseUrl(accountServicePropertiesConfig.getBaseUrl())
                 .requestInterceptor(tokenInterceptor)
                 .build();
     }

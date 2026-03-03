@@ -49,14 +49,14 @@ spring:
 
 logging:
   level:
-    org.springframework.security.oauth2.client: DEBUG        # Покажет запросы токенов к Keycloak
-    com.alex.bank.account.client.notification: DEBUG                      # Логи вашего клиента (если пакет такой)
-    org.springframework.web.client: DEBUG                    # Детали HTTP-запросов (включая заголовки)
-    org.springframework.security: DEBUG
-
     com.alex.bank.account: INFO
     root: WARN
   file:
     name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+
+accounts:
+  notification-service:
+    base-url: http://notification-service
+
 server:
   port: 8082
