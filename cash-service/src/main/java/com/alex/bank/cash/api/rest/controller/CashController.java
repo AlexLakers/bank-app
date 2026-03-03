@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cash")
+@RequestMapping("/api/v1/cash")
 @RequiredArgsConstructor
 public class CashController {
     private final CashService cashService;

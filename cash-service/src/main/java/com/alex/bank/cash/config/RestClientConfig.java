@@ -1,6 +1,7 @@
 package com.alex.bank.cash.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -33,10 +34,16 @@ public class RestClientConfig {
         return manager;
     }
 
+    @Bean
+    @LoadBalanced
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
+    }
 
     @Bean
     public RestClient accountsRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager
+            OAuth2AuthorizedClientManager authorizedClientManager,
+            RestClient.Builder restClientBuilder
     ) {
         ClientHttpRequestInterceptor tokenInterceptor = (request, body, execution) -> {
             OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
@@ -54,8 +61,8 @@ public class RestClientConfig {
             return execution.execute(request, body);
         };
 
-        return RestClient.builder()
-                .baseUrl("http://localhost:8082")
+        return restClientBuilder
+                .baseUrl("http://account-service")
                 .requestInterceptor(tokenInterceptor)
                 .build();
     }
