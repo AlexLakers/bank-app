@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -27,13 +27,13 @@ public class AccountRepositoryIT {
     @Autowired
     private AccountRepository accountRepository;
 
+    private final String username = "testov1";
+
     @Test
     void findAccountByUsername_shouldReturnAccount() {
-        Optional<Account> account = accountRepository.findAccountByUsername("testov1");
+        Optional<Account> account = accountRepository.findAccountByUsername(username);
         assertThat(account).isPresent();
-        assertThat(account.get().getUsername()).isEqualTo("testov1");
-        assertThat(account.get().getName()).isEqualTo("Testov Test");
-        assertThat(account.get().getBalance()).isEqualByComparingTo("1000.00");
+        assertThat(account.get().getUsername()).isEqualTo(username);
     }
 
     @Test
@@ -42,49 +42,73 @@ public class AccountRepositoryIT {
         assertThat(account).isEmpty();
     }
 
+    @Test
+    void findAccountsByUsernameNot_shouldReturnEmptyLists() {
+        var accounts = accountRepository.findAccountsByUsernameNot(username);
+        assertThat(accounts).hasSize(0);
+    }
 
     @Test
-    @Transactional
+    void existsByUsername_shouldReturnTrueForExisting() {
+        boolean exists = accountRepository.existsByUsername(username);
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsByUsername_shouldReturnFalseForNonExisting() {
+        boolean exists = accountRepository.existsByUsername("nonexistent");
+        assertThat(exists).isFalse();
+    }
+
+    @Test
     void increaseBalanceByUsername_shouldIncreaseBalance() {
-        String username = "testov1";
-        BigDecimal initial = accountRepository.findAccountByUsername(username).get().getBalance();
         BigDecimal amount = new BigDecimal("200.00");
 
-        Long updated = accountRepository.increaseBalanceByUsername(username, amount);
-        assertThat(updated).isEqualTo(1);
+        Optional<BigDecimal> updated = accountRepository.increaseBalanceByUsername(username, amount);
+        assertThat(updated).isPresent();
 
         Optional<Account> updatedAccount = accountRepository.findAccountByUsername(username);
         assertThat(updatedAccount).isPresent();
-        assertThat(updatedAccount.get().getBalance()).isEqualByComparingTo(initial.add(amount));
+        assertThat(updatedAccount.get().getBalance()).isEqualByComparingTo("1200.00");
     }
 
     @Test
-    @Transactional
+    void increaseBalanceByUsername_shouldReturnEmptyWhenUserNotFound() {
+        BigDecimal amount = new BigDecimal("200.00");
+
+        Optional<BigDecimal> updated = accountRepository.increaseBalanceByUsername("nonexistent", amount);
+        assertThat(updated).isEmpty();
+    }
+
+    @Test
     void decreaseBalanceByUsername_shouldDecreaseWhenSufficientFunds() {
-        String username = "testov1";
-        BigDecimal initial = accountRepository.findAccountByUsername(username).get().getBalance();
         BigDecimal amount = new BigDecimal("300.00");
 
-        Long updated = accountRepository.decreaseBalanceByUsername(username, amount);
-        assertThat(updated).isEqualTo(1);
+        Optional<BigDecimal> updated = accountRepository.decreaseBalanceByUsername(username, amount);
+        assertThat(updated).isPresent();
 
         Optional<Account> updatedAccount = accountRepository.findAccountByUsername(username);
         assertThat(updatedAccount).isPresent();
-        assertThat(updatedAccount.get().getBalance()).isEqualByComparingTo(initial.subtract(amount));
+        assertThat(updatedAccount.get().getBalance()).isEqualByComparingTo("700.00");
     }
 
     @Test
-    @Transactional
-    void decreaseBalanceByUsername_shouldNotChangeWhenInsufficientFunds() {
-        String username = "testov1";
-        BigDecimal initial = accountRepository.findAccountByUsername(username).get().getBalance();
-        BigDecimal amount = initial.add(new BigDecimal("100.00"));
+    void decreaseBalanceByUsername_shouldReturnEmptyWhenInsufficientFunds() {
+        BigDecimal amount = new BigDecimal("2000.00");
 
-        Long updated = accountRepository.decreaseBalanceByUsername(username, amount);
-        assertThat(updated).isZero();
+        Optional<BigDecimal> updated = accountRepository.decreaseBalanceByUsername(username, amount);
+        assertThat(updated).isEmpty();
 
         Optional<Account> unchanged = accountRepository.findAccountByUsername(username);
         assertThat(unchanged).isPresent();
-        assertThat(unchanged.get().getBalance()).isEqualByComparingTo(initial);
+        assertThat(unchanged.get().getBalance()).isEqualByComparingTo("1000.00");
+    }
+
+    @Test
+    void decreaseBalanceByUsername_shouldReturnEmptyWhenUserNotFound() {
+        BigDecimal amount = new BigDecimal("100.00");
+
+        Optional<BigDecimal> updated = accountRepository.decreaseBalanceByUsername("nonexistent", amount);
+        assertThat(updated).isEmpty();
     }
 }

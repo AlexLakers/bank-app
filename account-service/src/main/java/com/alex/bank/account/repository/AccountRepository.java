@@ -19,7 +19,6 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
     Optional<BigDecimal> decreaseBalanceByUsername(String username, BigDecimal amount);
 
     @Query("UPDATE accounts SET balance = balance + :amount WHERE username = :username RETURNING balance")
-    @Modifying
     Optional<BigDecimal> increaseBalanceByUsername(String username, BigDecimal amount);
 
     boolean existsByUsername(String username);
