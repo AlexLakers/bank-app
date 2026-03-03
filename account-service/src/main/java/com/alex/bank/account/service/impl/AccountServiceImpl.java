@@ -86,25 +86,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public BigDecimal increaseBalance(String username, BigDecimal amount) {
-        if (accountRepository.increaseBalanceByUsername(username, amount) > 0)
-            return getCurrentBalance(username);
-        throw new AccountNotFoundException(username);
-
+        return accountRepository.increaseBalanceByUsername(username, amount)
+                .orElseThrow(() -> new AccountNotFoundException(username));
     }
 
     @Override
     @Transactional
     public BigDecimal decreaseBalance(String username, BigDecimal amount) {
-        if (accountRepository.decreaseBalanceByUsername(username, amount) > 0)
-            return getCurrentBalance(username);
-        if (accountRepository.existsByUsername(username)) throw new InsufficientFundsException(amount, username);
-        throw new AccountNotFoundException(username);
+        return accountRepository.decreaseBalanceByUsername(username, amount)
+                .orElseThrow(() -> {
+                    if (accountRepository.existsByUsername(username)) {
+                        return new InsufficientFundsException(amount, username);
+                    } else {
+                        return new AccountNotFoundException(username);
+                    }
+                });
     }
 
-    private BigDecimal getCurrentBalance(String username) {
-        return accountRepository.findAccountByUsername(username)
-                .map(Account::getBalance)
-                .orElseThrow(() -> new AccountNotFoundException(username));
-
-    }
 }
