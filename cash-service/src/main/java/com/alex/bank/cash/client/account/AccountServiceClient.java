@@ -25,7 +25,7 @@ public class AccountServiceClient {
 
     public BigDecimal withdrawCash(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()
-                .uri("/api/v1//accounts/{owner}/balance/decrease", username)
+                .uri("/api/v1/accounts/{owner}/balance/decrease", username)
                 .body(new MoneyOperationRequest(amount))
                 .retrieve()
                 .body(BigDecimal.class));
