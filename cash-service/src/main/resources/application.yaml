@@ -47,6 +47,11 @@ spring:
   config:
     import: "consul:"
 
+cash:
+  notification-service:
+    baseUrl: http://notification-service
+  account-service:
+    baseUrl: http://account-service
 
 logging:
   level:
