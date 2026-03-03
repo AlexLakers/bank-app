@@ -3,6 +3,7 @@ package com.alex.bank.cash.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +39,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAccountValidationException(AccountValidationException ex) {
         log.warn("Account Validation error: {}", ex.getMessage());
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CreatingPayloadOutboxException.class)
+    public ResponseEntity<String> handleCreatingPayloadOutboxException(CreatingPayloadOutboxException ex) {
+        log.warn("Creating payload outbox failed: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
     @ExceptionHandler(ExternalServiceException.class)

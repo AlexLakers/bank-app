@@ -3,21 +3,21 @@ package com.alex.bank.cash.service.impl;
 import com.alex.bank.cash.client.account.AccountServiceClient;
 import com.alex.bank.cash.dto.CashRequest;
 import com.alex.bank.cash.dto.CashResponse;
-import com.alex.bank.cash.exception.AccountNotFoundException;
-import com.alex.bank.cash.exception.AccountValidationException;
-import com.alex.bank.cash.exception.ExternalServiceException;
-import com.alex.bank.cash.exception.InsufficientFundsException;
-import com.alex.bank.cash.model.CashAction;
-import com.alex.bank.cash.model.CashTransaction;
-import com.alex.bank.cash.model.CashTransactionStatus;
+import com.alex.bank.cash.exception.*;
+import com.alex.bank.cash.model.*;
 import com.alex.bank.cash.repository.CashTransactionRepository;
+import com.alex.bank.cash.repository.OutboxRepository;
 import com.alex.bank.cash.service.CashService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -27,6 +27,8 @@ public class CashServiceImpl implements CashService {
 
     private final AccountServiceClient accountServiceClient;
     private final CashTransactionRepository cashTransactionRepository;
+    private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     private CashTransaction createAndSavePendingTransaction(CashAction action, String accountHolder, BigDecimal amount) {
         CashTransaction transaction = CashTransaction.builder()
@@ -50,10 +52,33 @@ public class CashServiceImpl implements CashService {
         try {
             BigDecimal newBalance = performCashOperation(action, username, request.amount());
             return handleSuccess(transaction, newBalance, action, request.amount());
-        } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException | ExternalServiceException e) {
+        } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException |
+                 ExternalServiceException e) {
             throw handleFailure(transaction, e);
         } catch (Exception e) {
             throw handleUnexpectedFailure(transaction, e);
+        }
+    }
+
+    private void saveOutbox(CashResponse payload, CashTransaction cashTransaction) {
+        try {
+            String payloadJson = objectMapper.writeValueAsString(payload);
+            EventType eventType = cashTransaction.getAction() == CashAction.GET
+                    ? EventType.CASH_WITHDRAWAL
+                    : EventType.CASH_DEPOSITED;
+
+            Outbox outbox = Outbox.builder()
+                    .source("cash-service")
+                    .eventType(eventType)
+                    .payload(payloadJson)
+                    .message("Пользователь: %1$s выполнил: %2$s на сумму: %3$s, новый баланс: %4$s"
+                            .formatted(cashTransaction.getAccountHolder(), cashTransaction.getAction().name()
+                                    , cashTransaction.getAmount(), payload.newBalance()))
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            outboxRepository.save(outbox);
+        } catch (JsonProcessingException e) {
+            throw new CreatingPayloadOutboxException();
         }
     }
 
@@ -65,13 +90,16 @@ public class CashServiceImpl implements CashService {
 
     private CashResponse handleSuccess(CashTransaction transaction, BigDecimal newBalance,
                                        CashAction action, BigDecimal amount) {
+
         transaction.setStatus(CashTransactionStatus.SUCCESS);
         cashTransactionRepository.save(transaction);
-
         log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
-        return new CashResponse(transaction.getTransactionId().toString(), newBalance);
+        CashResponse cashResponse = new CashResponse(transaction.getTransactionId().toString(), newBalance);
+        saveOutbox(cashResponse, transaction);
+
+        return cashResponse;
     }
 
     private RuntimeException handleFailure(CashTransaction transaction, RuntimeException e) {
