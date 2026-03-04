@@ -1,15 +1,14 @@
-package contracts.notifications
-
+package contracts.accounts
 
 import org.springframework.cloud.contract.spec.Contract
 
 
 Contract.make {
-    description "Should increase balance for a given owner"
-    name "increase_balance_by_username"
+    description "Should decrease balance for a given owner"
+    name "decrease_balance_by_username"
     request {
         method 'PATCH'
-        url '/api/v1/accounts/alexeev/balance/increase'
+        url '/api/v1/accounts/alexeev/balance/decrease'
         headers {
             header('Authorization': value(
                     consumer(regex('Bearer .*')),
@@ -23,7 +22,7 @@ Contract.make {
     }
     response {
         status OK()
-        body("1200.00")
+        body(800.00)
         headers {
             contentType(applicationJson())
         }

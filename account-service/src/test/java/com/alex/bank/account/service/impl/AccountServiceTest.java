@@ -108,7 +108,6 @@ class AccountServiceTest {
         verifyNoInteractions(accountMapper);
     }
 
-    // === updateAccount (без изменений) ===
     @Test
     void updateAccount_shouldUpdateAndSaveOutbox_whenAccountExists() throws Exception {
         Account updatedAccount = Account.builder()
@@ -170,7 +169,6 @@ class AccountServiceTest {
         verify(outboxRepository, never()).save(any());
     }
 
-    // === getAccountsExcludeOwner (без изменений) ===
     @Test
     void getAccountsExcludeOwner_shouldReturnList_whenAccountsExist() {
         Account otherAccount = Account.builder()
@@ -208,7 +206,6 @@ class AccountServiceTest {
         verifyNoInteractions(accountMapper);
     }
 
-    // === increaseBalance (обновлён с учётом RETURNING) ===
     @Test
     void increaseBalance_shouldIncreaseAndReturnNewBalance() {
         BigDecimal amount = new BigDecimal("200.00");
@@ -220,7 +217,6 @@ class AccountServiceTest {
 
         assertThat(result).isEqualTo(newBalance);
         verify(accountRepository).increaseBalanceByUsername(username, amount);
-        // findAccountByUsername больше не вызывается
         verify(accountRepository, never()).findAccountByUsername(anyString());
     }
 
@@ -238,7 +234,6 @@ class AccountServiceTest {
         verify(accountRepository, never()).findAccountByUsername(anyString());
     }
 
-    // === decreaseBalance (обновлён с учётом RETURNING и новой логики) ===
     @Test
     void decreaseBalance_shouldDecreaseAndReturnNewBalance() {
         BigDecimal amount = new BigDecimal("300.00");

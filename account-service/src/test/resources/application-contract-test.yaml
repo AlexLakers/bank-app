@@ -1,4 +1,6 @@
 accounts:
-  base-url:
     notification-service:
         base-url: http://localhost:8086
+spring:
+    liquibase:
+        enabled: false
