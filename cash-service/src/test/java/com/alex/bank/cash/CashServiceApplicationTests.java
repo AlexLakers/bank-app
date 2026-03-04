@@ -6,9 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration")
-/*@Testcontainers*/
-/*@ImportTestcontainers({PostgresTestconteinerConfig.class})*/
+@SpringBootTest/*(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration")*/
+@Testcontainers
+@ImportTestcontainers({PostgresTestconteinerConfig.class})
 class CashServiceApplicationTests {
 
     @Test
