@@ -25,8 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AccountControllerIT extends BaseIntegrationTest {
 
     @Autowired
-    private AccountService accountService;
-    @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
@@ -190,6 +188,6 @@ class AccountControllerIT extends BaseIntegrationTest {
                                         new SimpleGrantedAuthority("ACCOUNTS_WRITE")
                                 ))
                         ))
-                .andExpect(status().isBadRequest()); // ожидаем 400 из-за @Positive
+                .andExpect(status().isBadRequest());
     }
 }
