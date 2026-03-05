@@ -41,7 +41,6 @@ public class RestClientConfig {
             OAuth2AuthorizedClientManager authorizedClientManager,
             RestClient.Builder restClientBuilder,
             AccountServicePropertiesConfig accountServicePropertiesConfig
-            /*@Value("${accounts.notification-service.base-url}") String baseUrl*/
     ) {
         ClientHttpRequestInterceptor tokenInterceptor = (request, body, execution) -> {
             OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest

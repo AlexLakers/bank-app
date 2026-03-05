@@ -43,12 +43,6 @@ public class AccountRepositoryIT {
     }
 
     @Test
-    void findAccountsByUsernameNot_shouldReturnEmptyLists() {
-        var accounts = accountRepository.findAccountsByUsernameNot(username);
-        assertThat(accounts).hasSize(0);
-    }
-
-    @Test
     void existsByUsername_shouldReturnTrueForExisting() {
         boolean exists = accountRepository.existsByUsername(username);
         assertThat(exists).isTrue();

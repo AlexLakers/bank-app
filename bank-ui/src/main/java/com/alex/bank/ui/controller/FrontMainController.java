@@ -2,16 +2,15 @@ package com.alex.bank.ui.controller;
 
 
 import com.alex.bank.ui.client.AccountServiceClient;
+import com.alex.bank.ui.client.CashServiceClient;
 import com.alex.bank.ui.dto.ApiResult;
 import com.alex.bank.ui.dto.account.AccountDto;
 import com.alex.bank.ui.dto.account.AccountEditDto;
-import com.alex.bank.ui.dto.cash.CashTransactionRequest;
-import com.alex.bank.ui.dto.cash.CashTransactionResponse;
+import com.alex.bank.ui.dto.cash.CashAction;
+import com.alex.bank.ui.dto.cash.CashRequest;
+import com.alex.bank.ui.dto.cash.CashResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 public class FrontMainController {
 
     private final AccountServiceClient accountServiceClient;
+    private final CashServiceClient cashServiceClient;
 
     @GetMapping
     public String index() {
@@ -93,11 +93,25 @@ public class FrontMainController {
     }
 
     @PostMapping("/cash")
-    public String cash(CashTransactionRequest cashTransactionRequest,
+    public String cash(@Validated CashRequest request,
+                       BindingResult bindingResult,
                        RedirectAttributes redirectAttributes) {
 
-        //TODO
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+        }
 
+        ApiResult<CashResponse> withdrawResult = cashServiceClient.processCashOperation(request);
+
+
+        if (withdrawResult.isSuccess()) {
+            redirectAttributes.addFlashAttribute("info",
+                    (request.action() == CashAction.GET)
+                            ? "Снято %s".formatted(request.amount())
+                            : "Положено %s".formatted(request.amount()));
+        } else {
+            redirectAttributes.addFlashAttribute("errors", List.of(withdrawResult.error()));
+        }
         return "redirect:/account";
     }
 

@@ -1,5 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '3.5.10'
+	id 'org.springframework.cloud.contract' version '4.3.0'
+	id 'maven-publish'
 }
 
 description = 'account-service'
@@ -34,7 +36,26 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+}
 
+contracts {
+	baseClassForTests.set(
+			"com.alex.bank.account.service.contract.BaseAccountsContractTest"
+
+	)
+}
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			groupId = "com.alex"
+			artifactId = "account-service"
+			version = "0.0.1-SNAPSHOT"
+
+			from(components.java)
+			artifact(tasks.named("verifierStubsJar"))
+		}
+	}
 }
 
 tasks.named('test') {

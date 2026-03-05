@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: cash-service
+  datasource:
+    url: jdbc:postgresql://${CASH_DB_HOST:localhost}:${CASH_DB_HOST_PORT:5434}/${CASH_DB_NAME:cash_repository}
+    username: ${CASH_DB_USER:cashuser}
+    password: ${CASH_DB_PASS:cashpass}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  liquibase:
+    contexts: dev
+    change-log: db/changelog/db.changelog-master.xml
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+      client:
+        registration:
+          cash-service:
+            provider: keycloak
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "consul:"
+
+cash:
+  notification-service:
+    baseUrl: http://notification-service
+  account-service:
+    baseUrl: http://account-service
+
+logging:
+  level:
+    com.alex.bank.cash: INFO
+    root: WARN
+  file:
+    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+
+server:
+  port: 8084

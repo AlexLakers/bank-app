@@ -34,6 +34,14 @@ spring:
               - RewritePath=/(?<path>.*), /api/v1/$\{path}
               - name: JwtTokenRelay
 
+            - id: cash-service
+              uri: lb://cash-service
+              predicates:
+                - Path=/cash/**
+              filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
+                - name: JwtTokenRelay
+
   config:
     import: "consul:"
 
@@ -41,6 +49,7 @@ logging:
   level:
     com.alex.bank.gateway: INFO
     root: WARN
+
   file:
     name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
 

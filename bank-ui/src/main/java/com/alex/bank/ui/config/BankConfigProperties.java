@@ -12,4 +12,5 @@ import org.springframework.stereotype.Component;
 public class BankConfigProperties {
 
     private String baseUrl="http://localhost:8888";
+
 }

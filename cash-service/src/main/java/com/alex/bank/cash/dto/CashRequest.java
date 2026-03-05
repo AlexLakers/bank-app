@@ -1,12 +1,12 @@
-package com.alex.bank.ui.dto.cash;
+package com.alex.bank.cash.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.alex.bank.cash.model.CashAction;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record CashTransactionRequest(
+public record CashRequest(
         @NotNull
         CashAction action,
 

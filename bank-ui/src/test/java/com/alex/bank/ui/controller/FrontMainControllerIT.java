@@ -125,7 +125,7 @@ public class FrontMainControllerIT {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", otherAccounts))
-                .andExpect(model().attribute("errors", hasItem("Аккаунт не найден")))
+                .andExpect(model().attribute("errors", hasItem("Аккаунт не найден. Проверьте идентификатор.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
@@ -155,7 +155,7 @@ public class FrontMainControllerIT {
                 .andExpect(model().attribute("account", currentAccount))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
-                .andExpect(model().attribute("errors", hasItem("Ошибка при обращении к сервису аккаунтов")))
+                .andExpect(model().attribute("errors", hasItem("Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
@@ -175,9 +175,10 @@ public class FrontMainControllerIT {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
+                // Исправлено: оба новых сообщения
                 .andExpect(model().attribute("errors", containsInAnyOrder(
-                        "Аккаунт не найден",
-                        "Ошибка при обращении к сервису аккаунтов"
+                        "Аккаунт не найден. Проверьте идентификатор.",
+                        "Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку."
                 )))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
@@ -223,7 +224,7 @@ public class FrontMainControllerIT {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/account"))
                 .andExpect(flash().attributeExists("errors"))
-                .andExpect(flash().attribute("errors", List.of("Аккаунт не найден")));
+                .andExpect(flash().attribute("errors", List.of("Аккаунт не найден. Проверьте идентификатор.")));
     }
 
     @Test
@@ -236,6 +237,74 @@ public class FrontMainControllerIT {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/account"))
                 .andExpect(flash().attributeExists("errors"));
+    }
+    @Test
+    void cash_success_withdraw() throws Exception {
+        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"id\":1,\"amount\":100.0}"))); // тело не важно, главное статус
+
+        mockMvc.perform(post("/cash")
+                        .with(csrf())
+                        .with(user("testuser").roles("USER"))
+                        .param("amount", "100")
+                        .param("action", "GET"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/account"))
+                .andExpect(flash().attributeExists("info"))
+                .andExpect(flash().attribute("info", "Снято 100"));
+    }
+
+    @Test
+    void cash_success_deposit() throws Exception {
+        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"id\":1,\"amount\":50.0}")));
+
+        mockMvc.perform(post("/cash")
+                        .with(csrf())
+                        .with(user("testuser").roles("USER"))
+                        .param("amount", "50")
+                        .param("action", "PUT"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/account"))
+                .andExpect(flash().attributeExists("info"))
+                .andExpect(flash().attribute("info", "Положено 50"));
+    }
+
+    @Test
+    void cash_validationError() throws Exception {
+        mockMvc.perform(post("/cash")
+                        .with(csrf())
+                        .with(user("testuser").roles("USER"))
+                        .param("amount", "-10")
+                        .param("action", "GET"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/account"))
+                .andExpect(flash().attributeExists("errors"))
+                .andExpect(flash().attribute("errors", hasSize(greaterThan(0))));
+    }
+
+    @Test
+    void cash_serviceError() throws Exception {
+        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+                .willReturn(aResponse().withStatus(400)));
+
+        mockMvc.perform(post("/cash")
+                        .with(csrf())
+                        .with(user("testuser").roles("USER"))
+                        .param("amount", "100")
+                        .param("action", "GET"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/account"))
+                .andExpect(flash().attributeExists("errors"))
+                // Проверяем, что в списке ошибок есть сообщение, содержащее "Некорректный запрос"
+                // (в зависимости от реализации CashServiceClient)
+                .andExpect(flash().attribute("errors", hasItem(containsString("Некорректный запрос"))));
     }
 
     @TestConfiguration
