@@ -41,12 +41,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(CreatingPayloadOutboxException.class)
-    public ResponseEntity<String> handleCreatingPayloadOutboxException(CreatingPayloadOutboxException ex) {
-        log.warn("Creating payload outbox failed: {}", ex.getMessage());
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {

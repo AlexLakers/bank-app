@@ -125,7 +125,7 @@ public class FrontMainControllerIT {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", otherAccounts))
-                .andExpect(model().attribute("errors", hasItem("Аккаунт не найден")))
+                .andExpect(model().attribute("errors", hasItem("Аккаунт не найден. Проверьте идентификатор.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
@@ -155,7 +155,7 @@ public class FrontMainControllerIT {
                 .andExpect(model().attribute("account", currentAccount))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
-                .andExpect(model().attribute("errors", hasItem("Ошибка при обращении к сервису аккаунтов")))
+                .andExpect(model().attribute("errors", hasItem("Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
@@ -175,9 +175,10 @@ public class FrontMainControllerIT {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
+                // Исправлено: оба новых сообщения
                 .andExpect(model().attribute("errors", containsInAnyOrder(
-                        "Аккаунт не найден",
-                        "Ошибка при обращении к сервису аккаунтов"
+                        "Аккаунт не найден. Проверьте идентификатор.",
+                        "Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку."
                 )))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
@@ -223,7 +224,7 @@ public class FrontMainControllerIT {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/account"))
                 .andExpect(flash().attributeExists("errors"))
-                .andExpect(flash().attribute("errors", List.of("Аккаунт не найден")));
+                .andExpect(flash().attribute("errors", List.of("Аккаунт не найден. Проверьте идентификатор.")));
     }
 
     @Test

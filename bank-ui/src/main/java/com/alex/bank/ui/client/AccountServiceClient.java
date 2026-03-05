@@ -29,24 +29,28 @@ public class AccountServiceClient {
             return ApiResult.success(payload, null);
         } catch (RestClientResponseException e) {
             HttpStatusCode status = e.getStatusCode();
-            log.warn("Account-service: HTTP ошибка {}: {}", status, e.getMessage());
-
             String body = e.getResponseBodyAsString();
-            String userMessage = !body.isBlank()
-                    ? body
-                    : switch ((HttpStatus) status) {
-                case NOT_FOUND -> "Аккаунт не найден";
-                case BAD_REQUEST -> "Некорректный запрос";
-                default -> "Ошибка при обращении к сервису аккаунтов";
-            };
+            log.warn("Account-service: HTTP ошибка {}: {}", status, body); // тело в лог
+
+            String userMessage = getUserFriendlyMessage(status);
             return ApiResult.error(userMessage);
         } catch (ResourceAccessException e) {
             log.error("Account-service: сетевая ошибка: {}", e.getMessage());
-            return ApiResult.error("Сервис аккаунтов временно недоступен");
+            return ApiResult.error("Сервис аккаунтов временно недоступен. Проверьте соединение и повторите позже.");
         } catch (RestClientException e) {
             log.error("Account-service: неожиданная ошибка RestClient", e);
-            return ApiResult.error("Внутренняя ошибка сервиса аккаунтов");
+            return ApiResult.error("Внутренняя ошибка сервиса аккаунтов. Пожалуйста, обратитесь в поддержку.");
         }
+    }
+
+    private String getUserFriendlyMessage(HttpStatusCode status) {
+        HttpStatus httpStatus = (HttpStatus) status;
+        return switch (httpStatus) {
+            case NOT_FOUND -> "Аккаунт не найден. Проверьте идентификатор.";
+            case BAD_REQUEST -> "Некорректный запрос. Проверьте введённые данные.";
+            case SERVICE_UNAVAILABLE -> "Сервис аккаунтов временно недоступен. Пожалуйста, попробуйте позже.";
+            default -> "Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку.";
+        };
     }
 
     public ApiResult<AccountDto> getAuthAccount() {
@@ -54,9 +58,7 @@ public class AccountServiceClient {
                 .uri("/accounts/me")
                 .retrieve()
                 .toEntity(AccountDto.class).getBody();
-
         return executeRequest(requestAccount);
-
     }
 
     public ApiResult<List<AccountDto>> getAccountsExcludeAuth() {
@@ -65,10 +67,9 @@ public class AccountServiceClient {
                         .queryParam("excludeCurrent", true)
                         .build())
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<AccountDto>>() {
-                }).getBody();
+                .toEntity(new ParameterizedTypeReference<List<AccountDto>>() {})
+                .getBody();
         return executeRequest(requestAccounts);
-
     }
 
     public ApiResult<AccountDto> updateAuthAccount(AccountEditDto accountEditDto) {
@@ -77,8 +78,6 @@ public class AccountServiceClient {
                 .body(accountEditDto)
                 .retrieve()
                 .toEntity(AccountDto.class).getBody();
-
         return executeRequest(requestUpdateAccount);
     }
-
 }
