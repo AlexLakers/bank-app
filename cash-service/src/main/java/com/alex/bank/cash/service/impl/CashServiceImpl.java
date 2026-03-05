@@ -51,13 +51,14 @@ public class CashServiceImpl implements CashService {
         CashTransaction transaction = createAndSavePendingTransaction(action, username, request.amount());
         try {
             BigDecimal newBalance = performCashOperation(action, username, request.amount());
-            return handleSuccess(transaction, newBalance, action, request.amount());
-        } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException |
-                 ExternalServiceException e) {
+            CashResponse cashResponse = handleSuccess(transaction, newBalance, action, request.amount());
+            saveOutbox(cashResponse, transaction);
+            return cashResponse;
+        } catch (Exception e/*AccountNotFoundException | InsufficientFundsException | AccountValidationException |
+                 ExternalServiceException e*/) {
             throw handleFailure(transaction, e);
-        } catch (Exception e) {
-            throw handleUnexpectedFailure(transaction, e);
         }
+
     }
 
     private void saveOutbox(CashResponse payload, CashTransaction cashTransaction) {
@@ -78,7 +79,8 @@ public class CashServiceImpl implements CashService {
                     .build();
             outboxRepository.save(outbox);
         } catch (JsonProcessingException e) {
-            throw new CreatingPayloadOutboxException();
+            log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
+                    cashTransaction.getTransactionId(), e);
         }
     }
 
@@ -96,24 +98,33 @@ public class CashServiceImpl implements CashService {
         log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
-        CashResponse cashResponse = new CashResponse(transaction.getTransactionId().toString(), newBalance);
-        saveOutbox(cashResponse, transaction);
+        return new CashResponse(transaction.getTransactionId().toString(), newBalance);
 
-        return cashResponse;
     }
 
-    private RuntimeException handleFailure(CashTransaction transaction, RuntimeException e) {
+    private RuntimeException handleFailure(CashTransaction transaction, Exception e) {
         transaction.setStatus(CashTransactionStatus.FAILED);
-        transaction.setMessage(e.getMessage());
+
+        if (isExpectedException(e)) {
+            transaction.setMessage(e.getMessage());
+        } else {
+            transaction.setMessage("Внутренняя ошибка сервиса");
+        }
+
         cashTransactionRepository.save(transaction);
-        return e;
+
+        if (isExpectedException(e)) {
+            return (RuntimeException) e;
+        } else {
+            return new RuntimeException("Внутренняя ошибка", e);
+        }
     }
 
-    private RuntimeException handleUnexpectedFailure(CashTransaction transaction, Exception e) {
-        transaction.setStatus(CashTransactionStatus.FAILED);
-        transaction.setMessage("Внутренняя ошибка сервиса");
-        cashTransactionRepository.save(transaction);
-        return new RuntimeException("Внутренняя ошибка", e);
+    private boolean isExpectedException(Exception e) {
+        return e instanceof AccountNotFoundException ||
+               e instanceof InsufficientFundsException ||
+               e instanceof AccountValidationException ||
+               e instanceof ExternalServiceException;
     }
 }
 
