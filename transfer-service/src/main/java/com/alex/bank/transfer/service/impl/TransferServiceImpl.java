@@ -60,13 +60,32 @@ public class TransferServiceImpl implements TransferService {
             BigDecimal newBalanceReceiver = accountServiceClient.depositCash(request.toAccount(), request.amount());
             return completeSuccess(transaction, newBalanceReceiver, senderBalance);
         } catch (Exception e) {
-            //TODO compensate
-
+            boolean compensated = compensate(request, transaction, e);
+            if (!compensated) {
+                throw new CompensationFailedException(
+                        "Перевод не выполнен, средства возвращены. Причина: " + extractMessage(e)
+                );
+            }
             throw e;
         }
     }
 
-
+    private boolean compensate(TransferRequest request, TransferTransaction transaction, Exception originalError) {
+        try {
+            accountServiceClient.depositCash(request.fromAccount(), request.amount());
+            transaction.setStatus(TransferTransactionStatus.COMPENSATED);
+            transaction.setMessage("Перевод не выполнен, деньги возвращены. Причина: " + extractMessage(originalError));
+            transactionRepository.save(transaction);
+            return true;
+        } catch (Exception compensationError) {
+            transaction.setStatus(TransferTransactionStatus.COMPENSATED_FAILED);
+            transaction.setMessage("КРИТИЧЕСКАЯ ОШИБКА: деньги списаны, но не удалось вернуть. " +
+                                   "Оригинал: " + extractMessage(originalError) +
+                                   ", ошибка возврата: " + extractMessage(compensationError));
+            transactionRepository.save(transaction);
+            return false;
+        }
+    }
 
     private TransferResponse completeSuccess(TransferTransaction transaction, BigDecimal receiverBalance, BigDecimal senderBalance) {
         transaction.setStatus(TransferTransactionStatus.SUCCESS);
