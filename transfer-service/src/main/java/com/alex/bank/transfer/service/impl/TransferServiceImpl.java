@@ -65,7 +65,7 @@ public class TransferServiceImpl implements TransferService {
             log.info("Перевод успешен. Отправитель: {}, сумма: {}", request.fromAccount(), request.amount());
             return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance);
         } catch (Exception e) {
-            boolean compensated = compensate(request, transaction, e);
+            boolean compensated = compensate(transaction);
             if (compensated) {
                 throw new TransferCompensatedException(
                         "Перевод не выполнен, средства возвращены. Причина: " + getMessage(e));
@@ -76,9 +76,9 @@ public class TransferServiceImpl implements TransferService {
         }
     }
 
-    private boolean compensate(TransferRequest request, TransferTransaction transaction, Exception originalError) {
+    private boolean compensate(TransferTransaction transaction) {
         try {
-            accountServiceClient.depositCash(request.fromAccount(), request.amount()); // возврат
+            accountServiceClient.depositCash(transaction.getFromAccount(), transaction.getAmount());
             return true;
         } catch (Exception compensationError) {
             log.error("Ошибка при компенсации: {}", getMessage(compensationError));

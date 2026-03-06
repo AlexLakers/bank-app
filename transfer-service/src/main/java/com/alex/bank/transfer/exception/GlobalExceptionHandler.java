@@ -47,6 +47,11 @@ public class GlobalExceptionHandler {
                 .body("Сервис аккаунтов временно недоступен");
     }
 
+    @ExceptionHandler(TransferCompensatedException.class)
+    public ResponseEntity<String> handleTransferCompensated(TransferCompensatedException ex) {
+        log.warn("Transfer compensated: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 
     @ExceptionHandler(CompensationFailedException.class)
     public ResponseEntity<String> handleCompensationFailed(CompensationFailedException ex) {
@@ -61,6 +66,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Внутренняя ошибка сервера");
     }
-
-
 }
+
+
