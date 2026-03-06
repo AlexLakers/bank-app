@@ -3,14 +3,20 @@ package com.alex.bank.ui.controller;
 
 import com.alex.bank.ui.client.AccountServiceClient;
 import com.alex.bank.ui.client.CashServiceClient;
+import com.alex.bank.ui.client.TransferServiceClient;
 import com.alex.bank.ui.dto.ApiResult;
 import com.alex.bank.ui.dto.account.AccountDto;
 import com.alex.bank.ui.dto.account.AccountEditDto;
 import com.alex.bank.ui.dto.cash.CashAction;
 import com.alex.bank.ui.dto.cash.CashRequest;
 import com.alex.bank.ui.dto.cash.CashResponse;
+import com.alex.bank.ui.dto.transfer.TransferRequest;
+import com.alex.bank.ui.dto.transfer.TransferRequestUI;
+import com.alex.bank.ui.dto.transfer.TransferResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -30,6 +37,7 @@ public class FrontMainController {
 
     private final AccountServiceClient accountServiceClient;
     private final CashServiceClient cashServiceClient;
+    private final TransferServiceClient transferServiceClient;
 
     @GetMapping
     public String index() {
@@ -116,9 +124,32 @@ public class FrontMainController {
     }
 
     @PostMapping("/transfer")
-    public String cash() {
+    public String transfer(@AuthenticationPrincipal OidcUser oidcUser,
+                           @Validated TransferRequestUI request,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirectAttributes) {
 
-        //TODO
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.toList());
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:/account";
+        }
+
+        String fromAccount = oidcUser.getName();
+
+        ApiResult<TransferResponse> transferResult = transferServiceClient.processTransferOperation(
+                new TransferRequest(request.toAccount(), fromAccount, request.amount())
+        );
+
+        if (transferResult.isSuccess()) {
+            redirectAttributes.addFlashAttribute("info",
+                    "Успешно переведено %s руб клиенту %s"
+                            .formatted(request.amount(), request.toAccount()));
+        } else {
+            redirectAttributes.addFlashAttribute("errors", List.of(transferResult.error()));
+        }
 
         return "redirect:/account";
     }
