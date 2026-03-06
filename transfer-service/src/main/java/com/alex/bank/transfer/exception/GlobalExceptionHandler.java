@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
-@RestControllerAdvice(basePackages = "com.alex.bank.transfer.api.rest.controller.1")
+@RestControllerAdvice(basePackages = "com.alex.bank.transfer.api.rest.controller")
 @Slf4j
 public class GlobalExceptionHandler {
 
