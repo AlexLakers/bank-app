@@ -1,12 +1,12 @@
 package com.alex.bank.transfer.client.account;
 
+
 import com.alex.bank.transfer.dto.MoneyOperationRequest;
 import com.alex.bank.transfer.exception.AccountNotFoundException;
 import com.alex.bank.transfer.exception.AccountValidationException;
 import com.alex.bank.transfer.exception.ExternalServiceException;
 import com.alex.bank.transfer.exception.InsufficientFundsException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -19,23 +19,25 @@ import java.math.BigDecimal;
 import java.util.function.Supplier;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class AccountServiceClient {
 
     private final RestClient accountRestClient;
 
-    public BigDecimal withdrawCash(String username, BigDecimal amount) {
+    public AccountServiceClient(@Qualifier("accountsRestClient") RestClient accountRestClient) {
+        this.accountRestClient = accountRestClient;
+    }
+
+    public BigDecimal withdraw(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()
-                .uri("/accounts/{owner}/balance/decrease", username)
+                .uri("/api/v1/accounts/{owner}/balance/decrease", username)
                 .body(new MoneyOperationRequest(amount))
                 .retrieve()
                 .body(BigDecimal.class));
     }
 
-    public BigDecimal depositCash(String username, BigDecimal amount) {
+    public BigDecimal deposit(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()
-                .uri("/accounts/{owner}/balance/increase", username)
+                .uri("/api/v1/accounts/{owner}/balance/increase", username)
                 .body(new MoneyOperationRequest(amount))
                 .retrieve()
                 .body(BigDecimal.class));
@@ -61,9 +63,9 @@ public class AccountServiceClient {
             case NOT_FOUND:
                 throw new AccountNotFoundException(buildMessage(errorBody, "Аккаунт не найден"));
             case BAD_REQUEST:
-                throw new AccountValidationException(buildMessage(errorBody, "Некорректные данные для перевода"));
+                throw new AccountValidationException(buildMessage(errorBody, "Некорректные данные для снятия/пополения"));
             case CONFLICT:
-                throw new InsufficientFundsException(buildMessage(errorBody, "На счете отправителя недостаточно средств"));
+                throw new InsufficientFundsException(buildMessage(errorBody, "На счете недостаточно средств"));
             default:
                 throw new ExternalServiceException(buildMessage(errorBody, "Ошибка сервиса аккаунтов: " + e.getStatusText()));
         }
@@ -73,5 +75,3 @@ public class AccountServiceClient {
         return (body != null && !body.isBlank()) ? body : defaultMessage;
     }
 }
-
-
