@@ -1,0 +1,37 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_cash_transactions_table" author="alexlakers">
+        <preConditions>
+            <not>
+                <tableExists tableName="transfer_transactions"/>
+            </not>
+        </preConditions>
+        <createTable tableName="transfer_transactions">
+            <column name="transaction_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="from_account" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="to_account" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_status" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="varchar(1024)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="amount" type="DECIMAL(19,2)">
+                <constraints nullable="false"
+                             checkConstraint="amount >= 0"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="cash_transactions"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

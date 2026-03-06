@@ -1,0 +1,28 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="insert_accounts_data" author="alexlakers">
+
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="cash_transactions"/>
+            <sqlCheck expectedResult="0">SELECT COUNT(*)
+                                         FROM cash_transactions</sqlCheck>
+        </preConditions>
+
+        <insert tableName="transfer_transactions">
+            <column name="transaction_id" value="d3ee2929-212b-4077-af84-694a0e69b8e1"/>
+            <column name="from_account" value="alexeev"/>
+            <column name="to_account" value="sergeev"/>
+            <column name="transaction_status" value="WITHDRAW_PENDING"/>
+            <column name="message" value="Some message"/>
+            <column name="amount" valueNumeric="100.00"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="cash_transactions">
+                <where>account_holder IN ('alexeev')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
