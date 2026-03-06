@@ -53,14 +53,14 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private BigDecimal withdraw(TransferRequest request, TransferTransaction transaction) {
-        BigDecimal newBalance = accountServiceClient.withdrawCash(request.fromAccount(), request.amount());
+        BigDecimal newBalance = accountServiceClient.withdraw(request.fromAccount(), request.amount());
         updateStatus(transaction, TransferTransactionStatus.DEPOSIT_PENDING, null);
         return newBalance;
     }
 
     private TransferResponse deposit(TransferRequest request, TransferTransaction transaction, BigDecimal senderBalance) {
         try {
-            BigDecimal receiverBalance = accountServiceClient.depositCash(request.toAccount(), request.amount());
+            BigDecimal receiverBalance = accountServiceClient.deposit(request.toAccount(), request.amount());
             updateStatus(transaction, TransferTransactionStatus.SUCCESS, null);
             log.info("Перевод успешен. Отправитель: {}, сумма: {}", request.fromAccount(), request.amount());
             return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance);
@@ -78,7 +78,7 @@ public class TransferServiceImpl implements TransferService {
 
     private boolean compensate(TransferTransaction transaction) {
         try {
-            accountServiceClient.depositCash(transaction.getFromAccount(), transaction.getAmount());
+            accountServiceClient.deposit(transaction.getFromAccount(), transaction.getAmount());
             return true;
         } catch (Exception compensationError) {
             log.error("Ошибка при компенсации: {}", getMessage(compensationError));

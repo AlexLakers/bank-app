@@ -36,22 +36,35 @@ public class TransferServiceClient {
             String errorBody = e.getResponseBodyAsString();
             log.warn("Transfer-service: HTTP ошибка {}: {}", status, errorBody);
 
-            String userMessage = !errorBody.isBlank()
-                    ? errorBody
-                    : switch ((HttpStatus) status) {
-                case NOT_FOUND -> "Получатель не найден";
-                case BAD_REQUEST -> "Некорректный запрос";
-                case CONFLICT -> "На счете отправителя недостаточно средств";
-                default -> "Ошибка сервиса переводов: " + e.getStatusText();
-            };
+            String userMessage = getUserFriendlyMessage(status, errorBody);
             return ApiResult.error(userMessage);
 
         } catch (ResourceAccessException e) {
             log.error("Transfer-service: сетевая ошибка: {}", e.getMessage());
-            return ApiResult.error(" Сервис переводов временно недоступен");
+            return ApiResult.error("Сервис переводов временно недоступен. Проверьте соединение и повторите позже.");
         } catch (RestClientException e) {
             log.error("Transfer-service: неожиданная ошибка RestClient: {}", e.getMessage());
-            return ApiResult.error("Внутренняя ошибка сервиса переводов");
+            return ApiResult.error("Внутренняя ошибка сервиса переводов. Пожалуйста, обратитесь в поддержку.");
         }
+    }
+
+    private String getUserFriendlyMessage(HttpStatusCode status, String errorBody) {
+        HttpStatus httpStatus = (HttpStatus) status;
+
+        if (httpStatus == HttpStatus.CONFLICT) {
+            if (errorBody != null && (errorBody.contains("Insufficient funds") || errorBody.contains("недостаточно средств"))) {
+                return "Недостаточно средств на счёте отправителя.";
+            } else {
+                return "Перевод не выполнен, но средства возвращены. Попробуйте позже или проверьте счёт получателя.";
+            }
+        }
+
+        return switch (httpStatus) {
+            case NOT_FOUND -> "Счёт получателя не найден. Проверьте номер счёта.";
+            case BAD_REQUEST -> "Некорректный запрос. Проверьте введённые данные.";
+            case SERVICE_UNAVAILABLE -> "Сервис переводов временно недоступен. Попробуйте позже.";
+            case INTERNAL_SERVER_ERROR -> "Ошибка сервера при переводе. Пожалуйста, обратитесь в поддержку.";
+            default -> "Ошибка при выполнении перевода. Попробуйте ещё раз.";
+        };
     }
 }
