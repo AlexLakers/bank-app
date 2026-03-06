@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,93 +27,72 @@ public class TransferServiceImpl implements TransferService {
             AccountNotFoundException.class,
             InsufficientFundsException.class,
             AccountValidationException.class,
-            ExternalServiceException.class
+            ExternalServiceException.class,
+            TransferCompensatedException.class,
+            CompensationFailedException.class
     })
     public TransferResponse transfer(TransferRequest request) {
         TransferTransaction transaction = createTransaction(request);
 
         try {
             BigDecimal newBalanceSender = withdraw(request, transaction);
-            return depositOrCompensate(request, transaction, newBalanceSender);
+            return deposit(request, transaction, newBalanceSender);
         } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException e) {
-            failTransaction(transaction, e);
+            updateStatus(transaction, TransferTransactionStatus.FAILED, e.getMessage());
             throw e;
         } catch (ExternalServiceException e) {
-            pendingTransaction(transaction, e);
+            updateStatus(transaction, TransferTransactionStatus.WITHDRAW_PENDING, e.getMessage());
             throw e;
-        } catch (Exception e) {
-            failTransaction(transaction, "Внутренняя ошибка сервиса");
-            throw new RuntimeException("Внутренняя ошибка", e);
+        } catch (TransferCompensatedException e) {
+            updateStatus(transaction, TransferTransactionStatus.COMPENSATED, e.getMessage());
+            throw e;
+        } catch (CompensationFailedException e) {
+            updateStatus(transaction, TransferTransactionStatus.COMPENSATED_FAILED, e.getMessage());
+            throw e;
         }
     }
 
     private BigDecimal withdraw(TransferRequest request, TransferTransaction transaction) {
         BigDecimal newBalance = accountServiceClient.withdrawCash(request.fromAccount(), request.amount());
-        transaction.setStatus(TransferTransactionStatus.DEPOSIT_PENDING);
-        transactionRepository.save(transaction);
+        updateStatus(transaction, TransferTransactionStatus.DEPOSIT_PENDING, null);
         return newBalance;
     }
 
-    private TransferResponse depositOrCompensate(TransferRequest request, TransferTransaction transaction, BigDecimal senderBalance) {
+    private TransferResponse deposit(TransferRequest request, TransferTransaction transaction, BigDecimal senderBalance) {
         try {
-            BigDecimal newBalanceReceiver = accountServiceClient.depositCash(request.toAccount(), request.amount());
-            return completeSuccess(transaction, newBalanceReceiver, senderBalance);
+            BigDecimal receiverBalance = accountServiceClient.depositCash(request.toAccount(), request.amount());
+            updateStatus(transaction, TransferTransactionStatus.SUCCESS, null);
+            log.info("Перевод успешен. Отправитель: {}, сумма: {}", request.fromAccount(), request.amount());
+            return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance);
         } catch (Exception e) {
             boolean compensated = compensate(request, transaction, e);
-            if (!compensated) {
+            if (compensated) {
+                throw new TransferCompensatedException(
+                        "Перевод не выполнен, средства возвращены. Причина: " + getMessage(e));
+            } else {
                 throw new CompensationFailedException(
-                        "Перевод не выполнен, средства возвращены. Причина: " + extractMessage(e)
-                );
+                        "КРИТИЧЕСКАЯ ОШИБКА: деньги списаны, но не удалось вернуть. Причина: " + getMessage(e));
             }
-            throw e;
         }
     }
 
     private boolean compensate(TransferRequest request, TransferTransaction transaction, Exception originalError) {
         try {
-            accountServiceClient.depositCash(request.fromAccount(), request.amount());
-            transaction.setStatus(TransferTransactionStatus.COMPENSATED);
-            transaction.setMessage("Перевод не выполнен, деньги возвращены. Причина: " + extractMessage(originalError));
-            transactionRepository.save(transaction);
+            accountServiceClient.depositCash(request.fromAccount(), request.amount()); // возврат
             return true;
         } catch (Exception compensationError) {
-            transaction.setStatus(TransferTransactionStatus.COMPENSATED_FAILED);
-            transaction.setMessage("КРИТИЧЕСКАЯ ОШИБКА: деньги списаны, но не удалось вернуть. " +
-                                   "Оригинал: " + extractMessage(originalError) +
-                                   ", ошибка возврата: " + extractMessage(compensationError));
-            transactionRepository.save(transaction);
+            log.error("Ошибка при компенсации: {}", getMessage(compensationError));
             return false;
         }
     }
 
-    private TransferResponse completeSuccess(TransferTransaction transaction, BigDecimal receiverBalance, BigDecimal senderBalance) {
-        transaction.setStatus(TransferTransactionStatus.SUCCESS);
-        TransferTransaction successTransaction = transactionRepository.save(transaction);
-        log.info("Перевод успешен. Отправитель: {}, сумма: {}, новый баланс: {}",
-                transaction.getFromAccount(), transaction.getAmount(), senderBalance);
-        return new TransferResponse(successTransaction.getTransactionId().toString(), senderBalance, receiverBalance);
-    }
-
-
-    private void failTransaction(TransferTransaction transaction, Exception e) {
-        transaction.setStatus(TransferTransactionStatus.FAILED);
-        transaction.setMessage(e.getMessage());
-        transactionRepository.save(transaction);
-    }
-
-    private void failTransaction(TransferTransaction transaction, String message) {
-        transaction.setStatus(TransferTransactionStatus.FAILED);
+    private void updateStatus(TransferTransaction transaction, TransferTransactionStatus status, String message) {
+        transaction.setStatus(status);
         transaction.setMessage(message);
         transactionRepository.save(transaction);
     }
 
-    private void pendingTransaction(TransferTransaction transaction, ExternalServiceException e) {
-        transaction.setStatus(TransferTransactionStatus.WITHDRAW_PENDING);
-        transaction.setMessage(e.getMessage());
-        transactionRepository.save(transaction);
-    }
-
-    private String extractMessage(Exception e) {
+    private String getMessage(Exception e) {
         return e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
     }
 

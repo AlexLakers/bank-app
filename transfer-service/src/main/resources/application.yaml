@@ -2,9 +2,9 @@ spring:
   application:
     name: cash-service
   datasource:
-    url: jdbc:postgresql://${TRANSFER_DB_HOST:localhost}:${TRANSFER_DB_HOST_PORT:5434}/${TRANSFER_DB_NAME:cash_repository}
-    username: ${CASH_DB_USER:cashuser}
-    password: ${CASH_DB_PASS:cashpass}
+    url: jdbc:postgresql://${TRANSFER_DB_HOST:localhost}:${TRANSFER_DB_HOST_PORT:5435}/${TRANSFER_DB_NAME:transfer_repository}
+    username: ${CASH_DB_USER:transferuser}
+    password: ${CASH_DB_PASS:transferpass}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 20
