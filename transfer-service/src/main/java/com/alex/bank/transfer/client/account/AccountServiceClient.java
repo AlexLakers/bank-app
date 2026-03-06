@@ -1,4 +1,4 @@
-package client.account;
+package com.alex.bank.transfer.client.account;
 
 import com.alex.bank.transfer.dto.MoneyOperationRequest;
 import com.alex.bank.transfer.exception.AccountNotFoundException;

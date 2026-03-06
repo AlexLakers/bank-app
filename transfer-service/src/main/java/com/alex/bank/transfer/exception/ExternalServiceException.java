@@ -1,4 +1,4 @@
-package exception;
+package com.alex.bank.transfer.exception;
 
 public class ExternalServiceException extends RuntimeException {
     public ExternalServiceException(String message) {

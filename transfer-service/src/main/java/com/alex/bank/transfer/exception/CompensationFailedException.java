@@ -1,4 +1,4 @@
-package exception;
+package com.alex.bank.transfer.exception;
 
 public class CompensationFailedException extends RuntimeException{
     public CompensationFailedException(String message) {

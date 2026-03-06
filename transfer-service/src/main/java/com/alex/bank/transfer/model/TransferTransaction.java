@@ -1,4 +1,4 @@
-package model;
+package com.alex.bank.transfer.model;
 
 
 import lombok.*;
