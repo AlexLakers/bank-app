@@ -45,9 +45,12 @@ public class RestClientConfig {
                 .build();
     }
     @Bean
-    public RestClient transferRestClient(RestClient.Builder restClientBuilder) {
-        return RestClient.builder()
-                .baseUrl("http://localhost:8085")
+    //localhost:8085
+    public RestClient transferRestClient(RestClient.Builder restClientBuilder,
+                                         BankConfigProperties bankConfigProperties
+                                         ) {
+        return restClientBuilder
+                .baseUrl(bankConfigProperties.getBaseUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }

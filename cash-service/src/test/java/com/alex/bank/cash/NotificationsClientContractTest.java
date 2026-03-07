@@ -42,7 +42,6 @@ import static org.mockito.Mockito.when;
 @Import(NotificationsClientContractTest.TestRestClientConfig.class)
 public class NotificationsClientContractTest {
 
-
     @MockitoBean
     private OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -62,7 +61,7 @@ public class NotificationsClientContractTest {
     @Autowired
     private NotificationServiceClient notificationServiceClient;
 
-    @Test
+/*    @Test
     void shouldMatchContractWhenCheckingOwner() {
         String eventId = "3504103f-750d-4622-b6e9-dd9136a23b43";
         NotificationRequest request = new NotificationRequest(
@@ -81,7 +80,28 @@ public class NotificationsClientContractTest {
         assertNotNull(response);
         assertEquals(eventId, response.notificationId());
         assertEquals(EventStatus.PROCESSED, response.status());
+        assertNotNull(response.processedAt());
+    }*/
 
+    @Test
+    void shouldSendCashWithdrawalNotification() {
+        String eventId = "3504103f-750d-4622-b6e9-dd9136a23b43";
+        NotificationRequest request = new NotificationRequest(
+                eventId,
+                "cash-service",
+                EventType.CASH_WITHDRAWAL,
+                "Пользователь: alexeev выполнил: CASH_WITHDRAWAL на сумму: 200.00, новый баланс: 800.00",
+                Map.of(
+                        "transactionId", "3504103f-750d-4622-b6e9-dd9136a23b43",
+                        "accountHolder", "alexeev",
+                        "amount", 200.00,
+                        "newBalance", 800.00
+                ));
+
+        NotificationResponse response = notificationServiceClient.sendNotification(request);
+        assertNotNull(response);
+        assertEquals(eventId, response.notificationId());
+        assertEquals(EventStatus.PROCESSED, response.status());
         assertNotNull(response.processedAt());
     }
 

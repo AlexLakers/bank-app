@@ -3,7 +3,6 @@ package com.alex.bank.account.service.impl;
 import com.alex.bank.account.dto.AccountDto;
 import com.alex.bank.account.dto.AccountEditDto;
 import com.alex.bank.account.dto.MoneyOperationRequest;
-import com.alex.bank.account.dto.MoneyOperationResponse;
 import com.alex.bank.account.exception.AccountNotFoundException;
 import com.alex.bank.account.exception.CreatingPayloadOutboxException;
 import com.alex.bank.account.exception.InsufficientFundsException;

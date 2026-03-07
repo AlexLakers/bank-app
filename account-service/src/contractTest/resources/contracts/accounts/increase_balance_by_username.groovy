@@ -9,7 +9,7 @@ Contract.make {
     name "increase_balance_by_username"
     request {
         method 'PATCH'
-        url '/api/v1/accounts/alexeev/balance/increase'
+        url '/api/v1/accounts/sergeev/balance/increase'
         headers {
             header('Authorization': value(
                     consumer(regex('Bearer .*')),

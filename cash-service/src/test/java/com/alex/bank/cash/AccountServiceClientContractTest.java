@@ -58,7 +58,7 @@ public class AccountServiceClientContractTest {
 
     @Test
     void shouldIncreaseBalance() {
-        String owner = "alexeev";
+        String owner = "sergeev";
         BigDecimal amount = new BigDecimal("200.00");
 
         BigDecimal newBalance = accountServiceClient.depositCash(owner, amount);

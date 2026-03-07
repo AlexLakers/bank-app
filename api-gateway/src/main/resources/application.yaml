@@ -42,6 +42,16 @@ spring:
                 - RewritePath=/(?<path>.*), /api/v1/$\{path}
                 - name: JwtTokenRelay
 
+            - id: transfer-service
+              uri: lb://transfer-service
+              predicates:
+                - Path=/transfer/**
+              filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
+                - name: JwtTokenRelay
+
+
+
   config:
     import: "consul:"
 

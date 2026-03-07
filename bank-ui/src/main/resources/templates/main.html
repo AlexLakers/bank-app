@@ -98,7 +98,7 @@
                                     <label for="to_account">Кому</label>
                                 </h6>
                                 <p>
-                                    <select class="form-select" id="to_account" name="username" required>
+                                    <select class="form-select" id="to_account" name="toAccount" required>
                                         <option th:each="account : ${accounts}" th:value="${account.username}" th:text="${account.name}"/>
                                     </select>
                                 </p>
@@ -108,7 +108,7 @@
                                     <label for="transfer_value">Сумма, руб.</label>
                                 </h6>
                                 <p>
-                                    <input type="text" class="form-control" name="value" id="transfer_value" placeholder="100" required>
+                                    <input type="text" class="form-control" name="amount" id="transfer_value" placeholder="100" required>
                                 </p>
                             </div>
                             <button type="submit" class="btn btn-secondary">Перевести</button>
