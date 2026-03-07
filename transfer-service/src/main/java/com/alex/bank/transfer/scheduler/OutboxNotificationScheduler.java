@@ -3,8 +3,7 @@ package com.alex.bank.transfer.scheduler;
 
 
 import com.alex.bank.transfer.client.notification.NotificationServiceClient;
-import com.alex.bank.transfer.dto.NotificationRequest;
-import com.alex.bank.transfer.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.*;
 import com.alex.bank.transfer.model.Outbox;
 import com.alex.bank.transfer.repository.OutboxRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
 
 import java.util.List;
 import java.util.Map;

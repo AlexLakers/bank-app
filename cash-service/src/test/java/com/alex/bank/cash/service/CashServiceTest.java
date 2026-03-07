@@ -1,30 +1,25 @@
 package com.alex.bank.cash.service;
 
 import com.alex.bank.cash.client.account.AccountServiceClient;
-import com.alex.bank.cash.dto.CashRequest;
-import com.alex.bank.cash.dto.CashResponse;
-import com.alex.bank.cash.exception.*;
 import com.alex.bank.cash.model.*;
 import com.alex.bank.cash.repository.CashTransactionRepository;
 import com.alex.bank.cash.repository.OutboxRepository;
 import com.alex.bank.cash.service.impl.CashServiceImpl;
+import com.alex.bank.common.dto.notification.EventType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.alex.bank.common.dto.cash.*;
+import com.alex.bank.common.exceptions.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
-
-import java.math.BigDecimal;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -129,16 +124,15 @@ class CashServiceTest {
                 });
 
         when(accountServiceClient.withdrawCash(username, amount))
-                .thenThrow(new AccountNotFoundException("Account not found"));
+                .thenThrow(new AccountNotFoundException(username));
 
         assertThatThrownBy(() -> cashService.processCash(username, request))
-                .isInstanceOf(AccountNotFoundException.class)
-                .hasMessageContaining("Account not found");
+                .isInstanceOf(AccountNotFoundException.class);
 
         verify(cashTransactionRepository, times(2)).save(transactionCaptor.capture());
         CashTransaction failedTransaction = transactionCaptor.getAllValues().get(1);
         assertThat(failedTransaction.getStatus()).isEqualTo(CashTransactionStatus.FAILED);
-        assertThat(failedTransaction.getMessage()).isEqualTo("Account not found");
+        assertThat(failedTransaction.getMessage()).isEqualTo("Аккаунт с именем:  testUser не найден");
 
         verify(outboxRepository, never()).save(any());
     }

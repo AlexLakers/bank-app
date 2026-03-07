@@ -1,10 +1,9 @@
 package com.alex.bank.transfer.service.impl;
 
 import com.alex.bank.transfer.client.account.AccountServiceClient;
-import com.alex.bank.transfer.dto.TransferRequest;
-import com.alex.bank.transfer.dto.TransferResponse;
+import com.alex.bank.common.dto.transfer.*;
 import com.alex.bank.transfer.exception.*;
-import com.alex.bank.transfer.model.EventType;
+import com.alex.bank.common.dto.notification.EventType;
 import com.alex.bank.transfer.model.Outbox;
 import com.alex.bank.transfer.model.TransferTransaction;
 import com.alex.bank.transfer.model.TransferTransactionStatus;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.alex.bank.common.exceptions.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

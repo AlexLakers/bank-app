@@ -1,9 +1,11 @@
 package com.alex.bank.ui.client;
 
 
-import com.alex.bank.ui.dto.ApiResult;
-import com.alex.bank.ui.dto.cash.CashRequest;
-import com.alex.bank.ui.dto.cash.CashResponse;
+//import com.alex.bank.ui.dto.ApiResult;
+//import com.alex.bank.ui.dto.cash.CashRequest;
+//import com.alex.bank.ui.dto.cash.CashResponse;
+import com.alex.bank.common.dto.cash.*;
+import com.alex.bank.common.dto.ui.ApiResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

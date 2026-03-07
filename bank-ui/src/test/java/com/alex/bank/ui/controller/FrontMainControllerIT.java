@@ -1,7 +1,8 @@
 package com.alex.bank.ui.controller;
 
-import com.alex.bank.ui.dto.account.AccountDto;
-import com.alex.bank.ui.dto.account.AccountEditDto;
+//import com.alex.bank.ui.dto.account.AccountDto;
+//import com.alex.bank.ui.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.tomakehurst.wiremock.client.WireMock;

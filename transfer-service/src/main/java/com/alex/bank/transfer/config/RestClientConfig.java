@@ -45,7 +45,7 @@ public class RestClientConfig {
 
             OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
             if (authorizedClient == null) {
-                throw new IllegalStateException("No authorized client for registration 'ctransfer-service'");
+                throw new IllegalStateException("No authorized client for registration 'transfer-service'");
             }
 
             request.getHeaders().setBearerAuth(authorizedClient.getAccessToken().getTokenValue());

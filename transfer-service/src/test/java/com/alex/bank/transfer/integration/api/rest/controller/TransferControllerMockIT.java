@@ -1,8 +1,7 @@
 package com.alex.bank.transfer.integration.api.rest.controller;
 
 import com.alex.bank.transfer.api.rest.controller.TransferController;
-import com.alex.bank.transfer.dto.TransferRequest;
-import com.alex.bank.transfer.dto.TransferResponse;
+import com.alex.bank.common.dto.transfer.*;
 import com.alex.bank.transfer.security.SecurityConfig;
 import com.alex.bank.transfer.service.TransferService;
 import com.fasterxml.jackson.databind.ObjectMapper;

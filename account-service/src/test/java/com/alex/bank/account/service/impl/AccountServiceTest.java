@@ -1,17 +1,23 @@
 package com.alex.bank.account.service.impl;
 
 
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.AccountEditDto;
-import com.alex.bank.account.exception.AccountNotFoundException;
-import com.alex.bank.account.exception.CreatingPayloadOutboxException;
-import com.alex.bank.account.exception.InsufficientFundsException;
+//import com.alex.bank.account.dto.AccountDto;
+//import com.alex.bank.account.dto.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+import com.alex.bank.common.exceptions.AccountNotFoundException;
+import com.alex.bank.common.exceptions.AccountNotFoundException.*;
+//import com.alex.bank.account.exception.AccountNotFoundException;
+//import com.alex.bank.account.exception.CreatingPayloadOutboxException;
+//import com.alex.bank.account.exception.InsufficientFundsException;
 import com.alex.bank.account.mapper.AccountMapper;
 import com.alex.bank.account.model.Account;
-import com.alex.bank.account.model.EventType;
+import com.alex.bank.common.dto.notification.EventType;
 import com.alex.bank.account.model.Outbox;
 import com.alex.bank.account.repository.AccountRepository;
 import com.alex.bank.account.repository.OutboxRepository;
+import com.alex.bank.common.exceptions.CreatingPayloadOutboxException;
+import com.alex.bank.common.exceptions.InsufficientFundsException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +88,6 @@ class AccountServiceTest {
         accountEditDto = new AccountEditDto("Updated Name", birthdate);
     }
 
-    // === getAccountByUsername (без изменений) ===
     @Test
     void getAccountByUsername_shouldReturnAccountDto_whenAccountExists() {
         when(accountRepository.findAccountByUsername(username)).thenReturn(Optional.of(account));

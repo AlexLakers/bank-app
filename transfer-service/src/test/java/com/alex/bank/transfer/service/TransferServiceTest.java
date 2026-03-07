@@ -1,10 +1,11 @@
 package com.alex.bank.transfer.service;
 
 import com.alex.bank.transfer.client.account.AccountServiceClient;
-import com.alex.bank.transfer.dto.TransferRequest;
-import com.alex.bank.transfer.dto.TransferResponse;
-import com.alex.bank.transfer.exception.*;
-import com.alex.bank.transfer.model.EventType;
+import com.alex.bank.common.dto.transfer.*;
+import com.alex.bank.common.exceptions.*;
+import com.alex.bank.common.dto.notification.EventType;
+import com.alex.bank.transfer.exception.CompensationFailedException;
+import com.alex.bank.transfer.exception.TransferCompensatedException;
 import com.alex.bank.transfer.model.Outbox;
 import com.alex.bank.transfer.model.TransferTransaction;
 import com.alex.bank.transfer.model.TransferTransactionStatus;
@@ -103,15 +104,15 @@ class TransferServiceTest {
         when(transactionRepository.save(any(TransferTransaction.class)))
                 .thenAnswer(invocation -> copyOf(invocation.getArgument(0)));
         when(accountServiceClient.withdraw(eq(fromAccount), eq(amount)))
-                .thenThrow(new AccountNotFoundException("Account not found"));
+                .thenThrow(new AccountNotFoundException(fromAccount));
 
         assertThatThrownBy(() -> transferService.transfer(request))
                 .isInstanceOf(AccountNotFoundException.class)
-                .hasMessageContaining("Account not found");
+                .hasMessageContaining("Аккаунт с именем:  alexeev не найден");
 
         verify(transactionRepository, times(2)).save(transactionCaptor.capture());
         assertThat(transactionCaptor.getAllValues().get(1).getStatus()).isEqualTo(TransferTransactionStatus.FAILED);
-        assertThat(transactionCaptor.getAllValues().get(1).getMessage()).isEqualTo("Account not found");
+        assertThat(transactionCaptor.getAllValues().get(1).getMessage()).isEqualTo("Аккаунт с именем:  alexeev не найден");
         verify(outboxRepository, never()).save(any());
     }
 

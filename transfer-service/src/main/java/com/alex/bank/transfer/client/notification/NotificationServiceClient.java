@@ -2,8 +2,7 @@ package com.alex.bank.transfer.client.notification;
 
 
 
-import com.alex.bank.transfer.dto.NotificationRequest;
-import com.alex.bank.transfer.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;

@@ -2,8 +2,6 @@ package com.alex.bank.cash.scheduler;
 
 
 import com.alex.bank.cash.client.notification.NotificationServiceClient;
-import com.alex.bank.cash.dto.NotificationRequest;
-import com.alex.bank.cash.dto.NotificationResponse;
 import com.alex.bank.cash.model.Outbox;
 import com.alex.bank.cash.repository.OutboxRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import com.alex.bank.common.dto.notification.*;
 
 import java.util.List;
 import java.util.Map;

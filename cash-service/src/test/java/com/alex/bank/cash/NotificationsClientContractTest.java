@@ -2,10 +2,10 @@ package com.alex.bank.cash;
 
 
 import com.alex.bank.cash.client.notification.NotificationServiceClient;
-import com.alex.bank.cash.dto.EventStatus;
-import com.alex.bank.cash.dto.NotificationRequest;
-import com.alex.bank.cash.dto.NotificationResponse;
-import com.alex.bank.cash.model.EventType;
+import com.alex.bank.common.dto.notification.EventStatus;
+import com.alex.bank.common.dto.notification.EventType;
+import com.alex.bank.common.dto.notification.NotificationRequest;
+import com.alex.bank.common.dto.notification.NotificationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,27 +61,6 @@ public class NotificationsClientContractTest {
     @Autowired
     private NotificationServiceClient notificationServiceClient;
 
-/*    @Test
-    void shouldMatchContractWhenCheckingOwner() {
-        String eventId = "3504103f-750d-4622-b6e9-dd9136a23b43";
-        NotificationRequest request = new NotificationRequest(
-                eventId,
-                "account-service",
-                EventType.ACCOUNT_UPDATED,
-                "Данные пользователя alexeev были обновлены",
-                Map.of(
-                        "username", "alexeev",
-                        "name", "Alexeev Alexeyy",
-                        "balance", 10000.00,
-                        "birthdate", "1993-01-21"
-                ));
-
-        NotificationResponse response = notificationServiceClient.sendNotification(request);
-        assertNotNull(response);
-        assertEquals(eventId, response.notificationId());
-        assertEquals(EventStatus.PROCESSED, response.status());
-        assertNotNull(response.processedAt());
-    }*/
 
     @Test
     void shouldSendCashWithdrawalNotification() {

@@ -1,8 +1,10 @@
 package com.alex.bank.ui.client;
 
-import com.alex.bank.ui.dto.ApiResult;
-import com.alex.bank.ui.dto.transfer.TransferRequest;
-import com.alex.bank.ui.dto.transfer.TransferResponse;
+//import com.alex.bank.ui.dto.ApiResult;
+//import com.alex.bank.ui.dto.transfer.TransferRequest;
+//import com.alex.bank.ui.dto.transfer.TransferResponse;
+import com.alex.bank.common.dto.transfer.*;
+import com.alex.bank.common.dto.ui.ApiResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -3,10 +3,7 @@ package com.alex.bank.transfer;
 
 
 import com.alex.bank.transfer.client.notification.NotificationServiceClient;
-import com.alex.bank.transfer.dto.EventStatus;
-import com.alex.bank.transfer.dto.NotificationRequest;
-import com.alex.bank.transfer.dto.NotificationResponse;
-import com.alex.bank.transfer.model.EventType;
+import com.alex.bank.common.dto.notification.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

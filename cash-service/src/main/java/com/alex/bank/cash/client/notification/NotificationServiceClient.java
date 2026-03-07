@@ -1,12 +1,10 @@
 package com.alex.bank.cash.client.notification;
 
 
-import com.alex.bank.cash.dto.NotificationRequest;
-import com.alex.bank.cash.dto.NotificationResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import com.alex.bank.common.dto.notification.*;
 
 @Component
 public class NotificationServiceClient {

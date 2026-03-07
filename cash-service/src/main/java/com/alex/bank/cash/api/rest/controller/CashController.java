@@ -1,13 +1,12 @@
 package com.alex.bank.cash.api.rest.controller;
 
-import com.alex.bank.cash.dto.CashRequest;
-import com.alex.bank.cash.dto.CashResponse;
 import com.alex.bank.cash.service.CashService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import com.alex.bank.common.dto.cash.*;
 
 @RestController
 @RequestMapping("/api/v1/cash")

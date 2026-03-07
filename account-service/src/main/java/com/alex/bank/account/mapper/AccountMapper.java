@@ -1,7 +1,9 @@
 package com.alex.bank.account.mapper;
 
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+//import com.alex.bank.account.dto.AccountDto;
+//import com.alex.bank.account.dto.AccountEditDto;
 import com.alex.bank.account.model.Account;
 import org.mapstruct.*;
 
