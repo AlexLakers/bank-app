@@ -1,6 +1,6 @@
-package com.alex.bank.cash;
+package com.alex.bank.transfer;
 
-import com.alex.bank.cash.client.account.AccountServiceClient;
+import com.alex.bank.transfer.client.account.AccountServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class AccountServiceClientContractTest {
         String owner = "sergeev";
         BigDecimal amount = new BigDecimal("200.00");
 
-        BigDecimal newBalance = accountServiceClient.depositCash(owner, amount);
+        BigDecimal newBalance = accountServiceClient.deposit(owner, amount);
 
         assertNotNull(newBalance);
         assertEquals(new BigDecimal("1200.00"), newBalance);
@@ -72,7 +72,7 @@ public class AccountServiceClientContractTest {
         String owner = "alexeev";
         BigDecimal amount = new BigDecimal("200.00");
 
-        BigDecimal newBalance = accountServiceClient.withdrawCash(owner, amount);
+        BigDecimal newBalance = accountServiceClient.withdraw(owner, amount);
 
         assertNotNull(newBalance);
         assertEquals(new BigDecimal("800.00"), newBalance);
