@@ -39,8 +39,7 @@ public abstract class BaseNotificationsContractTest {
         NotificationResponse mockResponse = new NotificationResponse(
                 "3504103f-750d-4622-b6e9-dd9136a23b43",
                 EventStatus.PROCESSED,
-                LocalDateTime.parse("2026-03-01 00:47:24.775009",
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"))
+                LocalDateTime.parse("2026-03-01T00:47:24.775009")
         );
 
         when(notificationService.processNotification(any(NotificationRequest.class)))
