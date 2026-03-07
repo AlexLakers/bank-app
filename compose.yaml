@@ -3,35 +3,34 @@ services:
     image: consul:1.15.4
     command: ["agent", "-dev", "-client=0.0.0.0"]
     ports:
-      - "8500:8500"
+      - "${CONSUL_HOST_PORT}:${CONSUL_PORT}"
     restart: always
+    networks:
+      backend-net:
 
   account-db:
     image: postgres:17.0
     ports:
-      - "5433:5432"
+      - "${DB_HOST_PORT_ACCOUNT}:${DB_PORT_ACCOUNT}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=accountuser
-      - POSTGRES_PASSWORD=accountpass
-      - POSTGRES_DB=account_repository
+      - POSTGRES_USER=${DB_USER_ACCOUNT}
+      - POSTGRES_PASSWORD=${DB_PASS_ACCOUNT}
+      - POSTGRES_DB=${DB_NAME_ACCOUNT}
     volumes:
       - db-data-account:/var/lib/postgresql/data
     networks:
       backend-net:
 
-
   cash-db:
     image: postgres:17.0
     ports:
-      - "5434:5432"
+      - "${DB_HOST_PORT_CASH}:${DB_PORT_CASH}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=cashuser
-      - POSTGRES_PASSWORD=cashpass
-      - POSTGRES_DB=cash_repository
+      - POSTGRES_USER=${DB_USER_CASH}
+      - POSTGRES_PASSWORD=${DB_PASS_CASH}
+      - POSTGRES_DB=${DB_NAME_CASH}
     volumes:
       - db-data-cash:/var/lib/postgresql/data
     networks:
@@ -40,13 +39,12 @@ services:
   transfer-db:
     image: postgres:17.0
     ports:
-      - "5435:5432"
+      - "${DB_HOST_PORT_TRANSFER}:${DB_PORT_TRANSFER}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=transferuser
-      - POSTGRES_PASSWORD=transferpass
-      - POSTGRES_DB=transfer_repository
+      - POSTGRES_USER=${DB_USER_TRANSFER}
+      - POSTGRES_PASSWORD=${DB_PASS_TRANSFER}
+      - POSTGRES_DB=${DB_NAME_TRANSFER}
     volumes:
       - db-data-transfer:/var/lib/postgresql/data
     networks:
@@ -55,15 +53,16 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_HOSTNAME=localhost
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN_LOGIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASS}
+      - KC_HOSTNAME=${KEYCLOAK_HOST}
+      - KC_HOSTNAME_ALIASES=${KEYCLOAK_HOST_ALIASES}
     ports:
-      - "8080:8080"
+      - "${KEYCLOAK_HOST_PORT}:${KEYCLOAK_PORT}"
     restart: always
     command:
       - start-dev
-      - --http-port=8080
+      - --http-port=${KEYCLOAK_PORT}
     networks:
       backend-net:
         aliases:
