@@ -1,4 +1,4 @@
-package com.alex.bank.ui.dto.cash;
+package com.alex.bank.common.dto.cash;
 
 public enum CashAction {
     PUT,

@@ -1,9 +1,6 @@
 package com.alex.bank.cash.integration.api.rest.controller;
 
 import com.alex.bank.cash.api.rest.controller.CashController;
-import com.alex.bank.cash.dto.CashRequest;
-import com.alex.bank.cash.dto.CashResponse;
-import com.alex.bank.cash.model.CashAction;
 import com.alex.bank.cash.security.SecurityConfig;
 import com.alex.bank.cash.service.CashService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.alex.bank.common.dto.cash.*;
 
 @WebMvcTest(CashController.class)
 @Import(SecurityConfig.class)

@@ -1,4 +1,4 @@
-package com.alex.bank.ui.dto.transfer;
+package com.alex.bank.common.dto.transfer;
 
 import java.math.BigDecimal;
 

@@ -1,9 +1,11 @@
 package com.alex.bank.ui.client;
 
 
-import com.alex.bank.ui.dto.ApiResult;
-import com.alex.bank.ui.dto.account.AccountDto;
-import com.alex.bank.ui.dto.account.AccountEditDto;
+//import com.alex.bank.ui.dto.ApiResult;
+/*import com.alex.bank.ui.dto.account.AccountDto;
+import com.alex.bank.ui.dto.account.AccountEditDto;*/
+import com.alex.bank.common.dto.ui.ApiResult;
+import com.alex.bank.common.dto.account.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;

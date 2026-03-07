@@ -1,20 +1,27 @@
 package com.alex.bank.cash.service.impl;
 
 import com.alex.bank.cash.client.account.AccountServiceClient;
-import com.alex.bank.cash.dto.CashRequest;
-import com.alex.bank.cash.dto.CashResponse;
-import com.alex.bank.cash.exception.*;
 import com.alex.bank.cash.model.*;
 import com.alex.bank.cash.repository.CashTransactionRepository;
 import com.alex.bank.cash.repository.OutboxRepository;
 import com.alex.bank.cash.service.CashService;
+import com.alex.bank.common.dto.cash.CashRequest;
+import com.alex.bank.common.dto.cash.CashResponse;
+import com.alex.bank.common.dto.cash.CashAction;
+import com.alex.bank.common.dto.notification.EventType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.alex.bank.common.exceptions.ExternalServiceException;
+import com.alex.bank.common.exceptions.AccountValidationException;
+import com.alex.bank.common.exceptions.AccountNotFoundException;
+import com.alex.bank.common.exceptions.InsufficientFundsException;
+import com.alex.bank.common.exceptions.CreatingPayloadOutboxException;
+
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -54,8 +61,7 @@ public class CashServiceImpl implements CashService {
             CashResponse cashResponse = handleSuccess(transaction, newBalance, action, request.amount());
             saveOutbox(cashResponse, transaction);
             return cashResponse;
-        } catch (Exception e/*AccountNotFoundException | InsufficientFundsException | AccountValidationException |
-                 ExternalServiceException e*/) {
+        } catch (Exception e) {
             throw handleFailure(transaction, e);
         }
 

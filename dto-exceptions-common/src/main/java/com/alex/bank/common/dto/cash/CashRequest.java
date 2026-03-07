@@ -1,6 +1,5 @@
-package com.alex.bank.cash.dto;
+package com.alex.bank.common.dto.cash;
 
-import com.alex.bank.cash.model.CashAction;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 

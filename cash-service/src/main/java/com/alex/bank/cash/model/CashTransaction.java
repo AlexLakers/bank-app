@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
+import com.alex.bank.common.dto.cash.CashAction;
 import java.math.BigDecimal;
 import java.util.UUID;
 

@@ -1,11 +1,13 @@
 package com.alex.bank.cash.client.account;
 
-import com.alex.bank.cash.dto.MoneyOperationRequest;
-import com.alex.bank.cash.exception.AccountNotFoundException;
-import com.alex.bank.cash.exception.AccountValidationException;
-import com.alex.bank.cash.exception.ExternalServiceException;
-import com.alex.bank.cash.exception.InsufficientFundsException;
+//import com.alex.bank.cash.dto.MoneyOperationRequest;
+//import com.alex.bank.cash.exception.AccountNotFoundException;
+//import com.alex.bank.cash.exception.AccountValidationException;
+//import com.alex.bank.cash.exception.ExternalServiceException;
+//import com.alex.bank.cash.exception.InsufficientFundsException;
 import lombok.RequiredArgsConstructor;
+import com.alex.bank.common.exceptions.*;
+import com.alex.bank.common.dto.account.MoneyOperationRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

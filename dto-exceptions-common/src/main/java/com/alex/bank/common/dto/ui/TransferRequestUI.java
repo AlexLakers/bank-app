@@ -1,4 +1,4 @@
-package com.alex.bank.ui.dto.transfer;
+package com.alex.bank.common.dto.ui;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

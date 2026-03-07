@@ -1,4 +1,4 @@
-package com.alex.bank.ui.dto;
+package com.alex.bank.common.dto.ui;
 
 public record ApiResult<T>(T payload, String error, String info) {
     public static <T> ApiResult<T> success(T payload, String info) {
