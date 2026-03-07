@@ -71,7 +71,7 @@ public class NotificationsClientContractTest {
                 "Данные пользователя alexeev были обновлены",
                 Map.of(
                         "username", "alexeev",
-                        "name", "Alexeev Alexeyy",
+                        "name", "Alexeev Alexey",
                         "balance", 10000.00,
                         "birthdate", "1993-01-21"
                 ));

@@ -1,11 +1,12 @@
-package com.alex.bank.cash;
+package com.alex.bank.transfer;
 
 
-import com.alex.bank.cash.client.notification.NotificationServiceClient;
-import com.alex.bank.cash.dto.EventStatus;
-import com.alex.bank.cash.dto.NotificationRequest;
-import com.alex.bank.cash.dto.NotificationResponse;
-import com.alex.bank.cash.model.EventType;
+
+import com.alex.bank.transfer.client.notification.NotificationServiceClient;
+import com.alex.bank.transfer.dto.EventStatus;
+import com.alex.bank.transfer.dto.NotificationRequest;
+import com.alex.bank.transfer.dto.NotificationResponse;
+import com.alex.bank.transfer.model.EventType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.when;
 @Import(NotificationsClientContractTest.TestRestClientConfig.class)
 public class NotificationsClientContractTest {
 
+
     @MockitoBean
     private OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -61,41 +63,21 @@ public class NotificationsClientContractTest {
     @Autowired
     private NotificationServiceClient notificationServiceClient;
 
-/*    @Test
-    void shouldMatchContractWhenCheckingOwner() {
-        String eventId = "3504103f-750d-4622-b6e9-dd9136a23b43";
-        NotificationRequest request = new NotificationRequest(
-                eventId,
-                "account-service",
-                EventType.ACCOUNT_UPDATED,
-                "Данные пользователя alexeev были обновлены",
-                Map.of(
-                        "username", "alexeev",
-                        "name", "Alexeev Alexeyy",
-                        "balance", 10000.00,
-                        "birthdate", "1993-01-21"
-                ));
-
-        NotificationResponse response = notificationServiceClient.sendNotification(request);
-        assertNotNull(response);
-        assertEquals(eventId, response.notificationId());
-        assertEquals(EventStatus.PROCESSED, response.status());
-        assertNotNull(response.processedAt());
-    }*/
-
     @Test
-    void shouldSendCashWithdrawalNotification() {
+    void shouldSendTransferPerformedNotification() {
         String eventId = "3504103f-750d-4622-b6e9-dd9136a23b43";
         NotificationRequest request = new NotificationRequest(
                 eventId,
-                "cash-service",
-                EventType.CASH_WITHDRAWAL,
-                "Пользователь: alexeev выполнил: CASH_WITHDRAWAL на сумму: 200.00, новый баланс: 800.00",
+                "transfer-service",
+                EventType.TRANSFER_PERFORMED,
+                "alexeev выполнил перевод sergeev на сумму 200.00, новый баланс отправителя 800.00, новый баланс получателя 1200.00",
                 Map.of(
                         "transactionId", "3504103f-750d-4622-b6e9-dd9136a23b43",
-                        "accountHolder", "alexeev",
+                        "fromAccount", "alexeev",
+                        "toAccount", "sergeev",
                         "amount", 200.00,
-                        "newBalance", 800.00
+                        "newBalanceSender", 800.00,
+                        "newBalanceReceiver", 1200.00
                 ));
 
         NotificationResponse response = notificationServiceClient.sendNotification(request);
