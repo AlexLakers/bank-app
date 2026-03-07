@@ -1,8 +1,9 @@
 package com.alex.bank.transfer.service;
 
 
-import com.alex.bank.transfer.dto.TransferRequest;
-import com.alex.bank.transfer.dto.TransferResponse;
+
+import com.alex.bank.common.dto.transfer.*;
+import com.alex.bank.transfer.*;
 
 public interface TransferService {
 

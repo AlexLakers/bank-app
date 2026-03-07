@@ -1,11 +1,8 @@
 package com.alex.bank.transfer.client.account;
 
 
-import com.alex.bank.transfer.dto.MoneyOperationRequest;
-import com.alex.bank.transfer.exception.AccountNotFoundException;
-import com.alex.bank.transfer.exception.AccountValidationException;
-import com.alex.bank.transfer.exception.ExternalServiceException;
-import com.alex.bank.transfer.exception.InsufficientFundsException;
+import com.alex.bank.common.dto.account.MoneyOperationRequest;
+import com.alex.bank.common.exceptions.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

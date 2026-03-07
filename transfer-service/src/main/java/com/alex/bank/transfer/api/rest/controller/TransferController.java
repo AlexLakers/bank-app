@@ -1,8 +1,7 @@
 package com.alex.bank.transfer.api.rest.controller;
 
 
-import com.alex.bank.transfer.dto.TransferRequest;
-import com.alex.bank.transfer.dto.TransferResponse;
+import com.alex.bank.common.dto.transfer.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
