@@ -1,24 +1,7 @@
 package contracts.notifications
 
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
+
 import org.springframework.cloud.contract.spec.Contract
-
-/*
-String eventId,
-
-@NotBlank(message = "Отправитель не может быть пустым")
-String source,
-
-@NotNull(message = "Тип события не может быть null")
-EventType eventType,
-
-          String message,
-
-@NotNull(message = "Полезные данные не указаны")
-Map<String,Object> payload) {
-class process_input_notification {
-*/
 
 Contract.make {
     description '''Process input notification request:
@@ -26,13 +9,13 @@ Contract.make {
         source=account-service,
         eventType=ACCOUNT_UPDATED,
         message=Данные пользователя alexeev были обновлены,
-        payload={"username":"alexeev","name":"Alexeev Alexeyy","balance":10000.00,"birthdate":"1993-01-21"}
+        payload={"username":"alexeev","name":"Alexeev Alexey","balance":10000.00,"birthdate":"1993-01-21"}
         and return notification response:
         notificationId=3504103f-750d-4622-b6e9-dd9136a23b43,
         status=PROCESSED,
         processedAt=2026-03-01T00:47:24.775009
     '''
-    name 'process_input_notification'
+    name 'process_input_notification_account'
 
     request {
         method POST()
@@ -51,7 +34,7 @@ Contract.make {
                 message: 'Данные пользователя alexeev были обновлены',
                 payload: [
                         username: 'alexeev',
-                        name: 'Alexeev Alexeyy',
+                        name: 'Alexeev Alexey',
                         balance: 10000.00,
                         birthdate: '1993-01-21'
                 ]
