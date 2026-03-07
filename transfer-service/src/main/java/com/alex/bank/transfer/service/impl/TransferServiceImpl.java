@@ -4,16 +4,22 @@ import com.alex.bank.transfer.client.account.AccountServiceClient;
 import com.alex.bank.transfer.dto.TransferRequest;
 import com.alex.bank.transfer.dto.TransferResponse;
 import com.alex.bank.transfer.exception.*;
+import com.alex.bank.transfer.model.EventType;
+import com.alex.bank.transfer.model.Outbox;
 import com.alex.bank.transfer.model.TransferTransaction;
 import com.alex.bank.transfer.model.TransferTransactionStatus;
+import com.alex.bank.transfer.repository.OutboxRepository;
 import com.alex.bank.transfer.repository.TransferTransactionRepository;
 import com.alex.bank.transfer.service.TransferService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -22,6 +28,8 @@ public class TransferServiceImpl implements TransferService {
 
     private final TransferTransactionRepository transactionRepository;
     private final AccountServiceClient accountServiceClient;
+    private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional(noRollbackFor = {
             AccountNotFoundException.class,
@@ -36,7 +44,9 @@ public class TransferServiceImpl implements TransferService {
 
         try {
             BigDecimal newBalanceSender = withdraw(request, transaction);
-            return deposit(request, transaction, newBalanceSender);
+            TransferResponse response = deposit(request, transaction, newBalanceSender);
+            saveOutbox(response, transaction);
+            return response;
         } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException e) {
             updateStatus(transaction, TransferTransactionStatus.FAILED, e.getMessage());
             throw e;
@@ -49,6 +59,26 @@ public class TransferServiceImpl implements TransferService {
         } catch (CompensationFailedException e) {
             updateStatus(transaction, TransferTransactionStatus.COMPENSATED_FAILED, e.getMessage());
             throw e;
+        }
+    }
+
+    private void saveOutbox(TransferResponse payload, TransferTransaction transaction) {
+        try {
+            String payloadJson = objectMapper.writeValueAsString(payload);
+
+            Outbox outbox = Outbox.builder()
+                    .source("transfer-service")
+                    .eventType(EventType.TRANSFER_PERFORMED)
+                    .payload(payloadJson)
+                    .message("%1$s выполнил перевод %2$s на сумму %3$s, новый баланс отправителя %4$s, новый баланс получателя %5$s"
+                            .formatted(transaction.getFromAccount(), transaction.getToAccount(),
+                                    transaction.getAmount(), payload.newBalanceSender(), payload.newBalanceReceiver()))
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            outboxRepository.save(outbox);
+        } catch (JsonProcessingException e) {
+            log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
+                    transaction.getTransactionId(), e);
         }
     }
 
