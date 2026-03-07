@@ -17,6 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<String> handleAccountNotFoundException(AccountNotFoundException ex) {
         log.error("Account not found: {}", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 

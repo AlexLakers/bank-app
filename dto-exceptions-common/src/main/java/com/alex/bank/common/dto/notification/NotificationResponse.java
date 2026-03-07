@@ -1,4 +1,4 @@
-package com.alex.bank.account.dto;
+package com.alex.bank.common.dto.notification;
 
 import java.time.LocalDateTime;
 

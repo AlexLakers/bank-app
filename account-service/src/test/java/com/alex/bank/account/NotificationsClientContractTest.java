@@ -1,10 +1,13 @@
 package com.alex.bank.account;
 
 import com.alex.bank.account.client.notification.NotificationServiceClient;
-import com.alex.bank.account.dto.EventStatus;
-import com.alex.bank.account.dto.NotificationRequest;
-import com.alex.bank.account.dto.NotificationResponse;
-import com.alex.bank.account.model.EventType;
+import com.alex.bank.common.dto.notification.EventStatus;
+//import com.alex.bank.account.dto.NotificationRequest;
+//import com.alex.bank.account.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.NotificationResponse;
+import com.alex.bank.common.dto.notification.NotificationRequest;
+import com.alex.bank.common.dto.notification.EventType;
+//import com.alex.bank.account.dto.EventType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,6 @@ import org.springframework.web.client.RestClient;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

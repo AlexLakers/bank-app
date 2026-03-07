@@ -1,7 +1,10 @@
 package com.alex.bank.account.client.notification;
 
-import com.alex.bank.account.dto.NotificationRequest;
-import com.alex.bank.account.dto.NotificationResponse;
+
+/*import com.alex.bank.account.dto.NotificationRequest;*/
+//import com.alex.bank.account.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.NotificationResponse;
+import com.alex.bank.common.dto.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;

@@ -1,7 +1,9 @@
 package com.alex.bank.account.integration.controller;
 
-import com.alex.bank.account.dto.AccountEditDto;
-import com.alex.bank.account.dto.MoneyOperationRequest;
+//import com.alex.bank.account.dto.AccountEditDto;
+//import com.alex.bank.account.dto.MoneyOperationRequest;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.MoneyOperationRequest;
 import com.alex.bank.account.integration.BaseIntegrationTest;
 import com.alex.bank.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,5 +1,6 @@
 package com.alex.bank.account.model;
 
+import com.alex.bank.common.dto.notification.EventType;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;

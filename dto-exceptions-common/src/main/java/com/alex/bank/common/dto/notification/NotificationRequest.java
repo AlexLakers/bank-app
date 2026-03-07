@@ -1,7 +1,7 @@
-package com.alex.bank.account.dto;
+package com.alex.bank.common.dto.notification;
 
 
-import com.alex.bank.account.model.EventType;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

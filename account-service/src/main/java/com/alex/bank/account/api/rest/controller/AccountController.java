@@ -1,8 +1,11 @@
 package com.alex.bank.account.api.rest.controller;
 
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.AccountEditDto;
-import com.alex.bank.account.dto.MoneyOperationRequest;
+/*import com.alex.bank.account.dto.AccountDto;
+import com.alex.bank.account.dto.AccountEditDto;*/
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+//import com.alex.bank.account.dto.MoneyOperationRequest;
+import com.alex.bank.common.dto.account.MoneyOperationRequest;
 import com.alex.bank.account.security.SecurityUtil;
 import com.alex.bank.account.service.AccountService;
 import lombok.RequiredArgsConstructor;

@@ -1,14 +1,15 @@
 package com.alex.bank.account.service.impl;
 
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.AccountEditDto;
-import com.alex.bank.account.dto.MoneyOperationRequest;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+//import com.alex.bank.account.dto.AccountDto;
+//import com.alex.bank.account.dto.AccountEditDto;
 import com.alex.bank.account.exception.AccountNotFoundException;
 import com.alex.bank.account.exception.CreatingPayloadOutboxException;
 import com.alex.bank.account.exception.InsufficientFundsException;
 import com.alex.bank.account.mapper.AccountMapper;
-import com.alex.bank.account.model.Account;
-import com.alex.bank.account.model.EventType;
+//import com.alex.bank.account.dto.EventType;
+import com.alex.bank.common.dto.notification.EventType;
 import com.alex.bank.account.model.Outbox;
 import com.alex.bank.account.repository.AccountRepository;
 import com.alex.bank.account.repository.OutboxRepository;
@@ -16,7 +17,6 @@ import com.alex.bank.account.service.AccountService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

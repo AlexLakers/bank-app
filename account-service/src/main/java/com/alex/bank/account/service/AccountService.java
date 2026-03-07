@@ -1,8 +1,10 @@
 package com.alex.bank.account.service;
 
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.AccountEditDto;
-import com.alex.bank.account.dto.MoneyOperationRequest;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+//import com.alex.bank.account.dto.AccountDto;
+//import com.alex.bank.account.dto.AccountEditDto;
+//import com.alex.bank.account.dto.MoneyOperationRequest;
 import java.math.BigDecimal;
 import java.util.List;
 

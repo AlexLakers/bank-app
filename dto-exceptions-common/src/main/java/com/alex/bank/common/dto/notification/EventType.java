@@ -1,4 +1,4 @@
-package com.alex.bank.account.model;
+package com.alex.bank.common.dto.notification;
 
 public enum EventType {
     ACCOUNT_UPDATED,

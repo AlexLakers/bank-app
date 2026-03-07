@@ -1,4 +1,4 @@
-package com.alex.bank.account.dto;
+package com.alex.bank.common.dto.account;
 
 import lombok.experimental.FieldNameConstants;
 

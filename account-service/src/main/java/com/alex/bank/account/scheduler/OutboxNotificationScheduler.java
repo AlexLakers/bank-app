@@ -1,9 +1,13 @@
 package com.alex.bank.account.scheduler;
 
 import com.alex.bank.account.client.notification.NotificationServiceClient;
-import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.account.dto.NotificationRequest;
-import com.alex.bank.account.dto.NotificationResponse;
+//import com.alex.bank.account.dto.AccountDto;
+import com.alex.bank.common.dto.account.AccountEditDto;
+import com.alex.bank.common.dto.account.AccountDto;
+import com.alex.bank.common.dto.notification.NotificationRequest;
+import com.alex.bank.common.dto.notification.NotificationResponse;
+//import com.alex.bank.account.dto.NotificationRequest;
+//import com.alex.bank.account.dto.NotificationResponse;
 import com.alex.bank.account.model.Outbox;
 import com.alex.bank.account.repository.OutboxRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
