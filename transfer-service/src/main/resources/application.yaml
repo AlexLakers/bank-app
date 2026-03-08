@@ -2,9 +2,9 @@ spring:
   application:
     name: transfer-service
   datasource:
-    url: jdbc:postgresql://${TRANSFER_DB_HOST:localhost}:${TRANSFER_DB_HOST_PORT:5435}/${TRANSFER_DB_NAME:transfer_repository}
-    username: ${CASH_DB_USER:transferuser}
-    password: ${CASH_DB_PASS:transferpass}
+    url: jdbc:postgresql://${DB_HOST_TRANSFER:localhost}:${DB_PORT_TRANSFER:5435}/${DB_NAME_TRANSFER:transfer_repository}
+    username: ${DB_USER_TRANSFER:transferuser}
+    password: ${DB_PASS_TRANSFER:transferpass}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 20
@@ -27,8 +27,8 @@ spring:
         registration:
           transfer-service:
             provider: keycloak
-            client-id: ${CLIENT_ID}
-            client-secret: ${CLIENT_SECRET}
+            client-id: ${OAUTH2_CLIENT_ID_TRANSFER}
+            client-secret: ${OAUTH2_SECRET_TRANSFER}
             authorization-grant-type: client_credentials
         provider:
           keycloak:
@@ -49,16 +49,16 @@ spring:
 
 transfer:
   notification-service:
-    baseUrl: http://notification-service
+    baseUrl: ${NOTIFICATION_SERVICE_URL:http://notification-service}
   account-service:
-    baseUrl: http://account-service
+    baseUrl: ${ACCOUNT_SERVICE_URL:http://account-service}
 
 logging:
   level:
     com.alex.bank.transfer: INFO
     root: WARN
   file:
-    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+    name: ${APP_DIR_TRANSFER:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
-  port: 8085
+  port: ${APP_PORT_TRANSFER:8085}

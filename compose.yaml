@@ -138,6 +138,49 @@ services:
       - cash-db
       - keycloak
 
+  transfer-db:
+    image: postgres:17.0
+    ports:
+      - "${DB_HOST_PORT_TRANSFER}:${DB_PORT_TRANSFER}"
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER_TRANSFER}
+      - POSTGRES_PASSWORD=${DB_PASS_TRANSFER}
+      - POSTGRES_DB=${DB_NAME_TRANSFER}
+    volumes:
+      - db-data-transfer:/var/lib/postgresql/data
+    networks:
+      backend-net:
+  transfer-service:
+    build:
+      context: .
+      dockerfile: transfer-service/Dockerfile
+    image: transfer
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_TRANSFER}:${APP_PORT_TRANSFER}"
+    environment:
+      - DB_USER_TRANSFER=${DB_USER_TRANSFER}
+      - DB_PASS_TRANSFER=${DB_PASS_TRANSFER}
+      - DB_HOST_TRANSFER=${DB_HOST_TRANSFER}
+      - DB_HOST_PORT_TRANSFER=${DB_HOST_PORT_TRANSFER}
+      - DB_PORT_TRANSFER=${DB_PORT_TRANSFER}
+      - DB_NAME_TRANSFER=${DB_NAME_TRANSFER}
+      - APP_DIR_TRANSFER=${APP_DIR_TRANSFER}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - ACCOUNT_SERVICE_URL=${ACCOUNT_SERVICE_URL}
+      - OAUTH2_CLIENT_ID_TRANSFER=${OAUTH2_CLIENT_ID_TRANSFER}
+      - OAUTH2_SECRET_TRANSFER=${OAUTH2_SECRET_TRANSFER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - transfer-db
+      - keycloak
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     environment:
