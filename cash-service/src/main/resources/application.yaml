@@ -2,7 +2,7 @@ spring:
   application:
     name: cash-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST_CASH:localhost}:${DB_PORT_CASH:5432}/${DB_NAME_CASH:cash_repository}
+    url: jdbc:postgresql://${DB_HOST_CASH:localhost}:${DB_PORT_CASH:5434}/${DB_NAME_CASH:cash_repository}
     username: ${DB_USER_CASH:cashuser}
     password: ${DB_PASS_CASH:cashpass}
     hikari:
@@ -27,8 +27,8 @@ spring:
         registration:
           cash-service:
             provider: keycloak
-            client-id: ${OAUTH2_CLIENT_ID_ACCOUNT}
-            client-secret: ${OAUTH2_SECRET_ACCOUNT}
+            client-id: ${OAUTH2_CLIENT_ID_CASH}
+            client-secret: ${OAUTH2_SECRET_CASH}
             authorization-grant-type: client_credentials
         provider:
           keycloak:
@@ -58,7 +58,7 @@ logging:
     com.alex.bank.cash: INFO
     root: WARN
   file:
-    name: ${APP_DIR_TRANSFER:/home/alexlakers}/${spring.application.name}/app.log
+    name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
   port: 8084
