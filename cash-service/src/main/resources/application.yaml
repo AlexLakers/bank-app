@@ -2,9 +2,9 @@ spring:
   application:
     name: cash-service
   datasource:
-    url: jdbc:postgresql://${CASH_DB_HOST:localhost}:${CASH_DB_HOST_PORT:5434}/${CASH_DB_NAME:cash_repository}
-    username: ${CASH_DB_USER:cashuser}
-    password: ${CASH_DB_PASS:cashpass}
+    url: jdbc:postgresql://${DB_HOST_CASH:localhost}:${DB_PORT_CASH:5434}/${DB_NAME_CASH:cash_repository}
+    username: ${DB_USER_CASH:cashuser}
+    password: ${DB_PASS_CASH:cashpass}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 20
@@ -27,8 +27,8 @@ spring:
         registration:
           cash-service:
             provider: keycloak
-            client-id: ${CLIENT_ID}
-            client-secret: ${CLIENT_SECRET}
+            client-id: ${OAUTH2_CLIENT_ID_CASH}
+            client-secret: ${OAUTH2_SECRET_CASH}
             authorization-grant-type: client_credentials
         provider:
           keycloak:
@@ -49,16 +49,16 @@ spring:
 
 cash:
   notification-service:
-    baseUrl: http://notification-service
+    baseUrl: ${NOTIFICATION_SERVICE_URL:http://notification-service}
   account-service:
-    baseUrl: http://account-service
+    baseUrl: ${ACCOUNT_SERVICE_URL:http://account-service}
 
 logging:
   level:
     com.alex.bank.cash: INFO
     root: WARN
   file:
-    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+    name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
-  port: 8084
+  port: ${APP_PORT_CASH:8084}

@@ -26,7 +26,7 @@ logging:
     com.alex.bank.notification: INFO
     root: WARN
   file:
-    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+    name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
-  port: 8086
+  port: ${APP_PORT_NOTIF:8086}

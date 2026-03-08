@@ -2,68 +2,222 @@ services:
   consul:
     image: consul:1.15.4
     command: ["agent", "-dev", "-client=0.0.0.0"]
+    environment:
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     ports:
-      - "8500:8500"
+      - "${CONSUL_HOST_PORT}:${CONSUL_PORT}"
     restart: always
+    networks:
+      backend-net:
 
   account-db:
     image: postgres:17.0
     ports:
-      - "5433:5432"
+      - "${DB_HOST_PORT_ACCOUNT}:${DB_PORT_ACCOUNT}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=accountuser
-      - POSTGRES_PASSWORD=accountpass
-      - POSTGRES_DB=account_repository
+      - POSTGRES_USER=${DB_USER_ACCOUNT}
+      - POSTGRES_PASSWORD=${DB_PASS_ACCOUNT}
+      - POSTGRES_DB=${DB_NAME_ACCOUNT}
     volumes:
       - db-data-account:/var/lib/postgresql/data
     networks:
       backend-net:
 
+  account-service:
+    build:
+      context: .
+      dockerfile: account-service/Dockerfile
+    image: account
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_ACCOUNT}:${APP_PORT_ACCOUNT}"
+    environment:
+      - DB_USER_ACCOUNT=${DB_USER_ACCOUNT}
+      - DB_PASS_ACCOUNT=${DB_PASS_ACCOUNT}
+      - DB_HOST_ACCOUNT=${DB_HOST_ACCOUNT}
+      - DB_HOST_PORT_ACCOUNT=${DB_HOST_PORT_ACCOUNT}
+      - DB_PORT_ACCOUNT=${DB_PORT_ACCOUNT}
+      - DB_NAME_ACCOUNT=${DB_NAME_ACCOUNT}
+      - APP_DIR_ACCOUNT=${APP_DIR_ACCOUNT}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - OAUTH2_CLIENT_ID_ACCOUNT=${OAUTH2_CLIENT_ID_ACCOUNT}
+      - OAUTH2_SECRET_ACCOUNT=${OAUTH2_SECRET_ACCOUNT}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - account-db
+      - keycloak
+
+  bank-ui:
+    build:
+      context: .
+      dockerfile: bank-ui/Dockerfile
+    image: ui
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_UI}:${APP_PORT_UI}"
+    environment:
+      - APP_DIR_UI=${APP_DIR_UI}
+      - OAUTH2_CLIENT_ID_UI=${OAUTH2_CLIENT_ID_UI}
+      - OAUTH2_SECRET_UI=${OAUTH2_SECRET_UI}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - keycloak
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    image: gateway
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_GATEWAY}:${APP_PORT_GATEWAY}"
+    environment:
+      - APP_DIR_GATEWAY=${APP_DIR_GATEWAY}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - keycloak
 
   cash-db:
     image: postgres:17.0
     ports:
-      - "5434:5432"
+      - "${DB_HOST_PORT_CASH}:${DB_PORT_CASH}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=cashuser
-      - POSTGRES_PASSWORD=cashpass
-      - POSTGRES_DB=cash_repository
+      - POSTGRES_USER=${DB_USER_CASH}
+      - POSTGRES_PASSWORD=${DB_PASS_CASH}
+      - POSTGRES_DB=${DB_NAME_CASH}
     volumes:
       - db-data-cash:/var/lib/postgresql/data
     networks:
       backend-net:
 
+  cash-service:
+    build:
+      context: .
+      dockerfile: cash-service/Dockerfile
+    image: cash
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_CASH}:${APP_PORT_CASH}"
+    environment:
+      - DB_USER_CASH=${DB_USER_CASH}
+      - DB_PASS_CASH=${DB_PASS_CASH}
+      - DB_HOST_CASH=${DB_HOST_CASH}
+      - DB_HOST_PORT_CASH=${DB_HOST_PORT_CASH}
+      - DB_PORT_CASH=${DB_PORT_CASH}
+      - DB_NAME_CASH=${DB_NAME_CASH}
+      - APP_DIR_CASH=${APP_DIR_CASH}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - ACCOUNT_SERVICE_URL=${ACCOUNT_SERVICE_URL}
+      - OAUTH2_CLIENT_ID_CASH=${OAUTH2_CLIENT_ID_CASH}
+      - OAUTH2_SECRET_CASH=${OAUTH2_SECRET_CASH}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - cash-db
+      - keycloak
+
   transfer-db:
     image: postgres:17.0
     ports:
-      - "5435:5432"
+      - "${DB_HOST_PORT_TRANSFER}:${DB_PORT_TRANSFER}"
     restart: always
     environment:
-      - DB_HOST_PORT
-      - POSTGRES_USER=transferuser
-      - POSTGRES_PASSWORD=transferpass
-      - POSTGRES_DB=transfer_repository
+      - POSTGRES_USER=${DB_USER_TRANSFER}
+      - POSTGRES_PASSWORD=${DB_PASS_TRANSFER}
+      - POSTGRES_DB=${DB_NAME_TRANSFER}
     volumes:
       - db-data-transfer:/var/lib/postgresql/data
     networks:
       backend-net:
 
+  transfer-service:
+    build:
+      context: .
+      dockerfile: transfer-service/Dockerfile
+    image: transfer
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_TRANSFER}:${APP_PORT_TRANSFER}"
+    environment:
+      - DB_USER_TRANSFER=${DB_USER_TRANSFER}
+      - DB_PASS_TRANSFER=${DB_PASS_TRANSFER}
+      - DB_HOST_TRANSFER=${DB_HOST_TRANSFER}
+      - DB_HOST_PORT_TRANSFER=${DB_HOST_PORT_TRANSFER}
+      - DB_PORT_TRANSFER=${DB_PORT_TRANSFER}
+      - DB_NAME_TRANSFER=${DB_NAME_TRANSFER}
+      - APP_DIR_TRANSFER=${APP_DIR_TRANSFER}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - ACCOUNT_SERVICE_URL=${ACCOUNT_SERVICE_URL}
+      - OAUTH2_CLIENT_ID_TRANSFER=${OAUTH2_CLIENT_ID_TRANSFER}
+      - OAUTH2_SECRET_TRANSFER=${OAUTH2_SECRET_TRANSFER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - transfer-db
+      - keycloak
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    image: notification
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_NOTIF}:${APP_PORT_NOTIF}"
+    environment:
+      - APP_DIR_NOTIF=${APP_DIR_NOTIF}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - keycloak
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_HOSTNAME=localhost
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN_LOGIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASS}
+      - KC_HOSTNAME=${KEYCLOAK_HOST}
+    #  - KC_HOSTNAME_ALIASES=${KEYCLOAK_HOST_ALIASES}
     ports:
-      - "8080:8080"
+      - "${KEYCLOAK_HOST_PORT}:${KEYCLOAK_PORT}"
     restart: always
     command:
       - start-dev
-      - --http-port=8080
+      - --http-port=${KEYCLOAK_PORT}
+      - --import-realm
+     # - --features=preview
+     # - --verbose
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
     networks:
       backend-net:
         aliases:

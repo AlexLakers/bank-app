@@ -2,9 +2,9 @@ spring:
   application:
     name: account-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_HOST_PORT:5433}/${DB_NAME:account_repository}
-    username: ${DB_USER:accountuser}
-    password: ${DB_PASS:accountpass}
+    url: jdbc:postgresql://${DB_HOST_ACCOUNT:localhost}:${DB_PORT_ACCOUNT:5433}/${DB_NAME_ACCOUNT:account_repository}
+    username: ${DB_USER_ACCOUNT:accountuser}
+    password: ${DB_PASS_ACCOUNT:accountpass}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 20
@@ -22,13 +22,12 @@ spring:
         registration:
           account-service:
             provider: keycloak
-            client-id: ${CLIENT_ID}
-            client-secret: ${CLIENT_SECRET}
+            client-id: ${OAUTH2_CLIENT_ID_ACCOUNT}
+            client-secret: ${OAUTH2_SECRET_ACCOUNT}
             authorization-grant-type: client_credentials
         provider:
           keycloak:
             issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
-
       resourceserver:
         jwt:
           jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
@@ -45,18 +44,18 @@ spring:
         defaultContext: application
         data-key: data
   config:
-    import: "consul:"
+    import: "optional:consul:"
 
 logging:
   level:
     com.alex.bank.account: INFO
     root: WARN
   file:
-    name: ${APP_DIR:/home/alexlakers}/${spring.application.name}/app.log
+    name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
 
 accounts:
   notification-service:
-    base-url: http://notification-service
+    base-url: ${NOTIFICATION_SERVICE_URL:http://notification-service}
 
 server:
-  port: 8082
+  port: ${APP_PORT_ACCOUNT:8082}
