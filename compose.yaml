@@ -37,6 +37,7 @@ services:
       - DB_USER_ACCOUNT=${DB_USER_ACCOUNT}
       - DB_PASS_ACCOUNT=${DB_PASS_ACCOUNT}
       - DB_HOST_ACCOUNT=${DB_HOST_ACCOUNT}
+      - DB_HOST_PORT_ACCOUNT=${DB_HOST_PORT_ACCOUNT}
       - DB_PORT_ACCOUNT=${DB_PORT_ACCOUNT}
       - DB_NAME_ACCOUNT=${DB_NAME_ACCOUNT}
       - APP_DIR_ACCOUNT=${APP_DIR_ACCOUNT}
@@ -91,6 +92,50 @@ services:
     networks:
       backend-net:
     depends_on:
+      - keycloak
+
+  cash-db:
+    image: postgres:17.0
+    ports:
+      - "${DB_HOST_PORT_CASH}:${DB_PORT_CASH}"
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER_CASH}
+      - POSTGRES_PASSWORD=${DB_PASS_CASH}
+      - POSTGRES_DB=${DB_NAME_CASH}
+    volumes:
+      - db-data-cash:/var/lib/postgresql/data
+    networks:
+      backend-net:
+
+  cash-service:
+    build:
+      context: .
+      dockerfile: cash-service/Dockerfile
+    image: cash
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_CASH}:${APP_PORT_CASH}"
+    environment:
+      - DB_USER_CASH=${DB_USER_CASH}
+      - DB_PASS_CASH=${DB_PASS_CASH}
+      - DB_HOST_CASH=${DB_HOST_CASH}
+      - DB_HOST_PORT_CASH=${DB_HOST_PORT_CASH}
+      - DB_PORT_CASH=${DB_PORT_CASH}
+      - DB_NAME_CASH=${DB_NAME_CASH}
+      - APP_DIR_CASH=${APP_DIR_CASH}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - ACCOUNT_SERVICE_URL=${ACCOUNT_SERVICE_URL}
+      - OAUTH2_CLIENT_ID_CASH=${OAUTH2_CLIENT_ID_CASH}
+      - OAUTH2_SECRET_CASH=${OAUTH2_SECRET_CASH}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
+      - cash-db
       - keycloak
 
   keycloak:

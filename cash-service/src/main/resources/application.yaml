@@ -61,4 +61,4 @@ logging:
     name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
 
 server:
-  port: 8084
+  port: ${APP_PORT_CASH:8084}
