@@ -151,6 +151,7 @@ services:
       - db-data-transfer:/var/lib/postgresql/data
     networks:
       backend-net:
+
   transfer-service:
     build:
       context: .
@@ -179,6 +180,24 @@ services:
       backend-net:
     depends_on:
       - transfer-db
+      - keycloak
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    image: notification
+    restart: always
+    ports:
+      - "${APP_HOST_PORT_NOTIF}:${APP_PORT_NOTIF}"
+    environment:
+      - APP_DIR_NOTIF=${APP_DIR_NOTIF}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_PORT=${KEYCLOAK_PORT}
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+    networks:
+      backend-net:
+    depends_on:
       - keycloak
 
   keycloak:
