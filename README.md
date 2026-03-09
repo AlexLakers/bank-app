@@ -4,7 +4,7 @@
 bank-ui(frontend),cash-service(backend сервиса наличных), account-service(backend сервиса аккаунтов пользователей)
 ,transfer-service(backend сервиса переводов между счетами),notification-service(backend сервиса уведомлений).
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/schema.png?raw=true)
+![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/schema.png?raw=true)
 
 ## bank-ui
 
@@ -193,6 +193,51 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 - api-gateway - шлюз , единаыя точка , маршрутизатор запросов, через него проивходит взаимодействие пользователя с
   микросервисами.
 
+## Сборка
+
+Сборка осуществляется с помощью инфраструктуры Docker с использованием Docker compose.
+
+- В корневой папке микросервисного проекта вы найдете файл для сборки:  ```compose.yaml```
+  В нем описаны все службы(контейнеры), которые необходимы для работы приложения в целом.
+- В папке каждого модуля располагаются файлы сборки образа:```bank-ui/Dockerfile```,```account-service/Dockerfile```....
+  Для сборки и запуска приложения(всех сервисов) просто запустите из корня проекта следующую команду.
+
+  ```
+  docker compose up -d
+  ```
+
+- В результате поднимятся 3 базы данных Postgres, фронтенд , микросервисы аккаунтов, наличных и переводов. Также поднимется
+Consul(конфиг сервер и реест сервисов) r и сервер авторизации Keycloak во внетренне сети докера.
+
+### ⚠️ Важное примечание
+
+- Обратите внимание , вам надо создать файл ```.env``` с перемнными, которые описаны в ```.env.example```
+
+```
+docker compose up -d
+```
+
+Для запуска тестов
+
+Очистим предыдущие сборки
+```
+./gradlew clean
+```
+
+Опубликуем стабы(для конрактных тестов)
+```
+./gradlew publishToMavenLocal
+```
+
+Сборка и выполнение тестов(в том числе и контрактных)
+```
+./gradlew build
+```
+Или одной командой
+
+```
+./gradlew clean publishToMavenLocal build
+```
 
 
 
