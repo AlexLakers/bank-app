@@ -1,6 +1,13 @@
+buildscript {
+    ext {
+        springBootVersion = '3.5.10'
+        dependencyManagementVersion = '1.1.7'
+        springCloudContractVersion = '4.3.0'
+    }
+}
 plugins {
     id 'java'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.spring.dependency-management' version "${dependencyManagementVersion}"
 }
 
 group = 'com.alex.bank'
@@ -9,6 +16,16 @@ description = 'my-bank-app'
 
 
 allprojects {
+    ext {
+        springBootVersion = '3.5.10'
+        dependencyManagementVersion = '1.1.7'
+        mapstructVersion = '1.5.5.Final'
+        lombokMapstructBindingVersion = '0.2.0'
+        hibernateValidatorVersion = '8.0.0.Final'
+        springCloudContractVersion = '4.3.0'
+        springWiremockVersion='3.9.0'
+    }
+
     group = rootProject.group
     version = rootProject.version
     repositories {
