@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@ActiveProfiles("test")
 class AccountControllerIT extends BaseIntegrationTest {
 
     @Autowired
@@ -177,7 +178,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     @Test
     void decreaseBalance_negativeAmount_shouldReturnBadRequest() throws Exception {
         String owner = "testov1";
-        BigDecimal amount = new BigDecimal("-50.00"); // отрицательная сумма
+        BigDecimal amount = new BigDecimal("-50.00");
         MoneyOperationRequest request = new MoneyOperationRequest(amount);
 
         mockMvc.perform(patch("/api/v1/accounts/{owner}/balance/decrease", owner)

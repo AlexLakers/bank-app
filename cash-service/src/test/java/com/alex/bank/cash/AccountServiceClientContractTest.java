@@ -1,6 +1,8 @@
 package com.alex.bank.cash;
 
 import com.alex.bank.cash.client.account.AccountServiceClient;
+import com.alex.bank.cash.repository.CashTransactionRepository;
+import com.alex.bank.cash.repository.OutboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestClient;
@@ -39,6 +44,20 @@ public class AccountServiceClientContractTest {
 
     @MockitoBean
     private OAuth2AuthorizedClientManager authorizedClientManager;
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private CashTransactionRepository cashTransactionRepository;
+
+    @MockitoBean
+    private OutboxRepository outboxRepository;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    @MockitoBean
+    private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 
     @BeforeEach
     void setupOAuth2Mock() {

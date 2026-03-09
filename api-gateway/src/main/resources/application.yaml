@@ -53,7 +53,7 @@ spring:
 
 
   config:
-    import: "consul:"
+    import: "optional:consul:"
 
 logging:
   level:

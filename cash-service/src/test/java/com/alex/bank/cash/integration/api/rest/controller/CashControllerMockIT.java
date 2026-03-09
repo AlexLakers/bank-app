@@ -10,6 +10,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +34,7 @@ import com.alex.bank.common.dto.cash.*;
 
 @WebMvcTest(CashController.class)
 @Import(SecurityConfig.class)
+@ActiveProfiles("test")
 public class CashControllerMockIT {
 
     @Autowired
@@ -36,6 +42,18 @@ public class CashControllerMockIT {
 
     @MockitoBean
     private CashService cashService;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientManager authorizedClientManager;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    @MockitoBean
+    private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 
     @Autowired
     private ObjectMapper objectMapper;

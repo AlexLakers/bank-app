@@ -206,7 +206,6 @@ services:
       - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN_LOGIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASS}
       - KC_HOSTNAME=${KEYCLOAK_HOST}
-    #  - KC_HOSTNAME_ALIASES=${KEYCLOAK_HOST_ALIASES}
     ports:
       - "${KEYCLOAK_HOST_PORT}:${KEYCLOAK_PORT}"
     restart: always
@@ -214,8 +213,6 @@ services:
       - start-dev
       - --http-port=${KEYCLOAK_PORT}
       - --import-realm
-     # - --features=preview
-     # - --verbose
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
     networks:

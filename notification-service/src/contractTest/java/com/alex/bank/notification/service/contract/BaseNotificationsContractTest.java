@@ -1,8 +1,9 @@
 package com.alex.bank.notification.service.contract;
 
-import com.alex.bank.notification.dto.EventStatus;
-import com.alex.bank.notification.dto.NotificationRequest;
-import com.alex.bank.notification.dto.NotificationResponse;
+//import com.alex.bank.notification.dto.EventStatus;
+//import com.alex.bank.notification.dto.NotificationRequest;
+//import com.alex.bank.notification.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.*;
 import com.alex.bank.notification.service.NotificationService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;

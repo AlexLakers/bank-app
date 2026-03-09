@@ -45,7 +45,7 @@ spring:
         defaultContext: application
         data-key: data
   config:
-    import: "consul:"
+    import: "optional:consul:"
 
 transfer:
   notification-service:

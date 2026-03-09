@@ -1,7 +1,8 @@
 package com.alex.bank.notification.controller;
 
-import com.alex.bank.notification.dto.NotificationRequest;
-import com.alex.bank.notification.dto.NotificationResponse;
+//import com.alex.bank.notification.dto.NotificationRequest;
+//import com.alex.bank.notification.dto.NotificationResponse;
+import com.alex.bank.common.dto.notification.*;
 import com.alex.bank.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

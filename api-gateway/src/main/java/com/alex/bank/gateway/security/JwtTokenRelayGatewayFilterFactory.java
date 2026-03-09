@@ -10,16 +10,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-/**
- * Gateway-фильтр, реализующий Token Relay:
- * забирает JWT из SecurityContext (если есть) или из входящего заголовка Authorization
- * и подставляет его в исходящий запрос к микросервису.
- * <p>
- * В application.yml используется как:
- * <p>
- * filters:
- * - name: JwtTokenRelay
- */
 public class JwtTokenRelayGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
     private static final Logger log =

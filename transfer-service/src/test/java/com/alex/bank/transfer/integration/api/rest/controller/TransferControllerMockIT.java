@@ -2,6 +2,8 @@ package com.alex.bank.transfer.integration.api.rest.controller;
 
 import com.alex.bank.transfer.api.rest.controller.TransferController;
 import com.alex.bank.common.dto.transfer.*;
+import com.alex.bank.transfer.repository.OutboxRepository;
+import com.alex.bank.transfer.repository.TransferTransactionRepository;
 import com.alex.bank.transfer.security.SecurityConfig;
 import com.alex.bank.transfer.service.TransferService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TransferController.class)
 @Import(SecurityConfig.class)
+@ActiveProfiles("test")
 public class TransferControllerMockIT {
 
     @Autowired
@@ -35,6 +43,18 @@ public class TransferControllerMockIT {
 
     @MockitoBean
     private TransferService transferService;
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientManager authorizedClientManager;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    @MockitoBean
+    private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
+
 
     @Autowired
     private ObjectMapper objectMapper;

@@ -54,7 +54,7 @@ public class TransferServiceClient {
         HttpStatus httpStatus = (HttpStatus) status;
 
         if (httpStatus == HttpStatus.CONFLICT) {
-            if (errorBody != null && (errorBody.contains("Insufficient funds") || errorBody.contains("недостаточно средств"))) {
+            if (errorBody != null && (errorBody.contains("Insufficient Funds") || errorBody.contains("не хватает средств"))) {
                 return "Недостаточно средств на счёте отправителя.";
             } else {
                 return "Перевод не выполнен, но средства возвращены. Попробуйте позже или проверьте счёт получателя.";

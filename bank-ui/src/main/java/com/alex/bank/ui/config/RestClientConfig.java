@@ -32,20 +32,17 @@ public class RestClientConfig {
                 .baseUrl(bankConfigProperties.getBaseUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
-       // "http://api-gateway"
     }
     @Bean
     public RestClient cashRestClient(RestClient.Builder restClientBuilder,
                                      BankConfigProperties bankConfigProperties
                                      ) {
-        // "http://localhost:8084"
         return restClientBuilder
                 .baseUrl(bankConfigProperties.getBaseUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
     @Bean
-    //localhost:8085
     public RestClient transferRestClient(RestClient.Builder restClientBuilder,
                                          BankConfigProperties bankConfigProperties
                                          ) {

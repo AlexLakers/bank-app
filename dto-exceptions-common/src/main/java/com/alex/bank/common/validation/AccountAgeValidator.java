@@ -1,4 +1,4 @@
-package com.alex.bank.ui.validation;
+package com.alex.bank.common.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

@@ -16,8 +16,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestClient;
 
@@ -38,6 +42,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(FrontMainControllerIT.TestRestClientConfig.class)
 public class FrontMainControllerIT {
+
+
+    @MockitoBean
+    private OAuth2AuthorizedClientManager authorizedClientManager;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    @MockitoBean
+    private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
+
 
     @RegisterExtension
     static WireMockExtension wireMock = WireMockExtension.newInstance()
@@ -245,7 +260,7 @@ public class FrontMainControllerIT {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"id\":1,\"amount\":100.0}"))); // тело не важно, главное статус
+                        .withBody("{\"id\":1,\"amount\":100.0}")));
 
         mockMvc.perform(post("/cash")
                         .with(csrf())
@@ -303,8 +318,6 @@ public class FrontMainControllerIT {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/account"))
                 .andExpect(flash().attributeExists("errors"))
-                // Проверяем, что в списке ошибок есть сообщение, содержащее "Некорректный запрос"
-                // (в зависимости от реализации CashServiceClient)
                 .andExpect(flash().attribute("errors", hasItem(containsString("Некорректный запрос"))));
     }
 
