@@ -4,7 +4,7 @@
 bank-ui(frontend),cash-service(backend сервиса наличных), account-service(backend сервиса аккаунтов пользователей)
 ,transfer-service(backend сервиса переводов между счетами),notification-service(backend сервиса уведомлений).
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/schema.png?raw=true)
+![Схема микросервисного проекта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/schema.png)
 
 ## bank-ui
 
@@ -33,11 +33,12 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 Как только сы попытаемся зайти на стартовую страницу приложения то нас сразу перенаправит на страницу логина.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/keycloak_login.png?raw=true)
+![логин](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/keycloak_login.png)
+
 
 Далее, после ввода логина и пароля мы попадаем на главную стрницу нашего банковоского приложения
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/start_page.png?raw=true)
+![главная](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/start_page.png)
 
 ## account-service
 
@@ -62,17 +63,19 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 После аутентификации мы можем изменить данные счета взаимодейстивуя с 'account-service'. К примеру добавим отчество.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/account_updated.png?raw=true)
+![апдейт аккаунта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account_updated.png)
 
 Видно, что информация обновилась успешно. Но что если мы ошибемся и изменим дату рождения (менее 18 лет).
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/account_not_updated_age.png?raw=true)
+![фел апдейтаккаунта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/100.png)
+
 
 Видим сообщение системы валидации о недопустимости возраста.
 
 Кстати , если скажем сервис по каким то причным будет недоступен, то пользвоатель увидит сообщение об этом.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/error_account_service_priority.png?raw=true)
+![ошибка сервиса аккаунта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/error_account_service_priority.png)
+
 
 Аналогичные сообщения об ошибках есть и при взаимодействии с другими микросервисами.
 
@@ -99,7 +102,7 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 К примеру мы решили положить деньги на свой счет.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/cash_put.png?raw=true)
+![сервис кешположить](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/cash_put.png)
 
 Видим что операция пополнения прошла успешно, было 10к стало 20к.
 
@@ -127,25 +130,28 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 К примеру мы решили перевести пользователю 'Sergeev Sergey' 10k
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/transfer_sucess.png?raw=true)
+![сервис переводов](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer_sucess.png)
+
 
 Видим что операция перевода средств прошла успешно и у владельца опять стало 10k.
 
 Опять же если мы захотим перевести очень большие средства, которых у нас нет на счету, то выйдет ошибка о недостатке
 средств.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/InfulussinetFunds.png?raw=true)
+![недостаточно средств](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/InfulussinetFunds.png)
+
 
 А если у нас выполнится снятие средств со счета владельца, а при зачислении произойдёт какая-либо ошибка, то произойдет
 компенсация.
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/error_compensated.png?raw=true)
+![компенсация](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/error_compensated.png)
+
 
 А пользователь увидит соовтествующее сообщение.
 
 Посмотрим как выглядят транзакции переводов изнутри при разных исходах(в том числе и компенсации)
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/transfer_transaction_with_compen.png?raw=true)
+![транзакции переводов](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer_transaction_with_compen.png)
 
 ## Планировщик отправки уведомлений 'account-service', 'cash-service', 'transfer-service'
 
@@ -154,7 +160,7 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 На прмиере 'transfer-service'
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/transfer_outbox.png?raw=true)
+![задачи оутбокс](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer_outbox.png)
 
 Видим выполненные задачи отправки(обработки) уведомлений. Аналогично и для других микросервисов.
 
@@ -173,7 +179,7 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ### Пример события которые записались в лог
 
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/notifications_log.png?raw=true)
+![сервис уведомлений](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/notifications_log.png)
 
 Видим разные события от разных микросервисов.
 
@@ -183,12 +189,12 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
   Для работы нужно настроить пространоство, создать необходимые роли, создать клиентов(микросиервисы) и пользователя для
   ui.
 
-  ![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/keycloak_realm.png?raw=true)
+![сервис автооизации](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/keycloak_realm.png)
 
 - consul - используется как 'сервер обнаружения служб', позволяет микросервисам не знать о нахождении друг друга(айпи),
   а просто обращаться по имени. Также используется как 'сервер конфигураций' для централизованного хранения конфига.
-
-![alt text](https://github.com/AlexLakers/ParserJsonCsvToXml/tree/master/WinFormsCsvJsonXml/App_Data/pictures/micro_pict/config.png?raw=true)
+  В проекте вы найдете в папке 'consul' свойства которые могут быть перенесены как обшие для всех проектов в консул.
+![сервис конфиг](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/config.png)
 
 - api-gateway - шлюз , единаыя точка , маршрутизатор запросов, через него проивходит взаимодействие пользователя с
   микросервисами.
