@@ -5,9 +5,12 @@ package com.alex.bank.cash.client.account;
 //import com.alex.bank.cash.exception.AccountValidationException;
 //import com.alex.bank.cash.exception.ExternalServiceException;
 //import com.alex.bank.cash.exception.InsufficientFundsException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import com.alex.bank.common.exceptions.*;
 import com.alex.bank.common.dto.account.MoneyOperationRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.function.Supplier;
 
 @Component
+@Slf4j
 public class AccountServiceClient {
 
     private final RestClient accountRestClient;
@@ -29,6 +33,8 @@ public class AccountServiceClient {
         this.accountRestClient = accountRestClient;
     }
 
+    @Retry(name = "retry-account-service", fallbackMethod = "fallback")
+    @CircuitBreaker(name = "circuit-account-service",fallbackMethod = "fallback")
     public BigDecimal withdrawCash(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()
                 .uri("/api/v1/accounts/{owner}/balance/decrease", username)
@@ -37,12 +43,22 @@ public class AccountServiceClient {
                 .body(BigDecimal.class));
     }
 
+    @Retry(name = "retry-account-service", fallbackMethod = "fallback")
+    @CircuitBreaker(name = "circuit-account-service",fallbackMethod = "fallback")
     public BigDecimal depositCash(String username, BigDecimal amount) {
         return executeWithErrorHandling(() -> accountRestClient.patch()
                 .uri("/api/v1/accounts/{owner}/balance/increase", username)
                 .body(new MoneyOperationRequest(amount))
                 .retrieve()
                 .body(BigDecimal.class));
+    }
+
+    private BigDecimal fallback(String username, BigDecimal amount, Throwable e) {
+        log.error("Fallback для операций с аккаунтом после ретраев или размыкания цепи. username: {}, amount: {}", username, amount, e);
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e;
+        }
+        throw new ExternalServiceException("Сервис аккаунтов временно недоступен. Пожалуйста, повторите позже.", e);
     }
 
     private BigDecimal executeWithErrorHandling(Supplier<BigDecimal> request) {

@@ -60,5 +60,26 @@ logging:
   file:
     name: ${APP_DIR_TRANSFER:/home/alexlakers}/${spring.application.name}/app.log
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      circuit-account-service:
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 4
+        record-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+        failure-rate-threshold: 50
+        sliding-window-type: count_based
+        minimum-number-of-calls: 8
+
+  retry:
+    instances:
+      retry-account-service:
+        wait-duration: 1s
+        max-attempts: 4
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
 server:
   port: ${APP_PORT_TRANSFER:8085}

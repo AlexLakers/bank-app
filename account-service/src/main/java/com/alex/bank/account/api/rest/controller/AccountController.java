@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 public class AccountController {
 
-    public final AccountService accountService;
+    private final AccountService accountService;
 
     @GetMapping(value = "/me")
     @PreAuthorize("hasRole('USER')")

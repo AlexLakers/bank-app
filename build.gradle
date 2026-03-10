@@ -24,6 +24,7 @@ allprojects {
         hibernateValidatorVersion = '8.0.0.Final'
         springCloudContractVersion = '4.3.0'
         springWiremockVersion='3.9.0'
+        resilience4jVersion='2.1.0'
     }
 
     group = rootProject.group
