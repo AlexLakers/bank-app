@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+  liquibase:
+    enabled: false

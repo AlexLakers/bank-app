@@ -1,0 +1,12 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <include file="001-init-transfer_transactions-schema.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="tag_full_transfer_transactions_schema" author="alexlakers">
+        <tagDatabase tag="full_transfer_transactions_schema_v1.0"/>
+    </changeSet>
+    <include file="002-init-transfer_transactions-data.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="003-init-outbox-schema.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: account-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST_ACCOUNT:localhost}:${DB_PORT_ACCOUNT:5433}/${DB_NAME_ACCOUNT:account_repository}
+    username: ${DB_USER_ACCOUNT:accountuser}
+    password: ${DB_PASS_ACCOUNT:accountpass}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  liquibase:
+    contexts: dev
+    change-log: db/changelog/db.changelog-master.xml
+
+  security:
+    oauth2:
+      client:
+        registration:
+          account-service:
+            provider: keycloak
+            client-id: ${OAUTH2_CLIENT_ID_ACCOUNT}
+            client-secret: ${OAUTH2_SECRET_ACCOUNT}
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "optional:consul:"
+
+logging:
+  level:
+    com.alex.bank.account: INFO
+    root: WARN
+  file:
+    name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
+
+accounts:
+  notification-service:
+    base-url: ${NOTIFICATION_SERVICE_URL:http://notification-service}
+
+server:
+  port: ${APP_PORT_ACCOUNT:8082}

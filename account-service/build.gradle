@@ -1,5 +1,7 @@
 plugins {
-	id 'org.springframework.boot' version '3.5.10'
+	id 'org.springframework.boot' version "${springBootVersion}"
+	id 'org.springframework.cloud.contract' version "${springCloudContractVersion}"
+	id 'maven-publish'
 }
 
 description = 'account-service'
@@ -7,11 +9,18 @@ description = 'account-service'
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+	implementation 'org.springframework.security:spring-security-oauth2-client'
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	implementation 'org.springframework.boot:spring-boot-testcontainers'
+	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+	implementation project(':dto-exceptions-common')
+
 	implementation 'org.liquibase:liquibase-core'
 
 	runtimeOnly 'org.postgresql:postgresql'
@@ -19,14 +28,35 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+}
 
+contracts {
+	baseClassForTests.set(
+			"com.alex.bank.account.service.contract.BaseAccountsContractTest"
+
+	)
+}
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			groupId = "com.alex"
+			artifactId = "account-service"
+			version = "0.0.1-SNAPSHOT"
+
+			from(components.java)
+			artifact(tasks.named("verifierStubsJar"))
+		}
+	}
 }
 
 tasks.named('test') {

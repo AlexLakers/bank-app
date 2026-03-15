@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+  sql:
+    init:
+      mode: always
+  liquibase:
+    contexts: test
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml

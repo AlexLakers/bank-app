@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+
+
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: account-service
+              uri: lb://account-service
+              predicates:
+                  - Path=/accounts/**
+              filters:
+              - RewritePath=/(?<path>.*), /api/v1/$\{path}
+              - name: JwtTokenRelay
+
+            - id: cash-service
+              uri: lb://cash-service
+              predicates:
+                - Path=/cash/**
+              filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
+                - name: JwtTokenRelay
+
+            - id: transfer-service
+              uri: lb://transfer-service
+              predicates:
+                - Path=/transfer/**
+              filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
+                - name: JwtTokenRelay
+
+
+
+  config:
+    import: "optional:consul:"
+
+logging:
+  level:
+    com.alex.bank.gateway: INFO
+    root: WARN
+
+  file:
+    name: ${APP_DIR_GATEWAY:/home/alexlakers}/${spring.application.name}/app.log
+
+server:
+  port: ${APP_PORT_GATEWAY:8888}

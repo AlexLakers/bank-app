@@ -1,0 +1,71 @@
+server:
+  port: ${APP_PORT_UI:8083}
+
+spring:
+  application:
+    name: bank-ui
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: ${OAUTH2_CLIENT_ID_UI}
+            client-secret: ${OAUTH2_SECRET_UI}
+            authorization-grant-type: authorization_code
+            scope: openid, profile, email
+            redirect-uri: http://localhost:${APP_PORT_UI:8083}/login/oauth2/code/keycloak
+            provider: keycloak
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "optional:consul:"
+
+bank:
+  gateway:
+    baseUrl: ${GATEWAY_API_URL:http://api-gateway}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      circuit-account-service:
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 4
+        record-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+        failure-rate-threshold: 50
+        sliding-window-type: count_based
+        minimum-number-of-calls: 8
+
+  retry:
+    instances:
+      retry-account-service:
+        wait-duration: 1s
+        max-attempts: 4
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+
+logging:
+  level:
+    com.alex.bank.ui: INFO
+    root: WARN
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    io.github.resilience4j: DEBUG
+  file:
+    name: ${APP_DIR_UI:/home/alexlakers}/${spring.application.name}/app.log
+

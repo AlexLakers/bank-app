@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.10'
+    id 'org.springframework.boot' version "${springBootVersion}"
 }
 
 description = 'bank-ui'
@@ -12,12 +12,21 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+    implementation project(':dto-exceptions-common')
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation "org.wiremock.integrations:wiremock-spring-boot:${springWiremockVersion}"
 }
 tasks.named('test') {
     useJUnitPlatform()

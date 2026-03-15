@@ -1,0 +1,20 @@
+plugins {
+    id 'org.springframework.boot' version "${springBootVersion}"
+}
+
+description = 'dto-exceptions-common'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+}
+bootJar.enabled = false
+jar.enabled = true
+

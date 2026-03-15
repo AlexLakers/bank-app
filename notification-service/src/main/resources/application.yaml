@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: notification-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        service-name: ${spring.application.name}
+      config:
+        enabled: true
+        defaultContext: application
+        data-key: data
+  config:
+    import: "optional:consul:"
+
+logging:
+  level:
+    com.alex.bank.notification: INFO
+    root: WARN
+  file:
+    name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
+
+server:
+  port: ${APP_PORT_NOTIF:8086}
