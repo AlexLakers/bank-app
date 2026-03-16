@@ -28,34 +28,41 @@ spring:
         provider:
           keycloak:
             issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+        #resourceserver:
+        # jwt:
+        #  jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
+        #  issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
       resourceserver:
         jwt:
-          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
-          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
-
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
+        enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
+      enabled: false
   config:
     import: "optional:consul:"
 
 logging:
   level:
     com.alex.bank.account: INFO
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
     root: WARN
-  file:
-    name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
+  #file:
+    #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
 
 accounts:
   notification-service:
-    base-url: ${NOTIFICATION_SERVICE_URL:http://notification-service}
+    base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8086}
 
 server:
   port: ${APP_PORT_ACCOUNT:8082}
