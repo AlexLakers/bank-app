@@ -20,9 +20,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
-          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
-
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
       client:
         registration:
           cash-service:
@@ -32,18 +31,23 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           keycloak:
-            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+            #issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+             issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
 
   cloud:
+    loadbalancer:
+      enabled: false
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
+        enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
+      enabled: false
   config:
     import: "optional:consul:"
 
@@ -55,8 +59,10 @@ cash:
 
 logging:
   level:
-    com.alex.bank.cash: INFO
-    root: WARN
+    com.alex.bank.cash: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web.client: DEBUG
+    org.springframework.security.oauth2.client: DEBUG
   file:
     name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
 
