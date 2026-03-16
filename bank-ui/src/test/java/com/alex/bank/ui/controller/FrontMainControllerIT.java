@@ -55,15 +55,22 @@ public class FrontMainControllerIT {
 
 
     @RegisterExtension
-    static WireMockExtension wireMock = WireMockExtension.newInstance()
+    static WireMockExtension wireMockAccount = WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort())
+            .build();
+
+    @RegisterExtension
+    static WireMockExtension wireMockCash = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort())
             .build();
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
-        registry.add("bank.gateway.baseUrl", wireMock::baseUrl);
+        registry.add("bank.services.account.url", wireMockAccount::baseUrl);
+        registry.add("bank.services.cash.url", wireMockCash::baseUrl);
     }
 
+    //TODO test for cash not work because url(before one gateway url after three urls)
     @Autowired
     private MockMvc mockMvc;
 
@@ -72,10 +79,10 @@ public class FrontMainControllerIT {
 
     @Test
     void index_shouldRedirectToAccount() throws Exception {
-        mockMvc.perform(get("/")
+        mockMvc.perform(get("/ui")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"));
+                .andExpect(redirectedUrl("/ui/account"));
     }
 
     @Test
@@ -89,20 +96,20 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMock.stubFor(WireMock.get(urlEqualTo("/accounts/me"))
+        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(currentAccount))));
 
-        wireMock.stubFor(WireMock.get(urlPathEqualTo("/accounts"))
+        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(otherAccounts))));
 
-        mockMvc.perform(get("/account")
+        mockMvc.perform(get("/ui/account")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
@@ -124,24 +131,24 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMock.stubFor(WireMock.get(urlEqualTo("/accounts/me"))
+        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse().withStatus(404)));
 
-        wireMock.stubFor(WireMock.get(urlPathEqualTo("/accounts"))
+        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(otherAccounts))));
 
-        mockMvc.perform(get("/account")
+        mockMvc.perform(get("/ui/account")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", otherAccounts))
-                .andExpect(model().attribute("errors", hasItem("Аккаунт не найден. Проверьте идентификатор.")))
+                .andExpect(model().attribute("errors", hasItem("Сервис аккаунтов временно недоступен. Пожалуйста, попробуйте позже.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
@@ -153,17 +160,17 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMock.stubFor(WireMock.get(urlEqualTo("/accounts/me"))
+        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(currentAccount))));
 
-        wireMock.stubFor(WireMock.get(urlPathEqualTo("/accounts"))
+        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse().withStatus(500)));
 
-        mockMvc.perform(get("/account")
+        mockMvc.perform(get("/ui/account")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
@@ -171,30 +178,29 @@ public class FrontMainControllerIT {
                 .andExpect(model().attribute("account", currentAccount))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
-                .andExpect(model().attribute("errors", hasItem("Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку.")))
+                .andExpect(model().attribute("errors", hasItem("Сервис аккаунтов временно недоступен.")))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
 
     @Test
     void showMainPage_whenBothFail_shouldReturnBothErrors() throws Exception {
-        wireMock.stubFor(WireMock.get(urlEqualTo("/accounts/me"))
+        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse().withStatus(404)));
 
-        wireMock.stubFor(WireMock.get(urlPathEqualTo("/accounts"))
+        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse().withStatus(500)));
 
-        mockMvc.perform(get("/account")
+        mockMvc.perform(get("/ui/account")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("accounts"))
                 .andExpect(model().attribute("accounts", emptyIterable()))
-                // Исправлено: оба новых сообщения
                 .andExpect(model().attribute("errors", containsInAnyOrder(
-                        "Аккаунт не найден. Проверьте идентификатор.",
-                        "Ошибка при обращении к сервису аккаунтов. Попробуйте ещё раз или обратитесь в поддержку."
+                        "Сервис аккаунтов временно недоступен.",
+                        "Сервис аккаунтов временно недоступен. Пожалуйста, попробуйте позже."
                 )))
                 .andExpect(model().attributeDoesNotExist("info"));
     }
@@ -209,114 +215,114 @@ public class FrontMainControllerIT {
                 new AccountDto("testuser", "Updated Name", BigDecimal.valueOf(1000.00), "1990-01-01")
         );
 
-        wireMock.stubFor(put(urlEqualTo("/accounts"))
+        wireMockAccount.stubFor(put(urlEqualTo("/api/v1/accounts"))
                 .withRequestBody(equalToJson(testMapper.writeValueAsString(editDto)))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(responseBody)));
 
-        mockMvc.perform(post("/account")
+        mockMvc.perform(post("/ui/account")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("name", "Updated Name")
                         .param("birthdate", "1990-01-01"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("info"))
                 .andExpect(flash().attribute("info", "Данные успешно обновлены"));
     }
 
     @Test
     void updateAccount_whenAccountServiceReturns404_shouldRedirectWithErrorFlash() throws Exception {
-        wireMock.stubFor(put(urlEqualTo("/accounts"))
+        wireMockAccount.stubFor(put(urlEqualTo("/api/v1/accounts"))
                 .willReturn(aResponse().withStatus(404)));
 
-        mockMvc.perform(post("/account")
+        mockMvc.perform(post("/ui/account")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("name", "New Name")
                         .param("birthdate", "1990-01-01"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("errors"))
                 .andExpect(flash().attribute("errors", List.of("Аккаунт не найден. Проверьте идентификатор.")));
     }
 
     @Test
     void updateAccount_validationError_shouldRedirectWithoutCallingService() throws Exception {
-        mockMvc.perform(post("/account")
+        mockMvc.perform(post("/ui/account")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("name", "")
                         .param("birthdate", "1990-01-01"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("errors"));
     }
     @Test
     void cash_success_withdraw() throws Exception {
-        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"id\":1,\"amount\":100.0}")));
 
-        mockMvc.perform(post("/cash")
+        mockMvc.perform(post("/ui/cash")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("amount", "100")
                         .param("action", "GET"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("info"))
                 .andExpect(flash().attribute("info", "Снято 100"));
     }
 
     @Test
     void cash_success_deposit() throws Exception {
-        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"id\":1,\"amount\":50.0}")));
 
-        mockMvc.perform(post("/cash")
+        mockMvc.perform(post("/ui/cash")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("amount", "50")
                         .param("action", "PUT"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("info"))
                 .andExpect(flash().attribute("info", "Положено 50"));
     }
 
     @Test
     void cash_validationError() throws Exception {
-        mockMvc.perform(post("/cash")
+        mockMvc.perform(post("/ui/cash")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("amount", "-10")
                         .param("action", "GET"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("errors"))
                 .andExpect(flash().attribute("errors", hasSize(greaterThan(0))));
     }
 
     @Test
     void cash_serviceError() throws Exception {
-        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/cash/owner/operations"))
+        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse().withStatus(400)));
 
-        mockMvc.perform(post("/cash")
+        mockMvc.perform(post("/ui/cash")
                         .with(csrf())
                         .with(user("testuser").roles("USER"))
                         .param("amount", "100")
                         .param("action", "GET"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/account"))
+                .andExpect(redirectedUrl("/ui/account"))
                 .andExpect(flash().attributeExists("errors"))
                 .andExpect(flash().attribute("errors", hasItem(containsString("Некорректный запрос"))));
     }
