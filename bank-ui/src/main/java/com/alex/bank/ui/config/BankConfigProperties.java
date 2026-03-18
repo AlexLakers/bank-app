@@ -16,6 +16,7 @@ public class BankConfigProperties {
     private ServiceUrl account;
     private ServiceUrl transfer;
     private ServiceUrl cash;
+    private ServiceUrl gateway;
 
    @Getter
    @Setter

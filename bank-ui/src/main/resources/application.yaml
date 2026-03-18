@@ -20,10 +20,6 @@ spring:
             client-secret: ${OAUTH2_SECRET_UI}
             authorization-grant-type: authorization_code
             scope: openid, profile, email
-            # redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-            # redirect-uri: "http://192.168.49.2:30690/login/oauth2/code/keycloak"
-            #redirect-uri: "http://192.168.49.2:30690/login/oauth2/code/keycloak"
-            #redirect-uri: http://localhost:${APP_PORT_UI:8083}/login/oauth2/code/keycloak
             redirect-uri: ${APP_BASE_URL}/login/oauth2/code/keycloak
             provider: keycloak
 
@@ -45,9 +41,9 @@ spring:
     import: "optional:consul:"
 
 bank:
-  gateway:
-    baseUrl: ${GATEWAY_API_URL:http://api-gateway}
   services:
+    gateway:
+      url: ${GATEWAY_API_URL:http://api-gateway}
     account:
       url: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
     transfer:

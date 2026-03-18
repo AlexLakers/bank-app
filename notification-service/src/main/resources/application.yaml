@@ -5,9 +5,9 @@ spring:
   security:
     oauth2:
       resourceserver:
-        jwt:
-          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
+       jwt:
+         issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
+         jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     loadbalancer:
       enabled: false
@@ -27,8 +27,9 @@ spring:
 
 logging:
   level:
-    com.alex.bank.notification: INFO
-    root: WARN
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    root: DEBUG
   #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
 

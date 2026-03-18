@@ -27,7 +27,7 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           keycloak:
-            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
         #resourceserver:
         # jwt:
         #  jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
@@ -56,7 +56,10 @@ logging:
     com.alex.bank.account: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
-    root: WARN
+    com.alex.bank.account.client: DEBUG
+    org.springframework.security.oauth2.client: TRACE
+    org.springframework.security.oauth2.server.resource: DEBUG
+    root: DEBUG
   #file:
     #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
 

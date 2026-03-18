@@ -29,7 +29,7 @@ public class RestClientConfig {
     public RestClient accountsRestClient(RestClient.Builder restClientBuilder,
                                          BankConfigProperties bankConfigProperties) {
         return restClientBuilder
-                .baseUrl(bankConfigProperties.getAccount().getUrl())
+                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getAccount().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
@@ -37,10 +37,8 @@ public class RestClientConfig {
     public RestClient cashRestClient(RestClient.Builder restClientBuilder,
                                      BankConfigProperties bankConfigProperties
     ) {
-        String baseUrl = bankConfigProperties.getCash() != null ? bankConfigProperties.getCash().getUrl() : "http://default";
-        System.out.println("===== cashRestClient baseUrl = " + baseUrl);
         return restClientBuilder
-                .baseUrl(bankConfigProperties.getCash().getUrl())
+                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getCash().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
@@ -49,7 +47,7 @@ public class RestClientConfig {
                                          BankConfigProperties bankConfigProperties
     ) {
         return restClientBuilder
-                .baseUrl(bankConfigProperties.getTransfer().getUrl())
+                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getTransfer().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
