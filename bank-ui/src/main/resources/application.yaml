@@ -43,7 +43,7 @@ spring:
 bank:
   services:
     gateway:
-      url: ${GATEWAY_API_URL:http://api-gateway}
+      url: ${GATEWAY_API_URL:http://api-gateway:8888}
     account:
       url: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
     transfer:

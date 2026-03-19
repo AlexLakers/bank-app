@@ -29,7 +29,7 @@ public class RestClientConfig {
     public RestClient accountsRestClient(RestClient.Builder restClientBuilder,
                                          BankConfigProperties bankConfigProperties) {
         return restClientBuilder
-                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getAccount().getUrl())
+                .baseUrl(bankConfigProperties.getGateway().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
@@ -38,7 +38,7 @@ public class RestClientConfig {
                                      BankConfigProperties bankConfigProperties
     ) {
         return restClientBuilder
-                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getCash().getUrl())
+                .baseUrl(bankConfigProperties.getGateway().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }
@@ -47,7 +47,7 @@ public class RestClientConfig {
                                          BankConfigProperties bankConfigProperties
     ) {
         return restClientBuilder
-                .baseUrl(bankConfigProperties/*.getGateway().getUrl()*/.getTransfer().getUrl())
+                .baseUrl(bankConfigProperties.getGateway().getUrl())
                 .requestInterceptor(getAuthorizationInterceptor())
                 .build();
     }

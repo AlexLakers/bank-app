@@ -55,22 +55,15 @@ public class FrontMainControllerIT {
 
 
     @RegisterExtension
-    static WireMockExtension wireMockAccount = WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort())
-            .build();
-
-    @RegisterExtension
-    static WireMockExtension wireMockCash = WireMockExtension.newInstance()
+    static WireMockExtension wireMockGateway = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort())
             .build();
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
-        registry.add("bank.services.account.url", wireMockAccount::baseUrl);
-        registry.add("bank.services.cash.url", wireMockCash::baseUrl);
+        registry.add("bank.services.gateway.url", wireMockGateway::baseUrl);
     }
 
-    //TODO test for cash not work because url(before one gateway url after three urls)
     @Autowired
     private MockMvc mockMvc;
 
@@ -96,13 +89,13 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
+        wireMockGateway.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(currentAccount))));
 
-        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -131,10 +124,10 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
+        wireMockGateway.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse().withStatus(404)));
 
-        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -160,13 +153,13 @@ public class FrontMainControllerIT {
                 .modules(new JavaTimeModule())
                 .build();
 
-        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
+        wireMockGateway.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(testMapper.writeValueAsString(currentAccount))));
 
-        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse().withStatus(500)));
 
@@ -184,10 +177,10 @@ public class FrontMainControllerIT {
 
     @Test
     void showMainPage_whenBothFail_shouldReturnBothErrors() throws Exception {
-        wireMockAccount.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
+        wireMockGateway.stubFor(WireMock.get(urlEqualTo("/api/v1/accounts/me"))
                 .willReturn(aResponse().withStatus(404)));
 
-        wireMockAccount.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(WireMock.get(urlPathEqualTo("/api/v1/accounts"))
                 .withQueryParam("excludeCurrent", equalTo("true"))
                 .willReturn(aResponse().withStatus(500)));
 
@@ -215,7 +208,7 @@ public class FrontMainControllerIT {
                 new AccountDto("testuser", "Updated Name", BigDecimal.valueOf(1000.00), "1990-01-01")
         );
 
-        wireMockAccount.stubFor(put(urlEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(put(urlEqualTo("/api/v1/accounts"))
                 .withRequestBody(equalToJson(testMapper.writeValueAsString(editDto)))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -235,7 +228,7 @@ public class FrontMainControllerIT {
 
     @Test
     void updateAccount_whenAccountServiceReturns404_shouldRedirectWithErrorFlash() throws Exception {
-        wireMockAccount.stubFor(put(urlEqualTo("/api/v1/accounts"))
+        wireMockGateway.stubFor(put(urlEqualTo("/api/v1/accounts"))
                 .willReturn(aResponse().withStatus(404)));
 
         mockMvc.perform(post("/ui/account")
@@ -262,7 +255,7 @@ public class FrontMainControllerIT {
     }
     @Test
     void cash_success_withdraw() throws Exception {
-        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
+        wireMockGateway.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -281,7 +274,7 @@ public class FrontMainControllerIT {
 
     @Test
     void cash_success_deposit() throws Exception {
-        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
+        wireMockGateway.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -313,7 +306,7 @@ public class FrontMainControllerIT {
 
     @Test
     void cash_serviceError() throws Exception {
-        wireMockCash.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
+        wireMockGateway.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post(urlEqualTo("/api/v1/cash/owner/operations"))
                 .willReturn(aResponse().withStatus(400)));
 
         mockMvc.perform(post("/ui/cash")
