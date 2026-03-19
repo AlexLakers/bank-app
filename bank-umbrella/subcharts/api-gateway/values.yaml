@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: your-registry/gateway
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8888
+
+keycloakExternalUrl: "http://192.168.49.2:31080"
+
+accountServiceUrl: "http://my-bank-account-service:8082"
+cashServiceUrl: "http://my-bank-cash-service:8084"
+transferServiceUrl: "http://my-bank-transfer-service:8085"
+
+#extraEnv: []
+   #- name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY
+     #value: DEBUG
+   #- name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_CLIENT
+     #value: DEBUG
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

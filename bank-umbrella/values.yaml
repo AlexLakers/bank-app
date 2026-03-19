@@ -113,7 +113,7 @@ bank-ui:
   service:
     port: 8083
   keycloakExternalUrl: "http://192.168.49.2:31080"
-  gatewayUrl: "http://{{ .Release.Name }}-account-service:8082"
+  gatewayUrl: "http://{{ .Release.Name }}-api-gateway:8888"
   appBaseUrl: "http://192.168.49.2:30690"
   accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
   transferServiceUrl: "http://{{ .Release.Name }}-transfer-service:8085"
