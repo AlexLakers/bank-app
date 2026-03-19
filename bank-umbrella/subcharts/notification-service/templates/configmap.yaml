@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "notification-service.fullname" . }}-config
+  labels:
+    {{- include "notification-service.labels" . | nindent 4 }}
+data:
+  KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl | quote }}
+  APP_PORT_NOTIF: {{ .Values.service.port | quote }}

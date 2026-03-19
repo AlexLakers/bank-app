@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: notification
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  port: 8086
+
+keycloakExternalUrl: "http://192.168.49.2:31080"
+
+logLevel: INFO
+
+resources: {}
