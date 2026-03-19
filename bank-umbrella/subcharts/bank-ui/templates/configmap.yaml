@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bank-ui.fullname" . }}-config
+  labels:
+    {{- include "bank-ui.labels" . | nindent 4 }}
+data:
+  KEYCLOAK_HOST: {{ tpl .Values.keycloak.host $ }}
+  KEYCLOAK_PORT: {{ .Values.keycloak.port | quote }}
+  OAUTH2_CLIENT_ID_UI: {{ .Values.keycloak.clientId }}
+
+  APP_PORT_UI: {{ .Values.servicePort | quote }}
+
+  GATEWAY_API_URL: {{ tpl .Values.gatewayUrl $ }}
+  KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl }}
+  APP_BASE_URL: {{ .Values.appBaseUrl }}
+  ACCOUNT_SERVICE_URL: {{ tpl .Values.accountServiceUrl $ }}
+  TRANSFER_SERVICE_URL: {{ tpl .Values.transferServiceUrl $ }}
+  CASH_SERVICE_URL: {{ tpl .Values.cashServiceUrl $ }}
+

@@ -1,0 +1,15 @@
+replicaCount: 1
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: ""
+nameOverride: ""
+fullnameOverride: ""
+postgresPassword: ""
+databases:
+  - accountdb
+  - transferdb
+  - cashdb
+storage:
+  size: 100Mi
+  storageClassName: ""

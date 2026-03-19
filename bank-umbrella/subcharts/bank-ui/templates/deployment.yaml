@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bank-ui.fullname" . }}
+  labels:
+    {{- include "bank-ui.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bank-ui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bank-ui.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.servicePort }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ include "bank-ui.fullname" . }}-config
+          env:
+            - name: OAUTH2_SECRET_UI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bank-ui.fullname" . }}-secrets
+                  key: OAUTH2_SECRET_UI
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
