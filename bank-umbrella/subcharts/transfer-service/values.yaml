@@ -1,0 +1,34 @@
+transfer-service:
+  replicaCount: 1
+
+  image:
+    repository: transfer
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  database:
+    host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
+    port: 5432
+    name: transferdb          # Имя БД для transfer-service
+    user: postgres            # Или transferuser, если создавали отдельного пользователя
+    password: ""              # Заполняется при установке (например, через --set)
+
+  keycloak:
+    host: "{{ .Release.Name }}-keycloak"
+    port: 8080
+    realm: bank-realm
+    clientId: transfer-service
+    clientSecret: ""          # Заполните секретом из realm-export (bOZYwYKxkbgQrZkXYTWr8Oa83jHuaKCc)
+
+  services:
+    notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+    accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+
+  servicePort: 8085            # Порт transfer-service
+
+  keycloakExternalUrl: "http://192.168.49.2:31080"   # Ваш внешний URL Keycloak
+
+  resources: {}

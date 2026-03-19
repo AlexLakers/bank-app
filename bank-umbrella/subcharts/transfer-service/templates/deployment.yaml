@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "transfer-service.fullname" . }}
+  labels:
+    {{- include "transfer-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "transfer-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "transfer-service.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ include "transfer-service.fullname" . }}-config
+          env:
+            - name: DB_PASS_TRANSFER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "transfer-service.fullname" . }}-secrets
+                  key: DB_PASS_TRANSFER
+            - name: OAUTH2_SECRET_TRANSFER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "transfer-service.fullname" . }}-secrets
+                  key: OAUTH2_SECRET_TRANSFER
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
