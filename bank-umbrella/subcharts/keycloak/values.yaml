@@ -1,0 +1,36 @@
+# Default values for keycloak.
+replicaCount: 1
+
+image:
+  repository: quay.io/keycloak/keycloak
+  pullPolicy: IfNotPresent
+  tag: "24.0.2"
+
+nameOverride: ""
+fullnameOverride: ""
+
+admin:
+  login: admin
+  password: ""
+
+hostname: ""
+
+httpPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  nodePort: null
+
+realmImport:
+  enabled: true
+  filename: realm-export.json
+
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
