@@ -38,9 +38,6 @@ keycloak:
   realmImport:
     enabled: true
     filename: realm-export.json
-  #service:
-    #type: NodePort
-    #nodePort: 31080
 
 account-service:
   enabled: true
@@ -48,10 +45,14 @@ account-service:
     repository: account
     tag: latest
   keycloak:
+    #host: "{{ .Release.Name }}-keycloak"
+    #port: 8080
+    #realm: bank-realm
+    #clientId: account-service
     clientSecret: ""
   service:
     port: 8082
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
 
@@ -68,10 +69,10 @@ transfer-service:
     user: postgres
     password: ""
   keycloak:
-    host: "{{ .Release.Name }}-keycloak"
-    port: 8080
-    realm: bank-realm
-    clientId: transfer-service
+    #host: "{{ .Release.Name }}-keycloak"
+    #port: 8080
+    #realm: bank-realm
+    #clientId: transfer-service
     clientSecret: ""
   service:
     port: 8085
@@ -86,10 +87,14 @@ cash-service:
     repository: cash
     tag: latest
   keycloak:
+    #host: "{{ .Release.Name }}-keycloak"
+    #port: 8080
+    #realm: bank-realm
+    #clientId: cash-service
     clientSecret: ""
   service:
     port: 8084
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
     accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
@@ -109,10 +114,14 @@ bank-ui:
     repository: ui
     tag: latest
   keycloak:
+    #host: "{{ .Release.Name }}-keycloak"
+    #port: 8080
+    #realm: bank-realm
+    #clientId: bank-ui
     clientSecret: ""
   service:
     port: 8083
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   gatewayUrl: "http://{{ .Release.Name }}-api-gateway:8888"
   appBaseUrl: "http://192.168.49.2:30690"
   accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
@@ -126,9 +135,8 @@ api-gateway:
     repository: gateway
     tag: latest
   service:
-    #type: ClusterIP
     port: 8888
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
   cashServiceUrl: "http://{{ .Release.Name }}-cash-service:8084"
   transferServiceUrl: "http://{{ .Release.Name }}-transfer-service:8085"

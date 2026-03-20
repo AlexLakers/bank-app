@@ -28,6 +28,6 @@ services:
 
 servicePort: 8084
 
-keycloakExternalUrl: ""  
+keycloakExternalUrl: "http://192.168.49.2:31080"  
 
 resources: {}

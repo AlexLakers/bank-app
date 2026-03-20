@@ -1,34 +1,33 @@
-transfer-service:
-  replicaCount: 1
+replicaCount: 1
 
-  image:
-    repository: transfer
-    tag: latest
-    pullPolicy: IfNotPresent
+image:
+  repository: transfer
+  tag: latest
+  pullPolicy: IfNotPresent
 
-  nameOverride: ""
-  fullnameOverride: ""
+nameOverride: ""
+fullnameOverride: ""
 
-  database:
-    host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
-    port: 5432
-    name: transferdb        
-    user: postgres           
-    password: ""             
+database:
+  host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
+  port: 5432
+  name: transferdb
+  user: postgres
+  password: ""
 
-  keycloak:
-    host: "{{ .Release.Name }}-keycloak"
-    port: 8080
-    realm: bank-realm
-    clientId: transfer-service
-    clientSecret: ""
+keycloak:
+  host: "{{ .Release.Name }}-keycloak"
+  port: 8080
+  realm: bank-realm
+  clientId: transfer-service
+  clientSecret: ""
 
-  services:
-    notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
-    accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+services:
+  notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+  accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
 
-  servicePort: 8085
+servicePort: 8085
 
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+keycloakExternalUrl: "http://192.168.49.2:31080"
 
-  resources: {}
+resources: {}

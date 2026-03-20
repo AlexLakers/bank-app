@@ -43,6 +43,9 @@ data:
       level:
         com.alex.bank.gateway: INFO
         root: WARN
+        org.springframework.cloud.gateway: DEBUG   # для отладки
+        org.springframework.web.server: DEBUG
+        org.springframework.security: DEBUG
 
     server:
       port: {{ .Values.service.port }}

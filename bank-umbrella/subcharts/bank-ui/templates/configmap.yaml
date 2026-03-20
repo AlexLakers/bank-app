@@ -17,4 +17,3 @@ data:
   ACCOUNT_SERVICE_URL: {{ tpl .Values.accountServiceUrl $ }}
   TRANSFER_SERVICE_URL: {{ tpl .Values.transferServiceUrl $ }}
   CASH_SERVICE_URL: {{ tpl .Values.cashServiceUrl $ }}
-

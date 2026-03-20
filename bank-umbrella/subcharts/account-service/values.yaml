@@ -25,6 +25,7 @@ keycloak:
 services:
   notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
 
+keycloakExternalUrl: "http://192.168.49.2:31080"
 servicePort: 8082
 
 resources: {}
