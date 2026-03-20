@@ -42,7 +42,7 @@ keycloak:
 account-service:
   enabled: true
   image:
-    repository: account
+    repository: local/account
     tag: latest
   keycloak:
     #host: "{{ .Release.Name }}-keycloak"
@@ -59,15 +59,15 @@ account-service:
 transfer-service:
   enabled: true
   image:
-    repository: transfer
+    repository: local/transfer
     tag: latest
     pullPolicy: IfNotPresent
-  database:
-    host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
-    port: 5432
-    name: transferdb
-    user: postgres
-    password: ""
+  #database:
+    #host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
+    #port: 5432
+    #name: transferdb
+    #user: postgres
+    #password: ""
   keycloak:
     #host: "{{ .Release.Name }}-keycloak"
     #port: 8080
@@ -76,7 +76,7 @@ transfer-service:
     clientSecret: ""
   service:
     port: 8085
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
     accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
@@ -84,7 +84,7 @@ transfer-service:
 cash-service:
   enabled: true
   image:
-    repository: cash
+    repository: local/cash
     tag: latest
   keycloak:
     #host: "{{ .Release.Name }}-keycloak"
@@ -102,16 +102,16 @@ cash-service:
 notification-service:
   enabled: true
   image:
-    repository: notification
+    repository: local/notification
     tag: latest
-  keycloakExternalUrl: "http://192.168.49.2:31080"
+  #keycloakExternalUrl: "http://192.168.49.2:31080"
   service:
     port: 8086
 
 bank-ui:
   enabled: true
   image:
-    repository: ui
+    repository: local/ui
     tag: latest
   keycloak:
     #host: "{{ .Release.Name }}-keycloak"
@@ -132,7 +132,7 @@ api-gateway:
   enabled: true
   replicaCount: 1
   image:
-    repository: gateway
+    repository: local/gateway
     tag: latest
   service:
     port: 8888

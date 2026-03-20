@@ -24,35 +24,33 @@ spec:
               name: postgresql
           env:
             - name: POSTGRES_USER
-              value: postgres
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "postgres-stateful.fullname" . }}-config
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "postgres-stateful.fullname" . }}
                   key: postgres-password
             - name: POSTGRES_DB
-              value: postgres
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "postgres-stateful.fullname" . }}-config
+                  key: POSTGRES_DB
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - /bin/sh
-                  - -c
-                  - |
-                    until pg_isready -U postgres; do
-                      echo "Waiting for PostgreSQL to be ready..."
-                      sleep 2
-                    done
-                    for db in {{ .Values.databases | join " " }}; do
-                      echo "Checking database: $db"
-                      psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$db'" | grep -q 1 || psql -U postgres -c "CREATE DATABASE $db"
-                    done
-      volumes: []  # теперь volumes пуст (можно удалить эту строку или оставить)
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: {{ include "postgres-stateful.fullname" . }}-config
+            defaultMode: 0755
+            items:
+              - key: init-databases.sh
+                path: init-databases.sh
   volumeClaimTemplates:
     - metadata:
         name: data

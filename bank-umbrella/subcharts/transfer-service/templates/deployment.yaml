@@ -19,17 +19,19 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.servicePort }}
               name: http
           envFrom:
             - configMapRef:
                 name: {{ include "transfer-service.fullname" . }}-config
           env:
+            #- name: DB_PASS_TRANSFER
+              #value: postgres
             - name: DB_PASS_TRANSFER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "transfer-service.fullname" . }}-secrets
-                  key: DB_PASS_TRANSFER
+                  name: {{ .Release.Name }}-postgres-stateful
+                  key: postgres-password
             - name: OAUTH2_SECRET_TRANSFER
               valueFrom:
                 secretKeyRef:

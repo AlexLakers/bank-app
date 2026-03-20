@@ -21,19 +21,19 @@ data:
         gateway:
           routes:
             - id: account-service
-              uri: {{ .Values.accountServiceUrl }}
+              uri: {{ tpl .Values.accountServiceUrl $ }}
               predicates:
                 - Path=/api/v1/accounts/**
               filters:
                 - name: JwtTokenRelay
             - id: cash-service
-              uri: {{ .Values.cashServiceUrl }}
+              uri: {{ tpl .Values.cashServiceUrl $ }}
               predicates:
                 - Path=/api/v1/cash/**
               filters:
                 - name: JwtTokenRelay
             - id: transfer-service
-              uri: {{ .Values.transferServiceUrl }}
+              uri: {{ tpl .Values.transferServiceUrl $ }}
               predicates:
                 - Path=/api/v1/transfer/**
               filters:
