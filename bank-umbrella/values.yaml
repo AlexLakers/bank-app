@@ -34,13 +34,13 @@ keycloak:
   enabled: true
   admin:
     login: admin
-    password:
+    password: admin123
   realmImport:
     enabled: true
     filename: realm-export.json
-  service:
-    type: NodePort
-    nodePort: 31080
+  #service:
+    #type: NodePort
+    #nodePort: 31080
 
 account-service:
   enabled: true
@@ -66,7 +66,7 @@ transfer-service:
     port: 5432
     name: transferdb
     user: postgres
-    password: "postgres"
+    password: ""
   keycloak:
     host: "{{ .Release.Name }}-keycloak"
     port: 8080
@@ -126,9 +126,9 @@ api-gateway:
     repository: gateway
     tag: latest
   service:
-    type: ClusterIP
+    #type: ClusterIP
     port: 8888
   keycloakExternalUrl: "http://192.168.49.2:31080"
-  accountServiceUrl: "http://my-bank-account-service:8082"
-  cashServiceUrl: "http://my-bank-cash-service:8084"
-  transferServiceUrl: "http://my-bank-transfer-service:8085"
+  accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  cashServiceUrl: "http://{{ .Release.Name }}-cash-service:8084"
+  transferServiceUrl: "http://{{ .Release.Name }}-transfer-service:8085"

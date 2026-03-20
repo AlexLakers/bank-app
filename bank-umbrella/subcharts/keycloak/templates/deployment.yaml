@@ -19,7 +19,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.httpPort }}
+            - containerPort: {{ .Values.service.targetPort  }}
               name: http
           env:
             - name: KEYCLOAK_ADMIN
@@ -32,11 +32,11 @@ spec:
             - name: KC_HOSTNAME
               value: {{ .Values.hostname }}
             - name: KC_HTTP_PORT
-              value: {{ .Values.httpPort | quote }}
+              value: {{ .Values.service.targetPort | quote }}
           args:
             - "start-dev"
             - "--import-realm"
-            - "--http-port={{ .Values.httpPort }}"
+            - "--http-port={{ .Values.service.targetPort }}"
           volumeMounts:
             - name: realm-config
               mountPath: /opt/keycloak/data/import

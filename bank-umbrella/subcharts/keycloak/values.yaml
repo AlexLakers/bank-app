@@ -15,12 +15,13 @@ admin:
 
 hostname: ""
 
-httpPort: 8080
+#httpPort: 8080
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8080
-  nodePort: null
+  targetPort: 8080
+  nodePort: 31080
 
 realmImport:
   enabled: true
