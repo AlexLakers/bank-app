@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-test-api-gateway"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test
+      image: curlimages/curl:latest
+      command:
+        - sh
+        - -c
+        - |
+          curl -f http://{{ .Release.Name }}-api-gateway:{{ .Values.service.port }}/actuator/health || exit 1
+  restartPolicy: Never
