@@ -1,7 +1,8 @@
+#Default values for transfer-service
 replicaCount: 1
 
 image:
-  repository: transfer
+  repository: local/transfer
   tag: latest
   pullPolicy: IfNotPresent
 

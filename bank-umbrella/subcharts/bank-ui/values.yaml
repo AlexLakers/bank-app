@@ -1,7 +1,8 @@
+#Default Values for bank-ui
 replicaCount: 1
 
 image:
-  repository: ui
+  repository: local/ui
   tag: latest
   pullPolicy: IfNotPresent
 

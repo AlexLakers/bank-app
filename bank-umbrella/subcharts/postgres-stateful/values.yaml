@@ -1,3 +1,4 @@
+#Default Values for postgres statefulSet
 replicaCount: 1
 image:
   repository: postgres

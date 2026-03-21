@@ -1,7 +1,8 @@
+#Default Values for notification-service
 replicaCount: 1
 
 image:
-  repository: notification
+  repository: local/notification
   tag: latest
   pullPolicy: IfNotPresent
 

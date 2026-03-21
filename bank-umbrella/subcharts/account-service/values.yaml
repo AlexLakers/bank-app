@@ -1,7 +1,8 @@
+#Default Values for account-service
 replicaCount: 1
 
 image:
-  repository: account
+  repository: local/account
   tag: latest
   pullPolicy: IfNotPresent
 

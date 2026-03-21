@@ -1,7 +1,9 @@
+#Default Values for cash-service
+
 replicaCount: 1
 
 image:
-  repository: cash
+  repository: local/cash
   tag: latest
   pullPolicy: IfNotPresent
 

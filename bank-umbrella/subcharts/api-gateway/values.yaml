@@ -1,7 +1,8 @@
+#Default Values for api-gateway
 replicaCount: 1
 
 image:
-  repository: your-registry/gateway
+  repository: local/gateway
   pullPolicy: IfNotPresent
   tag: "latest"
 

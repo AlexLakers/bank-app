@@ -38,11 +38,13 @@ spec:
                 configMapKeyRef:
                   name: {{ include "postgres-stateful.fullname" . }}-config
                   key: POSTGRES_DB
+                  #Mount init script and persistentvolume for data
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
+          #Volume for init script
       volumes:
         - name: init-scripts
           configMap:
@@ -51,6 +53,7 @@ spec:
             items:
               - key: init-databases.sh
                 path: init-databases.sh
+                #Claim for getting persistent volume(for data)
   volumeClaimTemplates:
     - metadata:
         name: data

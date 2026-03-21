@@ -25,14 +25,12 @@ spec:
             - configMapRef:
                 name: {{ include "transfer-service.fullname" . }}-config
           env:
-            #- name: DB_PASS_TRANSFER
-              #value: postgres
-            - name: DB_PASS_TRANSFER
+            - name: DB_PASS_TRANSFER		#from steteful secret
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-postgres-stateful
                   key: postgres-password
-            - name: OAUTH2_SECRET_TRANSFER
+            - name: OAUTH2_SECRET_TRANSFER    #from current secret
               valueFrom:
                 secretKeyRef:
                   name: {{ include "transfer-service.fullname" . }}-secrets

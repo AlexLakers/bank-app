@@ -25,12 +25,12 @@ spec:
             - configMapRef:
                 name: {{ include "account-service.fullname" . }}-config
           env:
-            - name: DB_PASS_ACCOUNT
+            - name: DB_PASS_ACCOUNT #from secret StetefuleSet
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-postgres-stateful
                   key: postgres-password
-            - name: OAUTH2_SECRET_ACCOUNT
+            - name: OAUTH2_SECRET_ACCOUNT  #from current secret
               valueFrom:
                 secretKeyRef:
                   name: {{ include "account-service.fullname" . }}-secrets

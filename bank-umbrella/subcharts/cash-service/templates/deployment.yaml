@@ -28,9 +28,9 @@ spec:
             - name: DB_PASS_CASH
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-postgres-stateful
+                  name: {{ .Release.Name }}-postgres-stateful # from stetefullsecret
                   key: postgres-password
-            - name: OAUTH2_SECRET_CASH
+            - name: OAUTH2_SECRET_CASH			       #from current secret
               valueFrom:
                 secretKeyRef:
                   name: {{ include "cash-service.fullname" . }}-secrets
