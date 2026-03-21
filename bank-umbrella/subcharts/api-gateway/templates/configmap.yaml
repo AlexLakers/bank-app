@@ -1,3 +1,5 @@
+
+#Describes application.yaml for api-gateway(route list and other)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -43,9 +45,17 @@ data:
       level:
         com.alex.bank.gateway: INFO
         root: WARN
-        org.springframework.cloud.gateway: DEBUG   # для отладки
+        org.springframework.cloud.gateway: DEBUG
         org.springframework.web.server: DEBUG
         org.springframework.security: DEBUG
-
+    management:
+      endpoint:
+        health:
+          probes:
+            enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: health
     server:
       port: {{ .Values.service.port }}

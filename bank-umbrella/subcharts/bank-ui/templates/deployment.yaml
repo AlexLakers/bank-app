@@ -29,6 +29,6 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "bank-ui.fullname" . }}-secrets  #from current secret
-                  key: OAUTH2_SECRET_UI
+                  key: OAUTH2_SECRET_UI        
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

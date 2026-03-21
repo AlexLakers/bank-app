@@ -35,5 +35,22 @@ spec:
                 secretKeyRef:
                   name: {{ include "transfer-service.fullname" . }}-secrets
                   key: OAUTH2_SECRET_TRANSFER
+                    #Probes
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.servicePort }}
+            initialDelaySeconds: 30 
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.servicePort }}
+            initialDelaySeconds: 40
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

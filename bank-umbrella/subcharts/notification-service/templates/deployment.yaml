@@ -24,5 +24,22 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "notification-service.fullname" . }}-config
+                    #Probes
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 30 
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 40
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

@@ -38,13 +38,34 @@ spec:
                 configMapKeyRef:
                   name: {{ include "postgres-stateful.fullname" . }}-config
                   key: POSTGRES_DB
-                  #Mount init script and persistentvolume for data
+          # Mount init script and persistent volume for data
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
-          #Volume for init script
+          # Probes
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 1
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 1
+      # Volume for init script
       volumes:
         - name: init-scripts
           configMap:
@@ -53,7 +74,7 @@ spec:
             items:
               - key: init-databases.sh
                 path: init-databases.sh
-                #Claim for getting persistent volume(for data)
+  # Claim for getting persistent volume (for data)
   volumeClaimTemplates:
     - metadata:
         name: data

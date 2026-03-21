@@ -32,6 +32,14 @@ logging:
     root: DEBUG
   #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
-
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
 server:
   port: ${APP_PORT_NOTIF:8086}
