@@ -230,6 +230,18 @@ docker compose up -d
 Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами.
 
 - Предварительно нужно установить ```Minikube```, ```kubectl```.
+- Запускаем кластер
+  ```
+  minikube start
+  ```
+
+- Собираем Docker-images для каждого сервиса внутри кластера Minikube. Из папки проекта.
+ ```
+  eval $(minikube docker-env)
+  docker build -f bank-ui/Dockerfile -t local/ui:latest .
+  docker build -f account-service/Dockerfile -t local/account:latest .
+  ......
+  ```
 - В корне проекта откройте(перейдите) в каталог ```bank-umbrella```
 - Можно использовать разные пространства для логического разделения в кластере, мы используем ```test```.
 - Запустите команду для сборки зависимостей, указанных в зонтичном(родительском) файле 'Chart.yaml'.
