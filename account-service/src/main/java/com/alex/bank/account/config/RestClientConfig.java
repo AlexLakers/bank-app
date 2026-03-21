@@ -31,7 +31,7 @@ public class RestClientConfig {
     }
 
     @Bean
-    @LoadBalanced
+    //@LoadBalanced
     public RestClient.Builder restClientBuilder() {
         return RestClient.builder();
     }
@@ -57,7 +57,6 @@ public class RestClientConfig {
             request.getHeaders().setBearerAuth(token);
             return execution.execute(request, body);
         };
-//"http://notification-service"
         return restClientBuilder
                 .baseUrl(accountServicePropertiesConfig.getBaseUrl())
                 .requestInterceptor(tokenInterceptor)

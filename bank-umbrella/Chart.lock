@@ -1,0 +1,27 @@
+dependencies:
+- name: postgres-stateful
+  repository: file://subcharts/postgres-stateful
+  version: 0.1.0
+- name: keycloak
+  repository: file://subcharts/keycloak
+  version: 0.1.0
+- name: account-service
+  repository: file://subcharts/account-service
+  version: 0.1.0
+- name: bank-ui
+  repository: file://subcharts/bank-ui
+  version: 0.1.0
+- name: cash-service
+  repository: file://subcharts/cash-service
+  version: 0.1.0
+- name: transfer-service
+  repository: file://subcharts/transfer-service
+  version: 0.1.0
+- name: notification-service
+  repository: file://subcharts/notification-service
+  version: 0.1.0
+- name: api-gateway
+  repository: file://subcharts/api-gateway
+  version: 0.1.0
+digest: sha256:f8900bd111e9bfeab89accaa1a5232e228a8fe041915006c1a7bff4537f89084
+generated: "2026-03-19T07:27:15.26309255+03:00"

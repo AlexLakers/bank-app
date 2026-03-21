@@ -1,5 +1,6 @@
 server:
   port: ${APP_PORT_UI:8083}
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -10,7 +11,8 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+            #issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
+            issuer-uri: ${KEYCLOAK_EXTERNAL_URL}/realms/bank-realm
             user-name-attribute: preferred_username
         registration:
           keycloak:
@@ -18,24 +20,36 @@ spring:
             client-secret: ${OAUTH2_SECRET_UI}
             authorization-grant-type: authorization_code
             scope: openid, profile, email
-            redirect-uri: http://localhost:${APP_PORT_UI:8083}/login/oauth2/code/keycloak
+            redirect-uri: ${APP_BASE_URL}/login/oauth2/code/keycloak
             provider: keycloak
+
   cloud:
+    loadbalancer:
+      enabled: false
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
+        enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
+      enabled: false
   config:
     import: "optional:consul:"
 
 bank:
-  gateway:
-    baseUrl: ${GATEWAY_API_URL:http://api-gateway}
+  services:
+    gateway:
+      url: ${GATEWAY_API_URL:http://api-gateway:8888}
+    account:
+      url: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
+    transfer:
+      url: ${TRANSFER_SERVICE_URL:http://transfer-service:8080}
+    cash:
+      url: ${CASH_SERVICE_URL:http://cash-notification:8080}
 
 resilience4j:
   circuitbreaker:
@@ -61,11 +75,19 @@ resilience4j:
 
 logging:
   level:
-    com.alex.bank.ui: INFO
     root: WARN
+    com.alex.bank.ui: DEBUG
+    com.alex.bank.ui.config: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    io.github.resilience4j: DEBUG
-  file:
-    name: ${APP_DIR_UI:/home/alexlakers}/${spring.application.name}/app.log
-
+    org.springframework.web.client: DEBUG
+  #file:
+    #name: ${APP_DIR_UI:/home/alexlakers}/${spring.application.name}/app.log
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health

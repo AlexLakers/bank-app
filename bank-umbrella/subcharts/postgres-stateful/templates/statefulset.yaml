@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "postgres-stateful.fullname" . }}
+  labels:
+    {{- include "postgres-stateful.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "postgres-stateful.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "postgres-stateful.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "postgres-stateful.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 5432
+              name: postgresql
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "postgres-stateful.fullname" . }}-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres-stateful.fullname" . }}
+                  key: postgres-password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "postgres-stateful.fullname" . }}-config
+                  key: POSTGRES_DB
+          # Mount init script and persistent volume for data
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+          # Probes
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 1
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 1
+      # Volume for init script
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: {{ include "postgres-stateful.fullname" . }}-config
+            defaultMode: 0755
+            items:
+              - key: init-databases.sh
+                path: init-databases.sh
+  # Claim for getting persistent volume (for data)
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{- if .Values.storage.storageClassName }}
+        storageClassName: {{ .Values.storage.storageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.size }}

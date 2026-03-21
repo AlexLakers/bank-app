@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-test-postgres"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test
+      image: postgres:latest
+      command:
+        - sh
+        - -c
+        - |
+          PGPASSWORD={{ .Values.postgresPassword }} psql -h {{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local -U postgres -d postgres -c "SELECT 1" || exit 1
+  restartPolicy: Never

@@ -1,0 +1,35 @@
+#Default Values for cash-service
+
+replicaCount: 1
+
+image:
+  repository: local/cash
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+database:
+  host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
+  port: 5432
+  name: cashdb
+  user: postgres
+  password: ""
+
+keycloak:
+  host: "{{ .Release.Name }}-keycloak"
+  port: 8080
+  realm: bank-realm
+  clientId: cash-service
+  clientSecret: ""  
+
+services:
+  notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+  accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+
+servicePort: 8084
+
+keycloakExternalUrl: "http://192.168.49.2:31080"  
+
+resources: {}

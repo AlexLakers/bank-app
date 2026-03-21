@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bank-ui.fullname" . }}
+  labels:
+    {{- include "bank-ui.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.servicePort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "bank-ui.selectorLabels" . | nindent 4 }}
