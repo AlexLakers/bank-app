@@ -975,7 +975,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "",
       "redirectUris": [
         "/*"
       ],
@@ -1094,7 +1094,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "RKMThZ8TkQlLzcdN4wW6IOxL9Ele9uwc",
+      "secret": "",
       "redirectUris": [
         "http://192.168.49.2:30690/*",
         "http://192.168.49.2/login/oauth2/code/keycloak",
