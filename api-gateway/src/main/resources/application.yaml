@@ -6,24 +6,24 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
 
 
   cloud:
     loadbalancer:
-      enabled: false
+      enabled: true
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
-        enabled: false
+        enabled: true
       config:
-        enabled: false
+        enabled: true
         defaultContext: application
         data-key: data
-      enabled: false
+      enabled: true
 
 
     gateway:

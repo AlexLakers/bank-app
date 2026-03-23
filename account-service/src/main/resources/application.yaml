@@ -27,27 +27,27 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-        #resourceserver:
+            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+        resourceserver:
         # jwt:
         #  jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
         #  issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
-        enabled: false
+        enabled: true
       config:
-        enabled: false
+        enabled: true
         defaultContext: application
         data-key: data
-      enabled: false
+      enabled: true
   config:
     import: "optional:consul:"
 
@@ -56,16 +56,13 @@ logging:
     com.alex.bank.account: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
-    com.alex.bank.account.client: DEBUG
-    org.springframework.security.oauth2.client: TRACE
-    org.springframework.security.oauth2.server.resource: DEBUG
-    root: DEBUG
+    root: WARN
   #file:
     #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
 
 accounts:
   notification-service:
-    base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8086}
+    base-url: ${NOTIFICATION_SERVICE_URL:http://notification-service}
 
 management:
   endpoint:

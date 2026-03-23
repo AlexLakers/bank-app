@@ -20,8 +20,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
 
       client:
         registration:
@@ -32,37 +32,35 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
+            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
 
   cloud:
     loadbalancer:
-      enabled: false
+      enabled: true
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
-        enabled: false
+        enabled: true
       config:
-        enabled: false
+        enabled: true
         defaultContext: application
         data-key: data
-      enabled: false
+      enabled: true
   config:
     import: "optional:consul:"
 
 transfer:
   notification-service:
-    baseUrl: ${NOTIFICATION_SERVICE_URL:http://localhost:8086}
+    baseUrl: ${NOTIFICATION_SERVICE_URL:http://notification-service}
   account-service:
-    baseUrl: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
+    baseUrl: ${ACCOUNT_SERVICE_URL:http://account-service}
 
 logging:
   level:
     com.alex.bank.transfer: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.web.client: DEBUG
-    org.springframework.security.oauth2.client: DEBUG
     root: WARN
   #file:
     #name: ${APP_DIR_TRANSFER:/home/alexlakers}/${spring.application.name}/app.log
