@@ -1,0 +1,114 @@
+# General
+replicaCount: 1
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: ""
+
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ""
+  annotations: {}
+
+postgres-stateful:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: ""
+  nameOverride: ""
+  fullnameOverride: ""
+  postgresPassword: ""
+  databases:
+    - accountdb
+    - transferdb
+    - cashdb
+  storage:
+    size: 100Mi
+    storageClassName: ""
+
+keycloak:
+  enabled: true
+  admin:
+    login: admin
+    password: admin123
+  realmImport:
+    enabled: true
+    filename: realm-export.json
+
+account-service:
+  enabled: true
+  image:
+    repository: local/account
+    tag: latest
+  keycloak:
+    clientSecret: ""
+  service:
+    port: 8082
+  services:
+    notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+
+transfer-service:
+  enabled: true
+  image:
+    repository: local/transfer
+    tag: latest
+    pullPolicy: IfNotPresent
+  keycloak:
+    clientSecret: ""
+  service:
+    port: 8085
+  services:
+    notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+    accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+
+cash-service:
+  enabled: true
+  image:
+    repository: local/cash
+    tag: latest
+  keycloak:
+    clientSecret: ""
+  service:
+    port: 8084
+  services:
+    notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+    accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+
+notification-service:
+  enabled: true
+  image:
+    repository: local/notification
+    tag: latest
+  service:
+    port: 8086
+
+bank-ui:
+  enabled: true
+  image:
+    repository: local/ui
+    tag: latest
+  keycloak:
+    clientSecret: ""
+  service:
+    port: 8083
+  gatewayUrl: "http://{{ .Release.Name }}-api-gateway:8888"
+  appBaseUrl: "http://192.168.49.2:30690"
+  accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  transferServiceUrl: "http://{{ .Release.Name }}-transfer-service:8085"
+  cashServiceUrl: "http://{{ .Release.Name }}-cash-service:8084"
+
+api-gateway:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: local/gateway
+    tag: latest
+  service:
+    port: 8888
+  accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  cashServiceUrl: "http://{{ .Release.Name }}-cash-service:8084"
+  transferServiceUrl: "http://{{ .Release.Name }}-transfer-service:8085"

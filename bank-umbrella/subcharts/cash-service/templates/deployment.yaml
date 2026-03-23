@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cash-service.fullname" . }}
+  labels:
+    {{- include "cash-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cash-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cash-service.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.servicePort }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ include "cash-service.fullname" . }}-config
+          env:
+            - name: DB_PASS_CASH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-stateful # from stetefullsecret
+                  key: postgres-password
+            - name: OAUTH2_SECRET_CASH			       #from current secret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cash-service.fullname" . }}-secrets
+                  key: OAUTH2_SECRET_CASH
+          #Probes
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.servicePort }}
+            initialDelaySeconds: 30 
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.servicePort }}
+            initialDelaySeconds: 40
+            periodSeconds: 5
+            failureThreshold: 5
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

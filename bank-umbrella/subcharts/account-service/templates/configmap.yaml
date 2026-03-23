@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "account-service.fullname" . }}-config
+  labels:
+    {{- include "account-service.labels" . | nindent 4 }}
+data:
+  DB_HOST_ACCOUNT: {{ tpl .Values.database.host $ }}
+  DB_PORT_ACCOUNT: {{ .Values.database.port | quote }}
+  DB_NAME_ACCOUNT: {{ .Values.database.name }}
+  DB_USER_ACCOUNT: {{ .Values.database.user }}
+  KEYCLOAK_HOST: {{ tpl .Values.keycloak.host $ }}
+  KEYCLOAK_PORT: {{ .Values.keycloak.port | quote }}
+  OAUTH2_CLIENT_ID_ACCOUNT: {{ .Values.keycloak.clientId }}
+  NOTIFICATION_SERVICE_URL: {{ tpl .Values.services.notificationServiceUrl $ }}
+  APP_PORT_ACCOUNT: {{ .Values.servicePort | quote }}
+  KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl }}

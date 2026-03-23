@@ -28,7 +28,7 @@ public class SecurityConfig {
         http.csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/cash/**").authenticated()
+                        .requestMatchers("/api/v1/cash/**").authenticated()
                         .anyRequest().authenticated()
                 )
 

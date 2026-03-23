@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres-stateful.fullname" . }}-config
+  labels:
+    {{- include "postgres-stateful.labels" . | nindent 4 }}
+data:
+  # Script for creating databases
+  init-databases.sh: |
+    #!/bin/bash
+    until pg_isready -U postgres; do
+      echo "Waiting for PostgreSQL to be ready..."
+      sleep 2
+    done
+    for db in {{ .Values.databases | join " " }}; do
+      echo "Checking database: $db"
+      psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$db'" | grep -q 1 || psql -U postgres -c "CREATE DATABASE $db"
+    done
+
+  # Env variables
+  POSTGRES_USER: postgres
+  POSTGRES_DB: postgres

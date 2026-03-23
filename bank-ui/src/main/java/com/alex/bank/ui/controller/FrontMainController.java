@@ -21,15 +21,14 @@ import com.alex.bank.common.dto.transfer.TransferResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/ui")
 public class FrontMainController {
 
     private final AccountServiceClient accountServiceClient;
@@ -46,7 +46,7 @@ public class FrontMainController {
 
     @GetMapping
     public String index() {
-        return "redirect:/account";
+        return "redirect:/ui/account";
     }
 
     @PostMapping("/account")
@@ -59,7 +59,7 @@ public class FrontMainController {
                     .collect(Collectors.joining(", "));
             redirectAttributes.addFlashAttribute("errors", errors);
 
-            return "redirect:/account";
+            return "redirect:/ui/account";
         }
 
         ApiResult<AccountDto> updatingResult = accountServiceClient.updateAuthAccount(accountEditDto);
@@ -68,11 +68,12 @@ public class FrontMainController {
         } else {
             redirectAttributes.addFlashAttribute("errors", List.of(updatingResult.error()));
         }
-        return "redirect:/account";
+        return "redirect:/ui/account";
     }
 
     @GetMapping("/account")
     public String showMainPage(Model model) {
+
         ApiResult<AccountDto> accountResult = accountServiceClient.getAuthAccount();
         ApiResult<List<AccountDto>> accountsResult = accountServiceClient.getAccountsExcludeAuth();
 
@@ -125,7 +126,7 @@ public class FrontMainController {
         } else {
             redirectAttributes.addFlashAttribute("errors", List.of(withdrawResult.error()));
         }
-        return "redirect:/account";
+        return "redirect:/ui/account";
     }
 
     @PostMapping("/transfer")
@@ -139,7 +140,7 @@ public class FrontMainController {
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
             redirectAttributes.addFlashAttribute("errors", errors);
-            return "redirect:/account";
+            return "redirect:/ui/account";
         }
 
         String fromAccount = oidcUser.getName();
@@ -156,7 +157,7 @@ public class FrontMainController {
             redirectAttributes.addFlashAttribute("errors", List.of(transferResult.error()));
         }
 
-        return "redirect:/account";
+        return "redirect:/ui/account";
     }
 
     private AccountDto createEmptyPayload() {

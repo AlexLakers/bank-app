@@ -1,0 +1,28 @@
+#Default Values for bank-ui
+replicaCount: 1
+
+image:
+  repository: local/ui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+keycloak:
+  host: "{{ .Release.Name }}-keycloak"
+  port: 8080
+  realm: bank-realm
+  clientId: bank-ui
+  clientSecret: ""
+ 
+keycloakExternalUrl: "http://192.168.49.2:31080"
+
+accountServiceUrl: "http://account-service:8082"
+transferServiceUrl: "http://transfer-service:8085"
+cashServiceUrl: "http://cash-service:8084"
+appBaseUrl: "http://{{ .Release.Name }}-ingress"
+
+servicePort: 8083
+
+resources: {}

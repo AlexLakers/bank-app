@@ -201,7 +201,8 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ## Сборка
 
-Сборка осуществляется с помощью инфраструктуры Docker с использованием Docker compose.
+### Docker
+ Сборка осуществляется с помощью  инфраструктуры Docker с использованием Docker compose.
 
 - В корневой папке микросервисного проекта вы найдете файл для сборки:  ```compose.yaml```
   В нем описаны все службы(контейнеры), которые необходимы для работы приложения в целом.
@@ -223,8 +224,82 @@ Consul(конфиг сервер и реест сервисов) r и серве
 docker compose up -d
 ```
 
-Для запуска тестов
+### Kubernetes
+Также вы можете развернуть микросервисное приложение используя ```Kubernetes``` и пакетный менеджер ```Helm``` для упрощения описания сервисов.
+В качестве кластера будет использовано стандарное решение от разработчиков Kubernetes - ```Minikube```.
+Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами.
 
+- Предварительно нужно установить ```Minikube```, ```kubectl```.
+- Запускаем кластер
+  ```
+  minikube start
+  ```
+
+- Собираем Docker-images для каждого сервиса внутри кластера Minikube. Из папки проекта.
+ ```
+  eval $(minikube docker-env)
+  docker build -f bank-ui/Dockerfile -t local/ui:latest .
+  docker build -f account-service/Dockerfile -t local/account:latest .
+  ......
+  ```
+- В корне проекта откройте(перейдите) в каталог ```bank-umbrella```
+- Можно использовать разные пространства для логического разделения в кластере, мы используем ```test```.
+- Запустите команду для сборки зависимостей, указанных в зонтичном(родительском) файле 'Chart.yaml'.
+  ```
+  helm dependency update
+  ```
+- Запустите команду для анализа и валидации Helm-chart 'my-bank'.
+
+  ```
+  helm lint .
+  ```
+  ![lint](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/lint.png)
+
+- Запустите команду для ручной проверки(пасринга) всем описаний-манифестов
+  ```
+  helm upgrade --install my-bank . --namespace test --create-namespace --dry-run --debug \
+  --set postgres-stateful.postgresPassword=******\
+  --set keycloak.admin.password=******* \
+  --set account-service.keycloak.clientSecret=******** \
+  --set transfer-service.keycloak.clientSecret=******** \
+  --set cash-service.keycloak.clientSecret=******* \
+  --set bank-ui.keycloak.clientSecret=*********
+  ```
+  ![dry-run](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/dry-run1.png)
+
+- Далее после предварительного тестирования(валидации) можем запустить команду для сборки но без ```-dry-run --debug```
+  ```
+  helm upgrade --install my-bank . --namespace test --create-namespace \ (аргументы см. выше)
+  ```
+- Запускаем ```ingress-nginx``` контроллер для внешней маршрутизации и доступа к ```bank-ui```
+  ```
+  kubectl apply -f ingress-nginx.yaml
+  ```
+
+- Наши сервисы начали запускаться, после запуска можем запустить написанные тесты в папке ```tests``` каждого сервиса.
+
+```
+helm test my-bank -n test
+```
+![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/result_tests.png)
+
+- Далее посмотрим, что все наши сервисы запущены и тесты выполнены
+  ```
+  kubectl get pods -n test
+  ```
+![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/all_serv_and_tests.png)
+
+- Также для прокерки доступности был использован механизм проб, к примеру после запуска посмотрим описание пода ```account-service```
+  ```
+  kubectl describe pod -n test my-bank-account-service-646d59649d-29j7c
+  ```
+kubectl describe pod -n test my-bank-account-service-646d59649d-29j7c
+  ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/descdribe_probes.png)
+
+- После того как все сервисы поднялись и ингрис контроллер запущен, наше приложение будет доступно по внешнему адресу
+  ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/new_url.png)
+
+### Тесты приложения
 Очистим предыдущие сборки
 ```
 ./gradlew clean

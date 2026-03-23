@@ -29,13 +29,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/account/**").authenticated()
-                        .requestMatchers("/css/**", "/static/**", "/logout","/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/css/**", "/static/**", "/logout").permitAll()
+                        .requestMatchers("/ui/account/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                         .loginPage("/oauth2/authorization/keycloak")
-                        .defaultSuccessUrl("/"))
+                        .defaultSuccessUrl("/ui",true))
                 .sessionManagement(session -> {
                     session.maximumSessions(3).maxSessionsPreventsLogin(true);
                     session.sessionFixation().migrateSession();

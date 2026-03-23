@@ -1,0 +1,39 @@
+apiVersion: v2
+name: bank-umbrella
+description: Umbrella chart for bank microservices
+type: application
+version: 0.1.0
+appVersion: "1.0"
+dependencies:
+  - name: postgres-stateful
+    version: 0.1.0
+    repository: "file://subcharts/postgres-stateful"
+    condition: postgres-stateful.enabled
+  - name: keycloak
+    version: 0.1.0
+    repository: "file://subcharts/keycloak"
+    condition: keycloak.enabled
+  - name: account-service
+    version: 0.1.0
+    repository: "file://subcharts/account-service"
+    condition: account-service.enabled
+  - name: bank-ui
+    version: 0.1.0
+    repository: "file://subcharts/bank-ui"
+    condition: bank-ui.enabled
+  - name: cash-service
+    version: 0.1.0
+    repository: "file://subcharts/cash-service"
+    condition: cash-service.enabled
+  - name: transfer-service
+    version: 0.1.0
+    repository: "file://subcharts/transfer-service"
+    condition: transfer-service.enabled
+  - name: notification-service
+    version: 0.1.0
+    repository: "file://subcharts/notification-service"
+    condition: notification-service.enabled
+  - name: api-gateway
+    version: "0.1.0"
+    repository: "file://subcharts/api-gateway"
+    condition: api-gateway.enabled

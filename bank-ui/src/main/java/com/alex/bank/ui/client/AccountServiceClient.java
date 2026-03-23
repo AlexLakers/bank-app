@@ -64,7 +64,7 @@ public class AccountServiceClient {
     @CircuitBreaker(name = "circuit-account-service", fallbackMethod = "fallbackGetAuthAccount")
     public ApiResult<AccountDto> getAuthAccount() {
         AccountDto result = accountsRestClient.get()
-                .uri("/accounts/me")
+                .uri("/api/v1/accounts/me")
                 .retrieve()
                 .body(AccountDto.class);
         return ApiResult.success(result, null);
@@ -79,7 +79,7 @@ public class AccountServiceClient {
     @CircuitBreaker(name = "circuit-account-service", fallbackMethod = "fallbackGetAccounts")
     public ApiResult<List<AccountDto>> getAccountsExcludeAuth() {
         List<AccountDto> result = accountsRestClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/accounts")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/accounts")
                         .queryParam("excludeCurrent", true)
                         .build())
                 .retrieve()
@@ -98,7 +98,7 @@ public class AccountServiceClient {
 
     public ApiResult<AccountDto> updateAuthAccount(AccountEditDto accountEditDto) {
         Supplier<AccountDto> requestUpdateAccount = () -> accountsRestClient.put()
-                .uri("/accounts")
+                .uri("/api/v1/accounts")
                 .body(accountEditDto)
                 .retrieve()
                 .toEntity(AccountDto.class).getBody();

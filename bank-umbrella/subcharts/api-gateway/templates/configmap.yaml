@@ -1,0 +1,61 @@
+
+#Describes application.yaml for api-gateway(route list and other)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "api-gateway.fullname" . }}-config
+  labels:
+    {{- include "api-gateway.labels" . | nindent 4 }}
+data:
+  application.yml: |
+    spring:
+      application:
+        name: api-gateway
+
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: {{ .Values.keycloakExternalUrl }}/realms/bank-realm
+              jwk-set-uri: {{ .Values.keycloakExternalUrl }}/realms/bank-realm/protocol/openid-connect/certs
+
+      cloud:
+        gateway:
+          routes:
+            - id: account-service
+              uri: {{ tpl .Values.accountServiceUrl $ }}
+              predicates:
+                - Path=/api/v1/accounts/**
+              filters:
+                - name: JwtTokenRelay
+            - id: cash-service
+              uri: {{ tpl .Values.cashServiceUrl $ }}
+              predicates:
+                - Path=/api/v1/cash/**
+              filters:
+                - name: JwtTokenRelay
+            - id: transfer-service
+              uri: {{ tpl .Values.transferServiceUrl $ }}
+              predicates:
+                - Path=/api/v1/transfer/**
+              filters:
+                - name: JwtTokenRelay
+
+    logging:
+      level:
+        com.alex.bank.gateway: INFO
+        root: WARN
+        org.springframework.cloud.gateway: DEBUG
+        org.springframework.web.server: DEBUG
+        org.springframework.security: DEBUG
+    management:
+      endpoint:
+        health:
+          probes:
+            enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: health
+    server:
+      port: {{ .Values.service.port }}

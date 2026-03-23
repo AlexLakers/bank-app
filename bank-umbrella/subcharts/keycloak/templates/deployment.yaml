@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "keycloak.fullname" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "keycloak.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "keycloak.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort  }}
+              name: http
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: {{ .Values.admin.login }}
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.fullname" . }}-admin
+                  key: admin-password
+            - name: KC_HOSTNAME
+              value: {{ .Values.hostname }}
+            - name: KC_HTTP_PORT
+              value: {{ .Values.service.targetPort | quote }}
+          args:
+            - "start-dev"
+            - "--import-realm"
+            - "--http-port={{ .Values.service.targetPort }}"
+          volumeMounts:
+            - name: realm-config
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: realm-config
+          configMap:
+            name: {{ include "keycloak.fullname" . }}-realm
