@@ -1,7 +1,20 @@
 spring:
   application:
     name: notification-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST_NOTIFICATION:localhost}:${DB_PORT_NOTIFICATION:5436}/${DB_NAME_NOTIFICATION:notification_repository}
+    username: ${DB_USER_NOTIFICATION:notificationuser}
+    password: ${DB_PASS_NOTIFICATION:notificationpass}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
+  liquibase:
+    contexts: dev
+    change-log: db/changelog/db.changelog-master.xml
   security:
     oauth2:
       resourceserver:
