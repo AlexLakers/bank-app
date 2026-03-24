@@ -185,6 +185,21 @@ services:
     depends_on:
       - transfer-db
       - keycloak
+
+  notification-db:
+    image: postgres:17.0
+    ports:
+      - "${DB_HOST_PORT_NOTIFICATION}:${DB_PORT_NOTIFICATION}"
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER_NOTIFICATION}
+      - POSTGRES_PASSWORD=${DB_PASS_NOTIFICATION}
+      - POSTGRES_DB=${DB_NAME_NOTIFICATION}
+    volumes:
+      - db-data-notification:/var/lib/postgresql/data
+    networks:
+      backend-net:
+
   notification-service:
     build:
       context: .
@@ -194,6 +209,12 @@ services:
     ports:
       - "${APP_HOST_PORT_NOTIF}:${APP_PORT_NOTIF}"
     environment:
+      - DB_USER_NOTIFICATION=${DB_USER_NOTIFICATION}
+      - DB_PASS_NOTIFICATION=${DB_PASS_NOTIFICATION}
+      - DB_HOST_NOTIFICATION=${DB_HOST_NOTIFICATION}
+      - DB_HOST_PORT_NOTIFICATION=${DB_HOST_PORT_NOTIFICATION}
+      - DB_PORT_NOTIFICATION=${DB_PORT_NOTIFICATION}
+      - DB_NAME_NOTIFICATION=${DB_NAME_NOTIFICATION}
       - APP_DIR_NOTIF=${APP_DIR_NOTIF}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
       - KEYCLOAK_PORT=${KEYCLOAK_PORT}
@@ -203,6 +224,7 @@ services:
       backend-net:
     depends_on:
       - keycloak
+      - notification-db
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
@@ -228,6 +250,7 @@ volumes:
   db-data-account:
   db-data-cash:
   db-data-transfer:
+  db-data-notification:
 
 networks:
   backend-net:
