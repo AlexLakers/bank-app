@@ -1,13 +1,11 @@
 package com.alex.bank.notification.entity;
 
-import com.alex.bank.common.dto.notification.EventType;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -18,13 +16,13 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Builder
 @FieldNameConstants
-@Table(name = "events")
-public class Event {
+@Table(name = "notifications")
+public class Notification {
 
     @Id
-    @Column("event_id")
-    private String eventId;
+    @Column("notification_id")
+    private String notificationId;
 
-    @Column("created_at")
+    @Column("processed_at")
     private LocalDateTime processedAt;
 }

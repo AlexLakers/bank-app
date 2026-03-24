@@ -3,10 +3,15 @@ package com.alex.bank.notification.service.impl;
 //import com.alex.bank.notification.dto.EventStatus;
 //import com.alex.bank.notification.dto.NotificationRequest;
 //import com.alex.bank.notification.dto.NotificationResponse;
+
 import com.alex.bank.common.dto.notification.*;
+import com.alex.bank.notification.entity.Notification;
+import com.alex.bank.notification.repository.NotificationRepository;
 import com.alex.bank.notification.service.NotificationService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -14,21 +19,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
+
+    private final NotificationRepository notificationRepository;
 
     private final Set<String> processedEvents = ConcurrentHashMap.newKeySet();
 
     @Override
+    @Transactional
     public NotificationResponse processNotification(NotificationRequest request) {
-        if (processedEvents.contains(request.eventId())) {
+        if (checkNotificationByIdempotenceKey(request.eventId())) {
             log.debug("Дублирующее событие отколнено: {}", request.eventId());
             return new NotificationResponse(request.eventId(), EventStatus.DUPLICATED, LocalDateTime.now());
         }
         log.info("Событие [{} тип:{} отправитель:{} сообщение:{} данные:{}]",
                 request.eventId(), request.eventType(), request.source(), request.message(), request.payload());
-        processedEvents.add(request.eventId());
+        // processedEvents.add(request.eventId());
+        notificationRepository.saveNotification(request.eventId());
 
         return new NotificationResponse(request.eventId(), EventStatus.PROCESSED, LocalDateTime.now());
 
     }
+
+    private boolean checkNotificationByIdempotenceKey(String idempotenceKey) {
+        return notificationRepository.existsByNotificationId(idempotenceKey);
+    }
+
 }
