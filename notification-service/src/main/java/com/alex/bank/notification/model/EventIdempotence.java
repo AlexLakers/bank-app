@@ -1,4 +1,4 @@
-package com.alex.bank.notification.entity;
+package com.alex.bank.notification.model;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Builder
 @FieldNameConstants
-@Table(name = "notifications")
-public class Notification {
+@Table(name = "events_idempotence")
+public class EventIdempotence {
 
     @Id
-    @Column("notification_id")
-    private String notificationId;
+    @Column("event_id")
+    private String eventId;
 
     @Column("processed_at")
     private LocalDateTime processedAt;

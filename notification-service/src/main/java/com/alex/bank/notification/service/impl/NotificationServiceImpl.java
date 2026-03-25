@@ -5,8 +5,7 @@ package com.alex.bank.notification.service.impl;
 //import com.alex.bank.notification.dto.NotificationResponse;
 
 import com.alex.bank.common.dto.notification.*;
-import com.alex.bank.notification.entity.Notification;
-import com.alex.bank.notification.repository.NotificationRepository;
+import com.alex.bank.notification.repository.EventsIdempotenceRepository;
 import com.alex.bank.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationRepository notificationRepository;
+    private final EventsIdempotenceRepository notificationRepository;
 
     private final Set<String> processedEvents = ConcurrentHashMap.newKeySet();
 
