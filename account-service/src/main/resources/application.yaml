@@ -12,6 +12,31 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+      #Garanties delivery + at-least-once
+      acks: all
+      retries: 3
+
+      #exactly-once
+      # properties:
+      #   enable.idempotence: true
+
+      # Batching and timeouts (optional)
+      batch-size: 16384
+      buffer-memory: 33554432
+      properties:
+        linger.ms: 0                # without batching
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+        max.in.flight.requests.per.connection: 5   # order is not important here
+
+
   liquibase:
     contexts: dev
     change-log: db/changelog/db.changelog-master.xml
