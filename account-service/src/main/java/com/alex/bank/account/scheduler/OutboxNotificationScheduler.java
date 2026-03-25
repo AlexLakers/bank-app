@@ -14,9 +14,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,38 +34,42 @@ public class OutboxNotificationScheduler {
     private final OutboxRepository outboxRepository;
     private final NotificationServiceClient notificationServiceClient;
     private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
 
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void processOutbox() {
-
         List<Outbox> outboxList = outboxRepository.findNotProcessed();
         outboxList.forEach(outbox -> {
-                    try {
-                        Map<String, Object> payloadMap = objectMapper.readValue(outbox.getPayload(),
-                                new TypeReference<Map<String, Object>>() {
-                                });
-
-                        log.info("Sending notification: eventId={}, source={}, eventType={}, payload={}",
-                                outbox.getEventId(), outbox.getSource(), outbox.getEventType(), payloadMap);
-
-                        NotificationResponse response = notificationServiceClient.sendNotification(new NotificationRequest(
-                                outbox.getEventId().toString(),
-                                outbox.getSource(),
-                                outbox.getEventType(),
-                                outbox.getMessage(),
-                                payloadMap));
-
-                        outbox.setProcessedAt(response.processedAt());
-                        outboxRepository.markAsProcessed(response.processedAt(), UUID.fromString(response.notificationId()));
-                        log.info("Событие {} было {} в {}",
-                                response.notificationId(), response.status(), response.processedAt());
-                    } catch (Exception e) {
-                        log.error("Ошибка обработки события {}", outbox.getEventId(), e);
+            try {
+                Map<String, Object> payloadMap = objectMapper.readValue(outbox.getPayload(),
+                        new TypeReference<Map<String, Object>>() {});
+                NotificationRequest event = new NotificationRequest(
+                        outbox.getEventId().toString(),
+                        outbox.getSource(),
+                        outbox.getEventType(),
+                        outbox.getMessage(),
+                        payloadMap);
+                ProducerRecord<String, NotificationRequest> record = new ProducerRecord<>(
+                        "account-events",
+                        outbox.getEventId().toString(),
+                        event);
+                record.headers().add("idempotencyKey", outbox.getEventId().toString().getBytes());
+                kafkaTemplate.send(record).whenComplete((result, e) -> {
+                    if (e != null) {
+                        log.error("Error sending event {}: {}", outbox.getEventId(), e.getMessage());
+                        return;
                     }
-                }
-        );
-
+                    RecordMetadata meta = result.getRecordMetadata();
+                    log.info("Event {} sent to topic:{}, partition:{}, offset:{}",
+                            outbox.getEventId(), meta.topic(), meta.partition(), meta.offset());
+                    outbox.setProcessedAt(LocalDateTime.now());
+                    outboxRepository.markAsProcessed(outbox.getProcessedAt(), outbox.getEventId());
+                });
+            } catch (Exception e) {
+                log.error("Error processing outbox event {}", outbox.getEventId(), e);
+            }
+        });
     }
 
 }
