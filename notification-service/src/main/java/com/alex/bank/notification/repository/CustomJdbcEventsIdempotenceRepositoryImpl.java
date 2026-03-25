@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
-public class CustomJdbcRepositoryImpl implements CustomJdbcRepository {
+public class CustomJdbcEventsIdempotenceRepositoryImpl implements CustomJdbcEventsIdempotenceRepository {
 
     private final JdbcTemplate jdbcTemplate;
 

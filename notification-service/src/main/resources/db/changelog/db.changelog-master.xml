@@ -2,9 +2,9 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <include file="001-init-notifications-schema.xml" relativeToChangelogFile="true"/>
-
-    <changeSet id="tag_notifications_for_idempotence_schema" author="alexlakers">
-        <tagDatabase tag="notifications_for_idempotence_schema_v1.0"/>
+    <include file="001-init-events_idempotence-schema.xml" relativeToChangelogFile="true"/>
+    <include file="002-init-dlq-schema.xml" relativeToChangelogFile="true"/>
+    <changeSet id="tag_events_for_idempotence_and_dlq_schema" author="alexlakers">
+        <tagDatabase tag="events_for_idempotence_and_dlq_schema_v1.0"/>
     </changeSet>
 </databaseChangeLog>
