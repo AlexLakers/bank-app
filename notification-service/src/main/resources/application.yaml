@@ -11,7 +11,20 @@ spring:
       minimum-idle: 5
       idle-timeout: 600000
       max-lifetime: 1800000
-
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: notification-handlers
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        # Real deserializator(delegate)
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        # Settings JsonDeserializer
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.alex.bank.common.dto.notification.NotificationRequest
+        # My custom function for deserialization errors
+        spring.deserializer.value.function: com.alex.bank.notification.service.NotificationErrorProvider
   liquibase:
     contexts: dev
     change-log: db/changelog/db.changelog-master.xml
@@ -40,6 +53,7 @@ spring:
 
 logging:
   level:
+    com.alex.bank.notification.service: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
     root: WARN
