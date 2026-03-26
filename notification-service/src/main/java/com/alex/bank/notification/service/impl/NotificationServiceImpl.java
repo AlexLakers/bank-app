@@ -5,7 +5,7 @@ package com.alex.bank.notification.service.impl;
 //import com.alex.bank.notification.dto.NotificationResponse;
 
 import com.alex.bank.common.dto.notification.*;
-import com.alex.bank.notification.repository.EventsIdempotenceRepository;
+import com.alex.bank.notification.repository.EventIdempotenceRepository;
 import com.alex.bank.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final EventsIdempotenceRepository notificationRepository;
+    private final EventIdempotenceRepository notificationRepository;
 
     private final Set<String> processedEvents = ConcurrentHashMap.newKeySet();
 
@@ -35,14 +35,14 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Событие [{} тип:{} отправитель:{} сообщение:{} данные:{}]",
                 request.eventId(), request.eventType(), request.source(), request.message(), request.payload());
         // processedEvents.add(request.eventId());
-        notificationRepository.saveNotification(request.eventId());
+        notificationRepository.saveEvent(request.eventId());
 
         return new NotificationResponse(request.eventId(), EventStatus.PROCESSED, LocalDateTime.now());
 
     }
 
     private boolean checkNotificationByIdempotenceKey(String idempotenceKey) {
-        return notificationRepository.existsByNotificationId(idempotenceKey);
+        return notificationRepository.existsByEventId(idempotenceKey);
     }
 
 }

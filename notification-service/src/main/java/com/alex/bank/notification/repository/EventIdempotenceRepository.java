@@ -6,8 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EventsIdempotenceRepository extends CrudRepository<EventIdempotence,String>, CustomJdbcEventsIdempotenceRepository {
+public interface EventIdempotenceRepository extends CrudRepository<EventIdempotence,String>, CustomJdbcEventsIdempotenceRepository {
 
-    @Query("SELECT EXISTS(SELECT 1 FROM notifications WHERE notification_id=:notificationId)")
-    boolean existsByNotificationId(String notificationId);
+    @Query("SELECT EXISTS(SELECT 1 FROM events_idempotence WHERE event_id=:eventId)")
+    boolean existsByEventId(String eventId);
 }

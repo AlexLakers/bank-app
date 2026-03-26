@@ -29,6 +29,6 @@ public class DeadLetterQueueRecordRecoverer implements ConsumerRecordRecoverer {
         deadLetterQueue.setErrorMessage(e.getMessage());
 
         repository.save(deadLetterQueue);
-        log.info("Сообщение {} сохранено в DLQ", record.key());
+        log.info("Message {} saved in dlq table", record.key());
     }
 }

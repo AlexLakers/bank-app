@@ -11,7 +11,7 @@ public class CustomJdbcEventsIdempotenceRepositoryImpl implements CustomJdbcEven
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveNotification(String id) {
+    public void saveEvent(String id) {
         String sql = """
                 INSERT INTO notifications (notification_id, processed_at) VALUES (?, ?);
                 """;
