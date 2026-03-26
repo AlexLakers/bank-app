@@ -17,14 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -40,22 +43,29 @@ public class OutboxNotificationScheduler {
     @Scheduled(fixedDelay = 5000)
     public void processOutbox() {
         List<Outbox> outboxList = outboxRepository.findNotProcessed();
+        List<CompletableFuture<SendResult<String, NotificationRequest>>> futures = new ArrayList<>();
         outboxList.forEach(outbox -> {
             try {
                 Map<String, Object> payloadMap = objectMapper.readValue(outbox.getPayload(),
-                        new TypeReference<Map<String, Object>>() {});
+                        new TypeReference<Map<String, Object>>() {
+                        });
+
                 NotificationRequest event = new NotificationRequest(
                         outbox.getEventId().toString(),
                         outbox.getSource(),
                         outbox.getEventType(),
                         outbox.getMessage(),
                         payloadMap);
+
                 ProducerRecord<String, NotificationRequest> record = new ProducerRecord<>(
                         "account-events",
                         outbox.getEventId().toString(),
                         event);
                 record.headers().add("idempotencyKey", outbox.getEventId().toString().getBytes());
-                kafkaTemplate.send(record).whenComplete((result, e) -> {
+
+                CompletableFuture<SendResult<String, NotificationRequest>> future = kafkaTemplate.send(record);
+
+                future.whenComplete((result, e) -> {
                     if (e != null) {
                         log.error("Error sending event {}: {}", outbox.getEventId(), e.getMessage());
                         return;
@@ -66,6 +76,9 @@ public class OutboxNotificationScheduler {
                     outbox.setProcessedAt(LocalDateTime.now());
                     outboxRepository.markAsProcessed(outbox.getProcessedAt(), outbox.getEventId());
                 });
+                futures.add(future);
+
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
             } catch (Exception e) {
                 log.error("Error processing outbox event {}", outbox.getEventId(), e);
             }
