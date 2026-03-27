@@ -13,26 +13,25 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   kafka:
-    bootstrap-servers: localhost:9092   # Используйте 9092, так как вы проверили топик через этот порт
+    bootstrap-servers: localhost:9092
     consumer:
       group-id: notification-handlers
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      #value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         enable.auto.commit: false
-        # Делегируемый десериализатор (реальный)
+        # Real deserializator
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        # Настройки JsonDeserializer
+        # Settings JsonDeserializer
         spring.json.trusted.packages: "*"
         spring.json.value.default.type: com.alex.bank.common.dto.notification.NotificationRequest
-        # Кастомная функция для ошибок десериализации
+        # My custom function for error handling
         spring.deserializer.value.function: com.alex.bank.notification.service.NotificationErrorProvider
-        # Производительность
+        # Profit
         fetch.min.bytes: 16384
         fetch.max.wait.ms: 500
         max.poll.records: 100
-        # Таймауты
+        # Timeouts
         session.timeout.ms: 30000
         heartbeat.interval.ms: 10000
         max.poll.interval.ms: 300000
