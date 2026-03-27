@@ -1,10 +1,8 @@
 package com.alex.bank.account.scheduler;
 
 //import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.common.dto.account.AccountEditDto;
-import com.alex.bank.common.dto.account.AccountDto;
+
 import com.alex.bank.common.dto.notification.NotificationRequest;
-import com.alex.bank.common.dto.notification.NotificationResponse;
 //import com.alex.bank.account.dto.NotificationRequest;
 //import com.alex.bank.account.dto.NotificationResponse;
 import com.alex.bank.account.model.Outbox;
@@ -20,12 +18,10 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -58,7 +54,8 @@ public class OutboxNotificationScheduler {
                 ProducerRecord<String, NotificationRequest> record = new ProducerRecord<>(
                         "account-events",
                         outbox.getEventId().toString(),
-                        event);
+                        buildNotification(outbox, payloadMap));
+
                 record.headers().add(IDEMPOTENCY_KEY_HEADER, outbox.getEventId().toString().getBytes());
 
                 CompletableFuture<SendResult<String, NotificationRequest>> future = kafkaTemplate.send(record);
@@ -81,6 +78,15 @@ public class OutboxNotificationScheduler {
                 log.error("Error processing outbox event {}", outbox.getEventId(), e);
             }
         });
+    }
+
+    private NotificationRequest buildNotification(Outbox outbox, Map<String, Object> payloadMap) {
+        return new NotificationRequest(
+                outbox.getEventId().toString(),
+                outbox.getSource(),
+                outbox.getEventType(),
+                outbox.getMessage(),
+                payloadMap);
     }
 
 }
