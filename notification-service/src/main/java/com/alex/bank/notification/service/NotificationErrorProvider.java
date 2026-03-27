@@ -4,13 +4,16 @@ import com.alex.bank.common.dto.notification.NotificationRequest;
 import com.alex.bank.notification.exception.NotificationDeserializationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.support.serializer.FailedDeserializationInfo;
+import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
 @Slf4j
+@Service
 public class NotificationErrorProvider implements Function<FailedDeserializationInfo, NotificationRequest> {
     @Override
     public NotificationRequest apply(FailedDeserializationInfo failedDeserializationInfo) {
+        System.out.println("NotificationErrorProvider---------------------------");
         Exception deserializeException = failedDeserializationInfo.getException();
         log.error("Deserialization notification error : {}", deserializeException.getMessage(), deserializeException);
         throw new NotificationDeserializationException(deserializeException.getMessage(),deserializeException);

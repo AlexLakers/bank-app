@@ -13,7 +13,7 @@ public class CustomJdbcEventsIdempotenceRepositoryImpl implements CustomJdbcEven
     @Override
     public void saveEvent(String id) {
         String sql = """
-                INSERT INTO notifications (notification_id, processed_at) VALUES (?, ?);
+                INSERT INTO events_idempotence (event_id, processed_at) VALUES (?, ?);
                 """;
         jdbcTemplate.update(sql, id, LocalDateTime.now());
     }

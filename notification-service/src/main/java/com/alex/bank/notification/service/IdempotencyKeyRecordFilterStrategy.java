@@ -15,7 +15,7 @@ public class IdempotencyKeyRecordFilterStrategy implements RecordFilterStrategy<
     @Override
     public boolean filter(ConsumerRecord<String, NotificationRequest> consumerRecord) {
         Header header= consumerRecord.headers().lastHeader(IDEMPOTENCY_KEY_HEADER);
-
+        System.out.println("IdempotencyKeyRecordFilterStrategy--------------------------");
         return header==null
                 ? false
                 :!checkIdempotencyKey(header.value());
