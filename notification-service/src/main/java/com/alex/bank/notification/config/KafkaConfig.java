@@ -11,6 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.listener.CommonDelegatingErrorHandler;
 import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.util.backoff.FixedBackOff;
@@ -50,6 +51,7 @@ public class KafkaConfig {
         factory.setRecordFilterStrategy(idempotencyKeyRecordFilterStrategy); //for idempotency
         factory.setCommonErrorHandler(commonErrorHandler); //for error handling
         factory.setConcurrency(2);  //for two partitions
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
 

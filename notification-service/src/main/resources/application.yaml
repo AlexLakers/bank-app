@@ -1,4 +1,5 @@
 spring:
+
   application:
     name: notification-service
   datasource:
@@ -12,19 +13,32 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   kafka:
+    bootstrap-servers: localhost:9092   # Используйте 9092, так как вы проверили топик через этот порт
     consumer:
-      bootstrap-servers: localhost:9092
       group-id: notification-handlers
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      #value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        # Real deserializator(delegate)
+        enable.auto.commit: false
+        # Делегируемый десериализатор (реальный)
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        # Settings JsonDeserializer
+        # Настройки JsonDeserializer
         spring.json.trusted.packages: "*"
         spring.json.value.default.type: com.alex.bank.common.dto.notification.NotificationRequest
-        # My custom function for deserialization errors
+        # Кастомная функция для ошибок десериализации
         spring.deserializer.value.function: com.alex.bank.notification.service.NotificationErrorProvider
+        # Производительность
+        fetch.min.bytes: 16384
+        fetch.max.wait.ms: 500
+        max.poll.records: 100
+        # Таймауты
+        session.timeout.ms: 30000
+        heartbeat.interval.ms: 10000
+        max.poll.interval.ms: 300000
+
+
+
   liquibase:
     contexts: dev
     change-log: db/changelog/db.changelog-master.xml
@@ -56,6 +70,8 @@ logging:
     com.alex.bank.notification.service: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.kafka: DEBUG
+    com.fasterxml.jackson: DEBUG
     root: WARN
   #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
