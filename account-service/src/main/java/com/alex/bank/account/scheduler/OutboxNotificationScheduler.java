@@ -38,7 +38,7 @@ public class OutboxNotificationScheduler {
     private final NotificationServiceClient notificationServiceClient;
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
-
+    private final String IDEMPOTENCY_KEY_HEADER = "idempotency-key";
 
     @Scheduled(fixedDelay = 5000)
     public void processOutbox() {
@@ -61,7 +61,7 @@ public class OutboxNotificationScheduler {
                         "account-events",
                         outbox.getEventId().toString(),
                         event);
-                record.headers().add("idempotencyKey", outbox.getEventId().toString().getBytes());
+                record.headers().add(IDEMPOTENCY_KEY_HEADER, outbox.getEventId().toString().getBytes());
 
                 CompletableFuture<SendResult<String, NotificationRequest>> future = kafkaTemplate.send(record);
 

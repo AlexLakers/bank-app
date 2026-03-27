@@ -14,17 +14,14 @@ public class IdempotencyKeyRecordFilterStrategy implements RecordFilterStrategy<
 
     @Override
     public boolean filter(ConsumerRecord<String, NotificationRequest> consumerRecord) {
-        Header header= consumerRecord.headers().lastHeader(IDEMPOTENCY_KEY_HEADER);
+        Header header = consumerRecord.headers().lastHeader(IDEMPOTENCY_KEY_HEADER);
         System.out.println("IdempotencyKeyRecordFilterStrategy--------------------------");
-        return header==null
-                ? false
-                :!checkIdempotencyKey(header.value());
+        return header == null || checkIdempotencyKey(header.value());
+
     }
 
     private boolean checkIdempotencyKey(byte[] rawIdempotencyKey) {
-        return rawIdempotencyKey == null || rawIdempotencyKey.length == 0
-                ? false
-                : eventIdempotenceRepository.existsByEventId(new String(rawIdempotencyKey));
+        return rawIdempotencyKey == null || rawIdempotencyKey.length == 0 || eventIdempotenceRepository.existsByEventId(new String(rawIdempotencyKey));
     }
 
 

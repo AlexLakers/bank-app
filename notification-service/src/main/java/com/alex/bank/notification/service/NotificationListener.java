@@ -1,6 +1,7 @@
 package com.alex.bank.notification.service;
 
 import com.alex.bank.common.dto.notification.NotificationRequest;
+import com.alex.bank.notification.exception.NotificationDeserializationException;
 import com.alex.bank.notification.repository.EventIdempotenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
