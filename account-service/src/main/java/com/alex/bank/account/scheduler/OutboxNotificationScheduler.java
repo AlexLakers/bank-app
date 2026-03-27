@@ -1,6 +1,5 @@
 package com.alex.bank.account.scheduler;
 
-import com.alex.bank.account.client.notification.NotificationServiceClient;
 //import com.alex.bank.account.dto.AccountDto;
 import com.alex.bank.common.dto.account.AccountEditDto;
 import com.alex.bank.common.dto.account.AccountDto;
@@ -35,7 +34,6 @@ import java.util.concurrent.CompletableFuture;
 public class OutboxNotificationScheduler {
 
     private final OutboxRepository outboxRepository;
-    private final NotificationServiceClient notificationServiceClient;
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
     private final String IDEMPOTENCY_KEY_HEADER = "idempotency-key";
