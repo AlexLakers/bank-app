@@ -44,13 +44,6 @@ public class OutboxNotificationScheduler {
                         new TypeReference<Map<String, Object>>() {
                         });
 
-                NotificationRequest event = new NotificationRequest(
-                        outbox.getEventId().toString(),
-                        outbox.getSource(),
-                        outbox.getEventType(),
-                        outbox.getMessage(),
-                        payloadMap);
-
                 ProducerRecord<String, NotificationRequest> record = new ProducerRecord<>(
                         "account-events",
                         outbox.getEventId().toString(),
