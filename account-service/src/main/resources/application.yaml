@@ -13,8 +13,9 @@ spring:
       max-lifetime: 1800000
 
   kafka:
+    admin:
+      auto-create: false
     bootstrap-servers: localhost:9092
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -22,10 +23,6 @@ spring:
       #Garanties delivery + at-least-once
       acks: all
       retries: 3
-
-      #exactly-once
-      # properties:
-      #   enable.idempotence: true
 
       # Batching and timeouts (optional)
       batch-size: 16384
@@ -35,6 +32,9 @@ spring:
         delivery.timeout.ms: 120000
         request.timeout.ms: 30000
         max.in.flight.requests.per.connection: 5   # order is not important here
+        #exactly-once
+        #enable.idempotence: true
+
 
 
   liquibase:
@@ -53,10 +53,6 @@ spring:
         provider:
           keycloak:
             issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
-        resourceserver:
-        # jwt:
-        #  jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm/protocol/openid-connect/certs
-        #  issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
@@ -79,15 +75,9 @@ spring:
 logging:
   level:
     com.alex.bank.account: INFO
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
     root: WARN
   #file:
     #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
-
-accounts:
-  notification-service:
-    base-url: ${NOTIFICATION_SERVICE_URL:http://notification-service}
 
 management:
   endpoint:
