@@ -9,6 +9,7 @@ description = 'account-service'
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -17,7 +18,7 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	implementation 'org.springframework.boot:spring-boot-testcontainers'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
-	//implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 	implementation project(':dto-exceptions-common')
 
@@ -36,6 +37,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
 }

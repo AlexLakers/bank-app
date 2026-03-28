@@ -1,16 +1,55 @@
 spring:
+
   application:
     name: notification-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST_NOTIFICATION:localhost}:${DB_PORT_NOTIFICATION:5436}/${DB_NAME_NOTIFICATION:notification_repository}
+    username: ${DB_USER_NOTIFICATION:notificationuser}
+    password: ${DB_PASS_NOTIFICATION:notificationpass}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-handlers
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        enable.auto.commit: false
+        # Real deserializator
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        # Settings JsonDeserializer
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.alex.bank.common.dto.notification.NotificationRequest
+        # My custom function for error handling
+        spring.deserializer.value.function: com.alex.bank.notification.service.NotificationErrorProvider
+        # Profit
+        fetch.min.bytes: 16384
+        fetch.max.wait.ms: 500
+        max.poll.records: 100
+        # Timeouts
+        session.timeout.ms: 30000
+        heartbeat.interval.ms: 10000
+        max.poll.interval.ms: 300000
 
+
+
+  liquibase:
+    contexts: dev
+    change-log: db/changelog/db.changelog-master.xml
   security:
     oauth2:
       resourceserver:
        jwt:
-         issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm
-         jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://localhost:8080}/realms/bank-realm/protocol/openid-connect/certs
+         issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+         jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     loadbalancer:
-      enabled: false
+      enabled: true
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
@@ -18,18 +57,21 @@ spring:
         service-name: ${spring.application.name}
         enabled: false
       config:
-        enabled: false
+        enabled: true
         defaultContext: application
         data-key: data
-      enabled: false
+      enabled: true
   config:
     import: "optional:consul:"
 
 logging:
   level:
+    com.alex.bank.notification.service: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
-    root: DEBUG
+    org.springframework.kafka: DEBUG
+    com.fasterxml.jackson: DEBUG
+    root: WARN
   #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
 management:

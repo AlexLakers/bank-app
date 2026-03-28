@@ -1,0 +1,74 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: dual-role
+  labels:
+    strimzi.io/cluster: bank-kafka
+spec:
+  replicas: 2
+  roles:
+    - broker
+    - controller
+  storage:
+    type: persistent-claim
+    size: 100Mi                       
+    # storageClass: "standard"      
+    deleteClaim: false        
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: bank-kafka
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+spec:
+  kafka:
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    config:
+      log.retention.hours: 168
+      num.partitions: 1
+      default.replication.factor: 2
+      min.insync.replicas: 1
+  entityOperator:
+    topicOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: account-events
+  labels:
+    strimzi.io/cluster: bank-kafka
+spec:
+  partitions: 1
+  replicas: 2
+  config:
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cash-events
+  labels:
+    strimzi.io/cluster: bank-kafka
+spec:
+  partitions: 1
+  replicas: 2
+  config:
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: transfer-events
+  labels:
+    strimzi.io/cluster: bank-kafka
+spec:
+  partitions: 1
+  replicas: 2
+  config:
+    retention.ms: 604800000

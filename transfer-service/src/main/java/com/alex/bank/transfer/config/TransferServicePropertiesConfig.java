@@ -11,14 +11,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 public class TransferServicePropertiesConfig {
-    private NotificationServiceProperties notificationService = new NotificationServiceProperties();
     private AccountServiceProperties accountService = new AccountServiceProperties();
 
-    @Getter
-    @Setter
-    static class NotificationServiceProperties {
-        private String baseUrl="http://localhost:8086";
-    }
     @Getter
     @Setter
     static class AccountServiceProperties {
