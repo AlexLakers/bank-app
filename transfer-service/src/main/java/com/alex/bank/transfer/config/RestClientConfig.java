@@ -63,17 +63,4 @@ public class RestClientConfig {
                 .requestInterceptor(createTokenInterceptor(authorizedClientManager))
                 .build();
     }
-
-
-    @Bean
-    public RestClient notificationRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder,
-            TransferServicePropertiesConfig transferServicePropertiesConfig
-    ) {
-        return restClientBuilder
-                .baseUrl(transferServicePropertiesConfig.getNotificationService().getBaseUrl())
-                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
-                .build();
-    }
 }

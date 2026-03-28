@@ -18,7 +18,7 @@ public class NotificationListener {
 
     private final EventIdempotenceRepository eventIdempotenceRepository;
 
-    @KafkaListener(topics = {"account-events", "cash-events"},
+    @KafkaListener(topics = {"account-events", "cash-events","transfer-events"},
             containerFactory = "kafkaListenerContainerFactory", groupId = "notification-handlers")
     public void listen(ConsumerRecord<String, NotificationRequest> record, Acknowledgment acknowledgment) {
 
