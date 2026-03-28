@@ -1,7 +1,5 @@
 plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
-    id 'org.springframework.cloud.contract' version "${springCloudContractVersion}"
-    id 'maven-publish'
 }
 
 description = 'notification-service'
@@ -32,26 +30,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
-}
-contracts {
-    baseClassForTests.set(
-            "com.alex.bank.notification.service.contract.BaseNotificationsContractTest"
-
-    )
-}
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            groupId = "com.alex"
-            artifactId = "notification-service"
-            version = "0.0.1-SNAPSHOT"
-
-            from(components.java)
-            artifact(tasks.named("verifierStubsJar"))
-        }
-    }
 }
 
 
