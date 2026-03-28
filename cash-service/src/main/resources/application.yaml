@@ -34,8 +34,8 @@ spring:
            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
   kafka:
     admin:
-      auto-create: false
-    bootstrap-servers: localhost:9092
+      auto-create: false #ignore NewTopic in config
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -54,18 +54,18 @@ spring:
         max.in.flight.requests.per.connection: 5   # order is not important here
   cloud:
     loadbalancer:
-      enabled: true
+      enabled: false
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
-        enabled: true
+        enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
-      enabled: true
+      enabled: false
   config:
     import: "optional:consul:"
 
@@ -78,6 +78,7 @@ logging:
     com.alex.bank.cash: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.kafka: DEBUG
   #file:
     #name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
 

@@ -36,7 +36,7 @@ spring:
 
   cloud:
     loadbalancer:
-      enabled: true
+      enabled: false
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
@@ -44,17 +44,17 @@ spring:
         service-name: ${spring.application.name}
         enabled: true
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
-      enabled: true
+      enabled: false
   config:
     import: "optional:consul:"
 
   kafka:
     admin:
-      auto-create: false
-    bootstrap-servers: localhost:9092
+      auto-create: false #ignore NewTopic in config
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -80,6 +80,7 @@ logging:
   level:
     com.alex.bank.transfer: DEBUG
     org.springframework.security: DEBUG
+    org.springframework.kafka: DEBUG
     root: WARN
   #file:
     #name: ${APP_DIR_TRANSFER:/home/alexlakers}/${spring.application.name}/app.log

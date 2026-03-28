@@ -34,7 +34,7 @@ public class RestClientConfig {
     }
 
     @Bean
-    @LoadBalanced
+   // @LoadBalanced
     public RestClient.Builder restClientBuilder() {
         return RestClient.builder();
     }
@@ -69,15 +69,4 @@ public class RestClientConfig {
                 .build();
     }
 
-/*    @Bean
-    public RestClient notificationRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder,
-            CashServicePropertiesConfig cashServicePropertiesConfig
-            ) {
-        return restClientBuilder
-                .baseUrl(cashServicePropertiesConfig.getNotificationService().getBaseUrl())
-                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
-                .build();
-    }*/
 }

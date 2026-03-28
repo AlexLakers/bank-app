@@ -14,8 +14,8 @@ spring:
 
   kafka:
     admin:
-      auto-create: false
-    bootstrap-servers: localhost:9092
+      auto-create: false #ignore NewTopic in config
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -63,12 +63,12 @@ spring:
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: ${spring.application.name}
-        enabled: true
+        enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
-      enabled: true
+      enabled: false
   config:
     import: "optional:consul:"
 

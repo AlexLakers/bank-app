@@ -13,7 +13,7 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
     consumer:
       group-id: notification-handlers
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
