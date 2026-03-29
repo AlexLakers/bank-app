@@ -1,4 +1,6 @@
 # General
+global:
+  kafkaUrl: "kafka-broker:9092"
 replicaCount: 1
 image:
   repository: nginx
@@ -26,6 +28,7 @@ postgres-stateful:
     - accountdb
     - transferdb
     - cashdb
+    - notificationdb
   storage:
     size: 100Mi
     storageClassName: ""

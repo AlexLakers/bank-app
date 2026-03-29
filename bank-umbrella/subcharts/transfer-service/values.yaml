@@ -30,5 +30,6 @@ services:
 servicePort: 8085
 
 keycloakExternalUrl: "http://192.168.49.2:31080"
+kafkaUrl: ""
 
 resources: {}

@@ -25,20 +25,23 @@ data:
             - id: account-service
               uri: {{ tpl .Values.accountServiceUrl $ }}
               predicates:
-                - Path=/api/v1/accounts/**
+                - Path=/accounts/**
               filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
                 - name: JwtTokenRelay
             - id: cash-service
               uri: {{ tpl .Values.cashServiceUrl $ }}
               predicates:
-                - Path=/api/v1/cash/**
+                - Path=/cash/**
               filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
                 - name: JwtTokenRelay
             - id: transfer-service
               uri: {{ tpl .Values.transferServiceUrl $ }}
               predicates:
-                - Path=/api/v1/transfer/**
+                - Path=/transfer/**
               filters:
+                - RewritePath=/(?<path>.*), /api/v1/$\{path}
                 - name: JwtTokenRelay
 
     logging:

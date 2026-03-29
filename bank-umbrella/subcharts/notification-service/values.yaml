@@ -9,10 +9,18 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+database:
+  host: "{{ .Release.Name }}-postgres-stateful-0.{{ .Release.Name }}-postgres-stateful.{{ .Release.Namespace }}.svc.cluster.local"
+  port: 5432
+  name: notificationdb
+  user: postgres
+  password: ""
+
 service:
   port: 8086
 
 keycloakExternalUrl: "http://192.168.49.2:31080"
+kafkaUrl: ""
 
 logLevel: INFO
 

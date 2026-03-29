@@ -20,3 +20,4 @@ data:
   APP_PORT_CASH: {{ .Values.servicePort | quote }}
 
   KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl }}
+  KAFKA_URL: {{ coalesce .Values.kafkaUrl .Values.global.kafkaUrl "kafka-broker:9092" | quote }}
