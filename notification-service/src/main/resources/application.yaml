@@ -49,7 +49,7 @@ spring:
          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     loadbalancer:
-      enabled: true
+      enabled: false
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
@@ -57,10 +57,10 @@ spring:
         service-name: ${spring.application.name}
         enabled: false
       config:
-        enabled: true
+        enabled: false
         defaultContext: application
         data-key: data
-      enabled: true
+      enabled: false
   config:
     import: "optional:consul:"
 
