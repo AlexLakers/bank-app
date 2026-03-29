@@ -12,3 +12,11 @@ data:
   KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl | quote }}
   APP_PORT_NOTIF: {{ .Values.service.port | quote }}
   KAFKA_URL: {{ coalesce .Values.kafkaUrl .Values.global.kafkaUrl "kafka-broker:9092" | quote }}
+  #CONSUMER
+  CONSUMER_GROUP_ID: {{ .Values.consumer.groupId | quote }}
+  CONSUMER_FETCH_MIN_BYTES: {{ .Values.consumer.fetchMinBytes | quote }}
+  CONSUMER_FETCH_MAX_WAIT_MS: {{ .Values.consumer.fetchMaxWaitMs | quote }}
+  CONSUMER_MAX_POOL_RECORDS: {{ .Values.consumer.maxPollRecords | quote }}
+  CONSUMER_SESSION_TIMEOUT_MS: {{ .Values.consumer.sessionTimeoutMs | quote }}
+  CONSUMER_HEARTBEAT_INTERVAL_MS: {{ .Values.consumer.heartbeatIntervalMs | quote }}
+  CONSUMER_MAX_POLL_INTERVAL_MS: {{ .Values.consumer.maxPollIntervalMs | quote }}

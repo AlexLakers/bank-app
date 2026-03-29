@@ -88,6 +88,14 @@ notification-service:
     tag: latest
   service:
     port: 8086
+  consumer:
+    groupId: "notification-handlers"
+    fetchMinBytes: 16384
+    fetchMaxWaitMs: 500
+    maxPollRecords: 100
+    sessionTimeoutMs: 30000
+    heartbeatIntervalMs: 10000
+    maxPollIntervalMs: 300000
 
 bank-ui:
   enabled: true

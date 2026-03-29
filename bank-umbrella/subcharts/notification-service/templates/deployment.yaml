@@ -25,8 +25,6 @@ spec:
             - configMapRef:
                 name: {{ include "notification-service.fullname" . }}-config
           env:
-            - name: CONSUMER_GROUP_ID
-              value: notification_group
             - name: DB_PASS_NOTIFICATION		#from steteful secret
               valueFrom:
                 secretKeyRef:

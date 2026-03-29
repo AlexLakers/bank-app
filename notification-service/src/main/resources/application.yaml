@@ -15,7 +15,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_URL:localhost:9092}
     consumer:
-      group-id: notification-handlers
+      group-id: ${CONSUMER_GROUP_ID:notification-handlers-v2}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
@@ -28,13 +28,13 @@ spring:
         # My custom function for error handling
         spring.deserializer.value.function: com.alex.bank.notification.service.NotificationErrorProvider
         # Profit
-        fetch.min.bytes: 16384
-        fetch.max.wait.ms: 500
-        max.poll.records: 100
+        fetch.min.bytes: ${CONSUMER_FETCH_MIN_BYTES:16384}
+        fetch.max.wait.ms: ${CONSUMER_FETCH_MAX_WAIT_MS:500}
+        max.poll.records: ${CONSUMER_MAX_POOL_RECORDS:100}
         # Timeouts
-        session.timeout.ms: 30000
-        heartbeat.interval.ms: 10000
-        max.poll.interval.ms: 300000
+        session.timeout.ms: ${CONSUMER_SESSION_TIMEOUT_MS:30000}
+        heartbeat.interval.ms: ${CONSUMER_HEARTBEAT_INTERVAL_MS:10000}
+        max.poll.interval.ms: ${CONSUMER_MAX_POLL_INTERVAL_MS:300000}
 
 
 
@@ -44,9 +44,9 @@ spring:
   security:
     oauth2:
       resourceserver:
-       jwt:
-         issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
-         jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
+        jwt:
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
+          jwk-set-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm/protocol/openid-connect/certs
   cloud:
     loadbalancer:
       enabled: false
@@ -72,7 +72,7 @@ logging:
     org.springframework.kafka: DEBUG
     com.fasterxml.jackson: DEBUG
     root: WARN
-  #file:
+    #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log
 management:
   endpoint:
