@@ -29,6 +29,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @ImportTestcontainers(PostgresTestconteinerConfig.class)
 @EmbeddedKafka(topics = {"account-events"}, partitions = 1)
 @ActiveProfiles("test")
+@TestPropertySource(properties = "spring.cloud.consul.enabled=false")
 public class ConsumerKafkaIT {
 
     @Autowired

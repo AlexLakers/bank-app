@@ -53,7 +53,7 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory); // for base settings of consumer
         factory.setRecordFilterStrategy(idempotencyKeyRecordFilterStrategy); //for idempotency
         factory.setCommonErrorHandler(commonErrorHandler); //for error handling
-        factory.setConcurrency(2);  //for two partitions
+        factory.setConcurrency(1);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setAckDiscarded(true); //ack discard filter records for no loop
 

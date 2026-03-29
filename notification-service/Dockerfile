@@ -12,7 +12,7 @@ COPY notification-service notification-service
 
 RUN chmod +x gradlew
 
-RUN ./gradlew :notification-service:build --no-daemon -x test -x contractTest
+RUN ./gradlew :notification-service:build --no-daemon -x test
 
 FROM amazoncorretto:21-alpine AS runtime
 

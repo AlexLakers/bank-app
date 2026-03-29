@@ -1,11 +1,14 @@
 package com.alex.bank.account.integration;
 
+import com.alex.bank.account.config.PostgresTestconteinerConfig;
 import com.alex.bank.common.dto.notification.EventType;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -14,6 +17,13 @@ import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import com.alex.bank.common.dto.notification.NotificationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 import java.util.List;
@@ -23,6 +33,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Testcontainers
+@AutoConfigureMockMvc
+@ImportTestcontainers(PostgresTestconteinerConfig.class)
+@ActiveProfiles("test")
 @EmbeddedKafka(
         topics = {"account-events"},
         partitions = 1,
@@ -34,6 +48,18 @@ public class KafkaProducerIT {
 
     @Autowired
     private EmbeddedKafkaBroker embeddedKafkaBroker;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientManager authorizedClientManager;
+
+    @MockitoBean
+    private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
+    @MockitoBean
+    private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 
     @Test
     void shouldSendNotificationWhenAccountUpdated() throws Exception {
