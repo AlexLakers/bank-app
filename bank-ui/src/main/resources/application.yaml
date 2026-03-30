@@ -12,7 +12,7 @@ spring:
         provider:
           keycloak:
             #issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8080}/realms/bank-realm
-            issuer-uri: ${KEYCLOAK_EXTERNAL_URL}/realms/bank-realm
+            issuer-uri: ${KEYCLOAK_EXTERNAL_URL:http://keycloak:8080}/realms/bank-realm
             user-name-attribute: preferred_username
         registration:
           keycloak:
@@ -20,7 +20,7 @@ spring:
             client-secret: ${OAUTH2_SECRET_UI}
             authorization-grant-type: authorization_code
             scope: openid, profile, email
-            redirect-uri: ${APP_BASE_URL}/login/oauth2/code/keycloak
+            redirect-uri: ${APP_BASE_URL:http://localhost:8083}/login/oauth2/code/keycloak
             provider: keycloak
 
   cloud:

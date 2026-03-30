@@ -69,15 +69,4 @@ public class RestClientConfig {
                 .build();
     }
 
-    @Bean
-    public RestClient notificationRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder,
-            CashServicePropertiesConfig cashServicePropertiesConfig
-            ) {
-        return restClientBuilder
-                .baseUrl(cashServicePropertiesConfig.getNotificationService().getBaseUrl())
-                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
-                .build();
-    }
 }

@@ -37,3 +37,8 @@ dependencies:
     version: "0.1.0"
     repository: "file://subcharts/api-gateway"
     condition: api-gateway.enabled
+    #Not used Kafka as a subchart using Strimzi, I used standalone helm-RELEASE
+  #- name: strimzi-kafka-operator
+    #version: "0.51.0"
+    #repository: "file://subcharts/strimzi-kafka-operator"
+    #condition: kafka.enabled  # опционально, чтобы можно было включать/выключать

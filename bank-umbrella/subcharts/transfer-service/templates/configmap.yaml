@@ -20,3 +20,12 @@ data:
   APP_PORT_TRANSFER: {{ .Values.service.port | quote }}
 
   KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl }}
+  KAFKA_URL: {{ coalesce .Values.kafkaUrl .Values.global.kafkaUrl "kafka-broker:9092" | quote }}
+    # Producer
+  PRODUCER_RETRIES: {{ .Values.producer.retries | quote }}
+  PRODUCER_BATCH_SIZE: {{ .Values.producer.batchSize | quote }}
+  PRODUCER_BUFFER_MEMORY: {{ .Values.producer.bufferMemory | quote }}
+  PRODUCER_LINGER_MS: {{ .Values.producer.lingerMs | quote }}
+  PRODUCER_DELIVERY_TIMEOUT_MS: {{ .Values.producer.deliveryTimeoutMs | quote }}
+  PRODUCER_REQUEST_TIMEOUT_MS: {{ .Values.producer.requestTimeoutMs | quote }}
+  PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION: {{ .Values.producer.maxInFlightRequestsPerConnection | quote }}

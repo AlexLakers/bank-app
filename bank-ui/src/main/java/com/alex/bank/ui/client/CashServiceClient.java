@@ -28,7 +28,7 @@ public class CashServiceClient {
     public ApiResult<CashResponse> processCashOperation(CashRequest request) {
         try {
             ResponseEntity<CashResponse> response = cashRestClient.post()
-                    .uri("/api/v1/cash/owner/operations")
+                    .uri("/cash/owner/operations")
                     .body(request)
                     .retrieve()
                     .toEntity(CashResponse.class);

@@ -1,4 +1,6 @@
 # General
+global:
+  kafkaUrl: "kafka-broker:9092"
 replicaCount: 1
 image:
   repository: nginx
@@ -26,6 +28,7 @@ postgres-stateful:
     - accountdb
     - transferdb
     - cashdb
+    - notificationdb
   storage:
     size: 100Mi
     storageClassName: ""
@@ -50,6 +53,14 @@ account-service:
     port: 8082
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
+  producer:
+    retries: 3
+    batchSize: 16384B
+    bufferMemory: 33554432B
+    lingerMs: 0
+    deliveryTimeoutMs: 120000
+    requestTimeoutMs: 30000
+    maxInFlightRequestsPerConnection: 5
 
 transfer-service:
   enabled: true
@@ -64,6 +75,14 @@ transfer-service:
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
     accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  producer:
+    retries: 3
+    batchSize: 16384B
+    bufferMemory: 33554432B
+    lingerMs: 0
+    deliveryTimeoutMs: 120000
+    requestTimeoutMs: 30000
+    maxInFlightRequestsPerConnection: 5
 
 cash-service:
   enabled: true
@@ -77,6 +96,14 @@ cash-service:
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
     accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  producer:
+    retries: 3
+    batchSize: 16384B
+    bufferMemory: 33554432B
+    lingerMs: 0
+    deliveryTimeoutMs: 120000
+    requestTimeoutMs: 30000
+    maxInFlightRequestsPerConnection: 5
 
 notification-service:
   enabled: true
@@ -85,6 +112,14 @@ notification-service:
     tag: latest
   service:
     port: 8086
+  consumer:
+    groupId: "notification-handlers"
+    fetchMinBytes: 16384
+    fetchMaxWaitMs: 500
+    maxPollRecords: 100
+    sessionTimeoutMs: 30000
+    heartbeatIntervalMs: 10000
+    maxPollIntervalMs: 300000
 
 bank-ui:
   enabled: true

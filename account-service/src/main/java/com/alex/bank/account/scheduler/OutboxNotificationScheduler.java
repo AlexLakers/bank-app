@@ -1,11 +1,8 @@
 package com.alex.bank.account.scheduler;
 
-import com.alex.bank.account.client.notification.NotificationServiceClient;
 //import com.alex.bank.account.dto.AccountDto;
-import com.alex.bank.common.dto.account.AccountEditDto;
-import com.alex.bank.common.dto.account.AccountDto;
+
 import com.alex.bank.common.dto.notification.NotificationRequest;
-import com.alex.bank.common.dto.notification.NotificationResponse;
 //import com.alex.bank.account.dto.NotificationRequest;
 //import com.alex.bank.account.dto.NotificationResponse;
 import com.alex.bank.account.model.Outbox;
@@ -14,12 +11,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -27,40 +30,56 @@ import java.util.UUID;
 public class OutboxNotificationScheduler {
 
     private final OutboxRepository outboxRepository;
-    private final NotificationServiceClient notificationServiceClient;
     private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
+    private final String IDEMPOTENCY_KEY_HEADER = "idempotency-key";
 
-
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void processOutbox() {
-
         List<Outbox> outboxList = outboxRepository.findNotProcessed();
+        List<CompletableFuture<SendResult<String, NotificationRequest>>> futures = new ArrayList<>();
         outboxList.forEach(outbox -> {
-                    try {
-                        Map<String, Object> payloadMap = objectMapper.readValue(outbox.getPayload(),
-                                new TypeReference<Map<String, Object>>() {
-                                });
+            try {
+                Map<String, Object> payloadMap = objectMapper.readValue(outbox.getPayload(),
+                        new TypeReference<Map<String, Object>>() {
+                        });
 
-                        log.info("Sending notification: eventId={}, source={}, eventType={}, payload={}",
-                                outbox.getEventId(), outbox.getSource(), outbox.getEventType(), payloadMap);
+                ProducerRecord<String, NotificationRequest> record = new ProducerRecord<>(
+                        "account-events",
+                        outbox.getEventId().toString(),
+                        buildNotification(outbox, payloadMap));
 
-                        NotificationResponse response = notificationServiceClient.sendNotification(new NotificationRequest(
-                                outbox.getEventId().toString(),
-                                outbox.getSource(),
-                                outbox.getEventType(),
-                                outbox.getMessage(),
-                                payloadMap));
+                record.headers().add(IDEMPOTENCY_KEY_HEADER, outbox.getEventId().toString().getBytes());
 
-                        outbox.setProcessedAt(response.processedAt());
-                        outboxRepository.markAsProcessed(response.processedAt(), UUID.fromString(response.notificationId()));
-                        log.info("Событие {} было {} в {}",
-                                response.notificationId(), response.status(), response.processedAt());
-                    } catch (Exception e) {
-                        log.error("Ошибка обработки события {}", outbox.getEventId(), e);
+                CompletableFuture<SendResult<String, NotificationRequest>> future = kafkaTemplate.send(record);
+
+                future.whenComplete((result, e) -> {
+                    if (e != null) {
+                        log.error("Error sending event {}: {}", outbox.getEventId(), e.getMessage());
+                        return;
                     }
-                }
-        );
+                    RecordMetadata meta = result.getRecordMetadata();
+                    log.info("Event {} sent to topic:{}, partition:{}, offset:{}",
+                            outbox.getEventId(), meta.topic(), meta.partition(), meta.offset());
+                    outbox.setProcessedAt(LocalDateTime.now());
+                    outboxRepository.markAsProcessed(outbox.getProcessedAt(), outbox.getEventId());
+                });
+                futures.add(future);
 
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            } catch (Exception e) {
+                log.error("Error processing outbox event {}", outbox.getEventId(), e);
+            }
+        });
+    }
+
+    private NotificationRequest buildNotification(Outbox outbox, Map<String, Object> payloadMap) {
+        return new NotificationRequest(
+                outbox.getEventId().toString(),
+                outbox.getSource(),
+                outbox.getEventType(),
+                outbox.getMessage(),
+                payloadMap);
     }
 
 }

@@ -24,4 +24,4 @@ dependencies:
   repository: file://subcharts/api-gateway
   version: 0.1.0
 digest: sha256:f8900bd111e9bfeab89accaa1a5232e228a8fe041915006c1a7bff4537f89084
-generated: "2026-03-19T07:27:15.26309255+03:00"
+generated: "2026-03-29T12:01:54.796347624+03:00"
