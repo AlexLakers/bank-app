@@ -42,16 +42,18 @@ spring:
 
       #Garanties delivery + at-least-once
       acks: all
-      retries: 3
+      retries: ${PRODUCER_RETRIES:3}
 
       # Batching and timeouts (optional)
-      batch-size: 16384
-      buffer-memory: 33554432
+      batch-size: ${PRODUCER_BATCH_SIZE:16384B}
+      buffer-memory: ${PRODUCER_BUFFER_MEMORY:33554432B}
       properties:
-        linger.ms: 0                # without batching
-        delivery.timeout.ms: 120000
-        request.timeout.ms: 30000
-        max.in.flight.requests.per.connection: 5   # order is not important here
+        linger.ms: ${PRODUCER_LINGER_MS:0}                # without batching
+        delivery.timeout.ms: ${PRODUCER_DELIVERY_TIMEOUT_MS:120000}
+        request.timeout.ms: ${PRODUCER_REQUEST_TIMEOUT_MS:30000}
+        max.in.flight.requests.per.connection: ${PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION:5}   # order is not important here
+        #exactly-once
+        #enable.idempotence: true
   cloud:
     loadbalancer:
       enabled: false

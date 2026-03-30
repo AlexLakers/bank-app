@@ -75,6 +75,14 @@ transfer-service:
   services:
     notificationServiceUrl: "http://{{ .Release.Name }}-notification-service:8086"
     accountServiceUrl: "http://{{ .Release.Name }}-account-service:8082"
+  producer:
+    retries: 3
+    batchSize: 16384B
+    bufferMemory: 33554432B
+    lingerMs: 0
+    deliveryTimeoutMs: 120000
+    requestTimeoutMs: 30000
+    maxInFlightRequestsPerConnection: 5
 
 cash-service:
   enabled: true
