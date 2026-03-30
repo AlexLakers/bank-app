@@ -26,8 +26,7 @@ public class DeadLetterQueueRecordRecoverer implements ConsumerRecordRecoverer {
         if (record.key() instanceof String key) {
             deadLetterQueue.setMsgKey(key);
         }
-        System.out.println("DeadLetterQueueRecordRecoverer"+"cause"+e.getCause().getMessage() );
-        System.out.println(e.getMessage());
+
         deadLetterQueue.setErrorMessage(e.getMessage());
 
         repository.save(deadLetterQueue);

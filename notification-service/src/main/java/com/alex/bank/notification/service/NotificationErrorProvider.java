@@ -13,7 +13,6 @@ import java.util.function.Function;
 public class NotificationErrorProvider implements Function<FailedDeserializationInfo, NotificationRequest> {
     @Override
     public NotificationRequest apply(FailedDeserializationInfo failedDeserializationInfo) {
-        System.out.println("NotificationErrorProvider---------------------------");
         Exception deserializeException = failedDeserializationInfo.getException();
         log.error("Deserialization notification error : {}", deserializeException.getMessage(), deserializeException);
         throw new NotificationDeserializationException(deserializeException.getMessage(),deserializeException);
