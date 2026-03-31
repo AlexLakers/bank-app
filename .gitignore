@@ -1,4 +1,7 @@
-
+### Strimzi Kafka Not Used anyway
+bank-umbrella/subcharts/strimzi-kafka-operator-NOT_USED!!!!
+bank-umbrella/kafka -STRIMZI-NOT_USED!!!!.yaml
+*NOT_USED*
 ### Environment variables ###
 .env
 .env.local
