@@ -29,7 +29,7 @@ public class RestClientConfig {
     }
 
     @Bean
-    //@LoadBalanced
+   // @LoadBalanced
     public RestClient.Builder restClientBuilder() {
         return RestClient.builder();
     }
@@ -60,19 +60,6 @@ public class RestClientConfig {
             TransferServicePropertiesConfig transferServicePropertiesConfig) {
         return restClientBuilder
                 .baseUrl(transferServicePropertiesConfig.getAccountService().getBaseUrl())
-                .requestInterceptor(createTokenInterceptor(authorizedClientManager))
-                .build();
-    }
-
-
-    @Bean
-    public RestClient notificationRestClient(
-            OAuth2AuthorizedClientManager authorizedClientManager,
-            RestClient.Builder restClientBuilder,
-            TransferServicePropertiesConfig transferServicePropertiesConfig
-    ) {
-        return restClientBuilder
-                .baseUrl(transferServicePropertiesConfig.getNotificationService().getBaseUrl())
                 .requestInterceptor(createTokenInterceptor(authorizedClientManager))
                 .build();
     }

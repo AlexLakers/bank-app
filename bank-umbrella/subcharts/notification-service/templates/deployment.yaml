@@ -24,6 +24,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "notification-service.fullname" . }}-config
+          env:
+            - name: DB_PASS_NOTIFICATION		#from steteful secret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-stateful
+                  key: postgres-password        
                     #Probes
           livenessProbe:
             httpGet:

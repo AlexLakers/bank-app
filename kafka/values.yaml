@@ -1,0 +1,29 @@
+broker:
+  readinessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 3
+  replicaCount: 1
+  heapOpts: "-Xms512m -Xmx512m"
+  config:
+    auto.create.topics.enable: "false"
+    offsets.topic.replication.factor: "1"
+    transaction.state.log.replication.factor: "1"
+    transaction.state.log.min.isr: "1"
+    default.replication.factor: "1"
+    min.insync.replicas: "1"
+    log.retention.bytes: "104857600"
+    log.retention.hours: "24"
+    segment.bytes: "52428800"
+  persistence:
+    enabled: true
+    size: 100Mi
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "200m"

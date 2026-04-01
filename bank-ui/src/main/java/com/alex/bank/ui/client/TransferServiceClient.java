@@ -26,7 +26,7 @@ public class TransferServiceClient {
     public ApiResult<TransferResponse> processTransferOperation(TransferRequest request) {
         try {
             ResponseEntity<TransferResponse> response = transferRestClient.post()
-                    .uri("/api/v1/transfer")
+                    .uri("/transfer")
                     .body(request)
                     .retrieve()
                     .toEntity(TransferResponse.class);

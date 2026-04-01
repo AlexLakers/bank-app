@@ -1,10 +1,16 @@
 # bank-app
 
-Это микросервисный проект с аутентификацией и авторизацией. Проект состоит из 5 микросервисов:
-bank-ui(frontend),cash-service(backend сервиса наличных), account-service(backend сервиса аккаунтов пользователей)
-,transfer-service(backend сервиса переводов между счетами),notification-service(backend сервиса уведомлений).
+Это микросервисный проект с аутентификацией и авторизацией. Для взаимодействия микросервисов используется message
+broker 'Kafka' и REST.
 
-![Схема микросервисного проекта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/schema.png)
+- Проект состоит из 5 микросервисов:
+- bank-ui(frontend)
+- cash-service(backend сервиса наличных,kafka-producer)
+- account-service(backend сервиса аккаунтов пользователей,kafka-producer)
+- transfer-service(backend сервиса переводов между счетами,kafka-producer)
+- notification-service(backend сервиса уведомлений,kafka-consumer).
+
+![Схема микросервисного проекта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/schema_with_kafka.png)
 
 ## bank-ui
 
@@ -35,7 +41,6 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ![логин](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/keycloak_login.png)
 
-
 Далее, после ввода логина и пароля мы попадаем на главную стрницу нашего банковоского приложения
 
 ![главная](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/start_page.png)
@@ -48,6 +53,9 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 - Содержит ендпоинты для получения инфы о авторизованном аккаунте, для изменения личных данных этого аккаунта.
 - Также содержит ендпоинты для атомарного изменения баланса пользователя(увеличения и уменьшения).Используются другими
   микросервисами.
+- В проект встроена система уведомлений с использованием планировщика(Spring Scheduler, Outbox Transactions) и брокера
+  сообщений 'Kafka'.
+  Этот сервис выступает как 'producer' и отправляет в топик 'account-events' события.
 
 ### Безопасность
 
@@ -56,8 +64,9 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 - Для авторизации используется OAUTH2.0 и 'client credentails flow' без вмешивания пользвоателя в процесс(
   service-service).
 - Access token - содержит информацию определенную в 'scope', в том числе и роли.
-- Роли на текущий момент: 'SERVICE'-роль сервиса(не пользователя) и разрешения 'NOTIFICATION-WRITE'.
-- Токен передается как bearer-токен с запросом при взаимодействии с другими сервисами напрямую без 'api-gateway'.
+- Роли на текущий момент: 'SERVICE'-роль сервиса(не пользователя).
+- Токен может передается как bearer-токен с запросом при взаимодействии с другими сервисами напрямую без 'api-gateway',
+  в настоящее время этот сервис взаимодействует только с брокером сообщений.
 
 ### Пример обновления информации владельца
 
@@ -69,13 +78,11 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ![фел апдейтаккаунта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/100.png)
 
-
 Видим сообщение системы валидации о недопустимости возраста.
 
 Кстати , если скажем сервис по каким то причным будет недоступен, то пользвоатель увидит сообщение об этом.
 
 ![ошибка сервиса аккаунта](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/error_account_service_priority.png)
-
 
 Аналогичные сообщения об ошибках есть и при взаимодействии с другими микросервисами.
 
@@ -88,14 +95,16 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
   и баланс меняется, после чего статус транзакции тоже обновляется. Ественнно могут быть проблемы , например при снятии
   недостаточно средств.
   Тогда тразакция сохраняется со статусом фейла и причиной.
-- Также этот микросервис отправляет уведомления(outbox transaction) в 'notification-service'.
+- В проект встроена система уведомлений с использованием планировщика(Spring Scheduler, Outbox Transactions) и брокера
+  сообщений 'Kafka'.
+  Этот сервис выступает как 'producer' и отправляет в топик 'cash-events' события.
 
 ### Безопасность
 
 Система безопасности включает в себя:
 
 - Раздел безопасности тут аналогичен 'account-service', отличаются роли и привелегии.
-- Роли: 'SERVICE'-роль сервиса(не пользователя) и разрешения 'ACCOUNT-WRITE','NOTIFICATION-WRITE'.
+- Роли: 'SERVICE'-роль сервиса(не пользователя) и разрешения 'ACCOUNT-WRITE'.
 - Токен также передается как bearer-токен с запросом при взаимодействии с другими сервисами напрямую без 'api-gateway'.
 
 #### Пример пополнения собственного счета
@@ -116,14 +125,16 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
   Может не хватать средств на счете или скажем целевой счет может не существовать, тогда списанные со счета владельца
   деньги надо вернуть.
   Для этого предусмотрена компенсация.Деьги возращаются и статус транзакции меняется.
-- Также этот микросервис отправляет уведомления(outbox transaction) в 'notification-service'.
+- В проект встроена система уведомлений с использованием планировщика(Spring Scheduler, Outbox Transactions) и брокера
+  сообщений 'Kafka'.
+  Этот сервис выступает как 'producer' и отправляет в топик 'transfer-events' события.
 
 ### Безопасность
 
 Система безопасности включает в себя:
 
 - Раздел безопасности тут аналогичен 'account-service','cash-service' отличаются роли и привелегии.
-- Роли: 'SERVICE'-роль сервиса(не пользователя) и разрешения 'ACCOUNT-WRITE','NOTIFICATION-WRITE'.
+- Роли: 'SERVICE'-роль сервиса(не пользователя) и разрешения 'ACCOUNT-WRITE'.
 - Токен также передается как bearer-токен с запросом при взаимодействии с другими сервисами напрямую без 'api-gateway'.
 
 #### Пример перевода со своего счёта на другой
@@ -132,7 +143,6 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ![сервис переводов](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer_sucess.png)
 
-
 Видим что операция перевода средств прошла успешно и у владельца опять стало 10k.
 
 Опять же если мы захотим перевести очень большие средства, которых у нас нет на счету, то выйдет ошибка о недостатке
@@ -140,12 +150,10 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 
 ![недостаточно средств](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/InfulussinetFunds.png)
 
-
 А если у нас выполнится снятие средств со счета владельца, а при зачислении произойдёт какая-либо ошибка, то произойдет
 компенсация.
 
 ![компенсация](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/error_compensated.png)
-
 
 А пользователь увидит соовтествующее сообщение.
 
@@ -167,15 +175,17 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 ## notification-service
 
 - Данный микросервис получает(обрабатывает) входящие уведомления о событиях в других микросервисах.
+- Данный сервис использует событийно-ориентированную систему взаимодействия, как 'consumer' он читает сообщения из разных топиков 'account-events','cash-events','transfer-events'.
+- В сервисе используется проверка входных данных по ключу идемпотентности, обработка ошибок с ипользованием Spring Kafka.
 - События обновления аккаунта, успешного снятия или списания или перевода.
 - Сейчас сервис просто пишет в лог, но можно расширить функционал.
+- Кроме лога успещные события(их идентификаторы) попадают в таблицу 'events_idempotence'(event_id,processed_at)
 
-### Безопасность
+![сервис уведомлений](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/events_idempotence.png)
 
-Система безопасности включает в себя:
+- Также присутствует таблица , для хранения сообщений с ошибками 'dead_letter_queue'
 
-- Раздел безопасности тут аналогичен 'account-service','cash-service' в плане инфраструкуры.
-- Однако этот сервис(серрвер ресурсов) только проверяет переданный от другого сервиса токен доступа через keycloak.
+![сервис уведомлений](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/dlq_table.png)
 
 ### Пример события которые записались в лог
 
@@ -194,7 +204,7 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 - consul - используется как 'сервер обнаружения служб', позволяет микросервисам не знать о нахождении друг друга(айпи),
   а просто обращаться по имени. Также используется как 'сервер конфигураций' для централизованного хранения конфига.
   В проекте вы найдете в папке 'consul' свойства которые могут быть перенесены как обшие для всех проектов в консул.
-![сервис конфиг](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/config.png)
+  ![сервис конфиг](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/config.png)
 
 - api-gateway - шлюз , единаыя точка , маршрутизатор запросов, через него проивходит взаимодействие пользователя с
   микросервисами.
@@ -202,46 +212,70 @@ bank-ui(frontend),cash-service(backend сервиса наличных), account
 ## Сборка
 
 ### Docker
- Сборка осуществляется с помощью  инфраструктуры Docker с использованием Docker compose.
+
+Сборка осуществляется с помощью инфраструктуры Docker с использованием Docker compose.
 
 - В корневой папке микросервисного проекта вы найдете файл для сборки:  ```compose.yaml```
   В нем описаны все службы(контейнеры), которые необходимы для работы приложения в целом.
 - В папке каждого модуля располагаются файлы сборки образа:```bank-ui/Dockerfile```,```account-service/Dockerfile```....
-  Для сборки и запуска приложения(всех сервисов) просто запустите из корня проекта следующую команду.
-
+- Для сборки и запуска приложения(всех сервисов) просто запустите из корня проекта следующую команду:
   ```
   docker compose up -d
   ```
+- В результате поднимятся 4 базы данных Postgres, фронтенд , микросервисы аккаунтов, наличных,переводо и уведомлений.
+  Также поднимется Consul(конфиг сервер и реестр сервисов)  и сервер авторизации Keycloak во внетренне сети докера.
+- Далее отельно поднимем брокер сообщений Кафка:
 
-- В результате поднимятся 3 базы данных Postgres, фронтенд , микросервисы аккаунтов, наличных и переводов. Также поднимется
-Consul(конфиг сервер и реест сервисов) r и сервер авторизации Keycloak во внетренне сети докера.
+```
+  docker run -d --name kafka -p 9092:9092 apache/kafka:4.0.0
+```
 
 ### ⚠️ Важное примечание
 
 - Обратите внимание , вам надо создать файл ```.env``` с перемнными, которые описаны в ```.env.example```
 
-```
-docker compose up -d
-```
-
 ### Kubernetes
-Также вы можете развернуть микросервисное приложение используя ```Kubernetes``` и пакетный менеджер ```Helm``` для упрощения описания сервисов.
+
+Также вы можете развернуть микросервисное приложение используя ```Kubernetes``` и пакетный менеджер ```Helm``` для
+упрощения описания сервисов.
 В качестве кластера будет использовано стандарное решение от разработчиков Kubernetes - ```Minikube```.
-Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами.
+Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами отельным релизом и брокер 'Кафка'
+отельным релизом.
 
 - Предварительно нужно установить ```Minikube```, ```kubectl```.
 - Запускаем кластер
   ```
   minikube start
   ```
+- В корне проекта откройте(перейдите) в каталог ```kafka```
+- Используя пакетный менеджер 'Helm' , добавим репозиторий поднимем, создадим 'Helm-chart' для брокера сообщений 'Kafka'
 
-- Собираем Docker-images для каждого сервиса внутри кластера Minikube. Из папки проекта.
+ ```
+helm repo add kafka-repo https://helm-charts.itboon.top/kafka
+helm repo update
+helm upgrade --install kafka kafka-repo/kafka -f values.yaml --namespace test --create-namespace
+  ```
+- В результате поднимется брокер 'Kafka' отельным релизом.
+
+  ![lint](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/kafka_released.png)
+
+- Для надежности конфиги для создания топиков в микросервисах продюсерах были отклбючены, создадим топики вручную.
+
+ ```
+kubectl exec -it kafka-broker-0 -n test -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic account-events --partitions 2 --replication-factor 1
+kubectl exec -it kafka-broker-0 -n test -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic cash-events --partitions 2 --replication-factor 1
+kubectl exec -it kafka-broker-0 -n test -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic transfer-events --partitions 2 --replication-factor 1
+  ```
+
+- Теперь приступим к микросервисам, собираем Docker-images для каждого сервиса внутри кластера Minikube. Из папки проекта.
+
  ```
   eval $(minikube docker-env)
   docker build -f bank-ui/Dockerfile -t local/ui:latest .
   docker build -f account-service/Dockerfile -t local/account:latest .
   ......
   ```
+
 - В корне проекта откройте(перейдите) в каталог ```bank-umbrella```
 - Можно использовать разные пространства для логического разделения в кластере, мы используем ```test```.
 - Запустите команду для сборки зависимостей, указанных в зонтичном(родительском) файле 'Chart.yaml'.
@@ -281,39 +315,49 @@ docker compose up -d
 ```
 helm test my-bank -n test
 ```
+
 ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/result_tests.png)
 
 - Далее посмотрим, что все наши сервисы запущены и тесты выполнены
   ```
   kubectl get pods -n test
   ```
-![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/all_serv_and_tests.png)
 
-- Также для прокерки доступности был использован механизм проб, к примеру после запуска посмотрим описание пода ```account-service```
+![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/all_services_tests_kafka.png)
+
+- Также для прокерки доступности был использован механизм проб, к примеру после запуска посмотрим описание
+  пода ```account-service```
   ```
-  kubectl describe pod -n test my-bank-account-service-646d59649d-29j7c
+  kubectl describe pod -n test my-bank-account-service-646d59649d-....
   ```
-kubectl describe pod -n test my-bank-account-service-646d59649d-29j7c
-  ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/descdribe_probes.png)
+
+kubectl describe pod -n test my-bank-account-service-646d59649d-....
+
+![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/descdribe_probes.png)
 
 - После того как все сервисы поднялись и ингрис контроллер запущен, наше приложение будет доступно по внешнему адресу
   ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/new_url.png)
 
 ### Тесты приложения
+
 Очистим предыдущие сборки
+
 ```
 ./gradlew clean
 ```
 
 Опубликуем стабы(для конрактных тестов)
+
 ```
 ./gradlew publishToMavenLocal
 ```
 
 Сборка и выполнение тестов(в том числе и контрактных)
+
 ```
 ./gradlew build
 ```
+
 Или одной командой
 
 ```

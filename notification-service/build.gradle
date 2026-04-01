@@ -1,7 +1,5 @@
 plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
-    id 'org.springframework.cloud.contract' version "${springCloudContractVersion}"
-    id 'maven-publish'
 }
 
 description = 'notification-service'
@@ -9,15 +7,18 @@ description = 'notification-service'
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.boot:spring-boot-testcontainers'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     //implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
     implementation project(':dto-exceptions-common')
+
+    implementation 'org.liquibase:liquibase-core'
+    runtimeOnly 'org.postgresql:postgresql'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -29,25 +30,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
-}
-contracts {
-    baseClassForTests.set(
-            "com.alex.bank.notification.service.contract.BaseNotificationsContractTest"
-
-    )
-}
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            groupId = "com.alex"
-            artifactId = "notification-service"
-            version = "0.0.1-SNAPSHOT"
-
-            from(components.java)
-            artifact(tasks.named("verifierStubsJar"))
-        }
-    }
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 }
 
 
