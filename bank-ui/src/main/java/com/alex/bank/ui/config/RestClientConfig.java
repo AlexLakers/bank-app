@@ -19,11 +19,11 @@ public class RestClientConfig {
     private final OAuth2AuthorizedClientService authorizedClientService;
 
 
-    @Bean
-    @LoadBalanced
-    public RestClient.Builder restClientBuilder() {
-        return RestClient.builder();
-    }
+    //@Bean
+    //@LoadBalanced
+   // public RestClient.Builder restClientBuilder() {
+      //  return RestClient.builder();
+   // }
 
     @Bean
     public RestClient accountsRestClient(RestClient.Builder restClientBuilder,
