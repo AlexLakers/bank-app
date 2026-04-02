@@ -1,6 +1,7 @@
 # General
 global:
   kafkaUrl: "kafka-broker:9092"
+  zipkinUrl: "zipkin:9411"
 replicaCount: 1
 image:
   repository: nginx

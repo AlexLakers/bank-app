@@ -15,6 +15,7 @@ keycloakExternalUrl: "http://192.168.49.2:31080"
 accountServiceUrl: "http://my-bank-account-service:8082"
 cashServiceUrl: "http://my-bank-cash-service:8084"
 transferServiceUrl: "http://my-bank-transfer-service:8085"
+zipkinUrl: "zipkin:9411"
 
 resources: {}
 nodeSelector: {}
