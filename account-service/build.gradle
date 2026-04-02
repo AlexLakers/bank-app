@@ -20,8 +20,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	//implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-	implementation 'io.micrometer:micrometer-tracing-bridge-brave'  // Мост между Micrometer и Brave
-	implementation 'io.zipkin.reporter2:zipkin-reporter-brave' // Библиотека для отправки спанов в zipkin
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 	implementation project(':dto-exceptions-common')
 

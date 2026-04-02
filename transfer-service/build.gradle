@@ -18,6 +18,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-testcontainers'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     //implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
     implementation project(':dto-exceptions-common')
     implementation 'org.springframework.boot:spring-boot-starter-aop'

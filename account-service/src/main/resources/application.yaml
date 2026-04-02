@@ -93,7 +93,7 @@ management:
 
   zipkin:
     tracing:
-      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans} # Эндпоинт Zipkin для приёма спанов
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans}
   tracing:
     sampling:
       probability: 1

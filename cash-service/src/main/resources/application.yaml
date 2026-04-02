@@ -105,6 +105,7 @@ resilience4j:
         retry-exceptions:
           - org.springframework.web.client.HttpServerErrorException
           - org.springframework.web.client.ResourceAccessException
+
 management:
   endpoint:
     health:
@@ -114,5 +115,13 @@ management:
     web:
       exposure:
         include: health
+
+  zipkin:
+    tracing:
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1
+
 server:
   port: ${APP_PORT_CASH:8084}

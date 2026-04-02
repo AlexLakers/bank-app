@@ -113,6 +113,14 @@ management:
     health:
       probes:
         enabled: true
+
+  zipkin:
+    tracing:
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1
+
   endpoints:
     web:
       exposure:
