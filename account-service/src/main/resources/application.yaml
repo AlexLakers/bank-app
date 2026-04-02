@@ -75,8 +75,14 @@ spring:
 logging:
   level:
     com.alex.bank.account: INFO
+    io.micrometer.tracing: DEBUG
+    org.springframework.kafka: DEBUG
+    #org.springframework.jdbc: DEBUG
+    #com.zaxxer.hikari: DEBUG
+    #io.micrometer.observation: DEBUG
+    zipkin2.reporter: DEBUG
     root: WARN
-  #file:
+    #file:
     #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log
 
 management:
@@ -84,6 +90,14 @@ management:
     health:
       probes:
         enabled: true
+
+  zipkin:
+    tracing:
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans} # Эндпоинт Zipkin для приёма спанов
+  tracing:
+    sampling:
+      probability: 1
+
   endpoints:
     web:
       exposure:
