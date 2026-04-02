@@ -17,6 +17,7 @@ import com.alex.bank.account.repository.OutboxRepository;
 import com.alex.bank.account.service.AccountService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
+    private final Tracer tracer;
 
     @Override
     public AccountDto getAccountByUsername(String username) {
@@ -45,14 +47,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDto updateAccount(AccountEditDto accountEditDto, String username) {
-        AccountDto dto = accountRepository.findAccountByUsername(username)
-                .map(account -> {
-                    accountMapper.updateAccount(accountEditDto, account);
-                    return account;
-                })
-                .map(accountRepository::save)
-                .map(accountMapper::toDto)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+        var span = tracer.nextSpan().name("updateAccountInDatabase").start();
+        AccountDto dto =null;
+        try {
+             dto = accountRepository.findAccountByUsername(username)
+                    .map(account -> {
+                        accountMapper.updateAccount(accountEditDto, account);
+                        return account;
+                    })
+                    .map(accountRepository::save)
+                    .map(accountMapper::toDto)
+                    .orElseThrow(() -> new AccountNotFoundException(username));
+        } finally {
+            span.end();
+        }
+
 
         saveOutbox(dto);
 
@@ -60,6 +69,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void saveOutbox(AccountDto payload) {
+        var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
             Outbox outbox = Outbox.builder()
@@ -72,6 +82,9 @@ public class AccountServiceImpl implements AccountService {
             outboxRepository.save(outbox);
         } catch (JsonProcessingException e) {
             throw new CreatingPayloadOutboxException();
+        }
+        finally {
+            span.end();
         }
     }
 
