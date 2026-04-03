@@ -35,6 +35,7 @@ producer:
   requestTimeoutMs: 30000
   maxInFlightRequestsPerConnection: 5
 
+zipkinUrl: "http://zipkin:9411"
 kafkaUrl: ""
 keycloakExternalUrl: "http://192.168.49.2:31080"
 servicePort: 8082
