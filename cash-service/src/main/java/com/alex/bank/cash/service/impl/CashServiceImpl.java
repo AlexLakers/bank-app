@@ -11,6 +11,7 @@ import com.alex.bank.common.dto.cash.CashAction;
 import com.alex.bank.common.dto.notification.EventType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,6 @@ import com.alex.bank.common.exceptions.AccountValidationException;
 import com.alex.bank.common.exceptions.AccountNotFoundException;
 import com.alex.bank.common.exceptions.InsufficientFundsException;
 import com.alex.bank.common.exceptions.CreatingPayloadOutboxException;
-
 
 
 import java.math.BigDecimal;
@@ -36,15 +36,24 @@ public class CashServiceImpl implements CashService {
     private final CashTransactionRepository cashTransactionRepository;
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
+    private final Tracer tracer;
 
     private CashTransaction createAndSavePendingTransaction(CashAction action, String accountHolder, BigDecimal amount) {
-        CashTransaction transaction = CashTransaction.builder()
-                .action(action)
-                .accountHolder(accountHolder)
-                .status(CashTransactionStatus.PENDING)
-                .amount(amount)
-                .build();
-        return cashTransactionRepository.save(transaction);
+        var span = tracer.nextSpan().name("savePendingTransactionInDatabase").start();
+        CashTransaction pendingTransaction;
+        try {
+            CashTransaction transaction = CashTransaction.builder()
+                    .action(action)
+                    .accountHolder(accountHolder)
+                    .status(CashTransactionStatus.PENDING)
+                    .amount(amount)
+                    .build();
+            pendingTransaction = cashTransactionRepository.save(transaction);
+        } finally {
+            span.end();
+        }
+
+        return pendingTransaction;
     }
 
     @Transactional(noRollbackFor = {
@@ -68,6 +77,7 @@ public class CashServiceImpl implements CashService {
     }
 
     private void saveOutbox(CashResponse payload, CashTransaction cashTransaction) {
+        var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
             EventType eventType = cashTransaction.getAction() == CashAction.GET
@@ -87,6 +97,8 @@ public class CashServiceImpl implements CashService {
         } catch (JsonProcessingException e) {
             log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
                     cashTransaction.getTransactionId(), e);
+        } finally {
+            span.end();
         }
     }
 

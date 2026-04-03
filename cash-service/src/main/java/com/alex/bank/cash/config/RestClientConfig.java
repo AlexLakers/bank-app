@@ -33,11 +33,12 @@ public class RestClientConfig {
         return manager;
     }
 
-    @Bean
+    // comented for use default Builder from contest to transfer TrancingContext
+    //@Bean
    // @LoadBalanced
-    public RestClient.Builder restClientBuilder() {
-        return RestClient.builder();
-    }
+    //public RestClient.Builder restClientBuilder() {
+       // return RestClient.builder();
+   // }
 
 
     private ClientHttpRequestInterceptor createTokenInterceptor(

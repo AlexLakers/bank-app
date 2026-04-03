@@ -12,6 +12,7 @@ import com.alex.bank.transfer.repository.TransferTransactionRepository;
 import com.alex.bank.transfer.service.TransferService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class TransferServiceImpl implements TransferService {
     private final AccountServiceClient accountServiceClient;
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
+    private final Tracer tracer;
 
     @Transactional(noRollbackFor = {
             AccountNotFoundException.class,
@@ -63,6 +65,7 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private void saveOutbox(TransferResponse payload, TransferTransaction transaction) {
+        var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
 
@@ -79,6 +82,8 @@ public class TransferServiceImpl implements TransferService {
         } catch (JsonProcessingException e) {
             log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
                     transaction.getTransactionId(), e);
+        } finally {
+            span.end();
         }
     }
 
@@ -117,9 +122,14 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private void updateStatus(TransferTransaction transaction, TransferTransactionStatus status, String message) {
-        transaction.setStatus(status);
-        transaction.setMessage(message);
-        transactionRepository.save(transaction);
+        var span = tracer.nextSpan().name("updateTransactionInDatabase").start();
+        try {
+            transaction.setStatus(status);
+            transaction.setMessage(message);
+            transactionRepository.save(transaction);
+        } finally {
+            span.end();
+        }
     }
 
     private String getMessage(Exception e) {
@@ -127,12 +137,19 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private TransferTransaction createTransaction(TransferRequest request) {
-        TransferTransaction transaction = TransferTransaction.builder()
-                .fromAccount(request.fromAccount())
-                .toAccount(request.toAccount())
-                .amount(request.amount())
-                .status(TransferTransactionStatus.WITHDRAW_PENDING)
-                .build();
-        return transactionRepository.save(transaction);
+        TransferTransaction pendingTransaction = null;
+        var span = tracer.nextSpan().name("saveTransactionInDatabase").start();
+        try {
+            TransferTransaction transaction = TransferTransaction.builder()
+                    .fromAccount(request.fromAccount())
+                    .toAccount(request.toAccount())
+                    .amount(request.amount())
+                    .status(TransferTransactionStatus.WITHDRAW_PENDING)
+                    .build();
+            pendingTransaction = transactionRepository.save(transaction);
+        } finally {
+            span.end();
+        }
+        return pendingTransaction;
     }
 }
