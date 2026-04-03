@@ -12,6 +12,8 @@ data:
   KEYCLOAK_EXTERNAL_URL: {{ .Values.keycloakExternalUrl | quote }}
   APP_PORT_NOTIF: {{ .Values.service.port | quote }}
   KAFKA_URL: {{ coalesce .Values.kafkaUrl .Values.global.kafkaUrl "kafka-broker:9092" | quote }}
+  ZIPKIN_URL: {{ coalesce .Values.zipkinUrl .Values.global.zipkinUrl "zipkin:9411" | quote }}
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: {{ coalesce .Values.zipkinUrl .Values.global.zipkinUrl "http://zipkin:9411" }}/api/v2/spans
   #CONSUMER
   CONSUMER_GROUP_ID: {{ .Values.consumer.groupId | quote }}
   CONSUMER_FETCH_MIN_BYTES: {{ .Values.consumer.fetchMinBytes | quote }}
