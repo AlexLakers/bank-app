@@ -90,6 +90,6 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,metrics,prometheus
 server:
   port: ${APP_PORT_NOTIF:8086}
