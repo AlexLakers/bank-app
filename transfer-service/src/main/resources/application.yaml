@@ -124,6 +124,6 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,metrics,prometheus
 server:
   port: ${APP_PORT_TRANSFER:8085}
