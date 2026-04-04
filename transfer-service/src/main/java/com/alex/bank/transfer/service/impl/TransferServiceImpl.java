@@ -12,6 +12,7 @@ import com.alex.bank.transfer.repository.TransferTransactionRepository;
 import com.alex.bank.transfer.service.TransferService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class TransferServiceImpl implements TransferService {
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
     private final Tracer tracer;
+    private final MeterRegistry meterRegistry;
 
     @Transactional(noRollbackFor = {
             AccountNotFoundException.class,
@@ -51,15 +53,19 @@ public class TransferServiceImpl implements TransferService {
             return response;
         } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException e) {
             updateStatus(transaction, TransferTransactionStatus.FAILED, e.getMessage());
+            recordTransferFailure(request.fromAccount(), request.toAccount(), e.getMessage(), TransferTransactionStatus.FAILED);
             throw e;
         } catch (ExternalServiceException e) {
             updateStatus(transaction, TransferTransactionStatus.WITHDRAW_PENDING, e.getMessage());
+            recordTransferFailure(request.fromAccount(), request.toAccount(), e.getMessage(), TransferTransactionStatus.WITHDRAW_PENDING);
             throw e;
         } catch (TransferCompensatedException e) {
             updateStatus(transaction, TransferTransactionStatus.COMPENSATED, e.getMessage());
+            recordTransferFailure(request.fromAccount(), request.toAccount(), e.getMessage(), TransferTransactionStatus.COMPENSATED);
             throw e;
         } catch (CompensationFailedException e) {
             updateStatus(transaction, TransferTransactionStatus.COMPENSATED_FAILED, e.getMessage());
+            recordTransferFailure(request.fromAccount(), request.toAccount(), e.getMessage(), TransferTransactionStatus.COMPENSATED_FAILED);
             throw e;
         }
     }
@@ -151,5 +157,16 @@ public class TransferServiceImpl implements TransferService {
             span.end();
         }
         return pendingTransaction;
+    }
+
+    private void recordTransferFailure(String sender, String receiver, String reason, TransferTransactionStatus status) {
+        String fullMessage = reason + " [%s] ".formatted(status.name());
+        //business-metric
+        meterRegistry.counter("transfer.failures",
+                "sender", sender,
+                "receiver", receiver,
+                "reason", fullMessage
+        ).increment();
+        log.debug("Transfer failure recorded: sender={}, receiver={}, reason={}", sender, receiver, reason);
     }
 }
