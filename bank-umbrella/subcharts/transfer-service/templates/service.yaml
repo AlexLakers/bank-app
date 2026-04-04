@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "transfer-service.fullname" . }}
   labels:
+    app: {{ .Chart.Name }}
     {{- include "transfer-service.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
