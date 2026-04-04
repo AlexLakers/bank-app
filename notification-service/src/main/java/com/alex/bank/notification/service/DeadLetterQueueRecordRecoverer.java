@@ -32,7 +32,7 @@ public class DeadLetterQueueRecordRecoverer implements ConsumerRecordRecoverer {
         String username = extractUsername(record);
 
         //business-metric
-        meterRegistry.counter("notification.send.failures",
+        meterRegistry.counter("notification_failures",
                         "username", username)
                 .increment();
 
@@ -65,5 +65,4 @@ public class DeadLetterQueueRecordRecoverer implements ConsumerRecordRecoverer {
         }
         return null;
     }
-}
 }
