@@ -92,7 +92,8 @@ public class KafkaProducerIT {
             UUID transactionId = UUID.randomUUID();
             Map<String, Object> payload = Map.of(
                     "transactionId", transactionId.toString(),
-                    "newBalance", 10000.00
+                    "newBalance", 10000.00,
+                    "username","testuser"
             );
 
             NotificationRequest notification = new NotificationRequest(
@@ -114,6 +115,7 @@ public class KafkaProducerIT {
             assertThat(received.eventType()).isEqualTo(EventType.CASH_WITHDRAWAL);
             assertThat(received.payload()).containsEntry("transactionId", transactionId.toString());
             assertThat(received.payload()).containsEntry("newBalance", 10000.00);
+            assertThat(received.payload()).containsEntry("username", "testuser");
         }
     }
 

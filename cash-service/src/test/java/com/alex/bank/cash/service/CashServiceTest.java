@@ -47,7 +47,7 @@ class CashServiceTest {
     @Captor
     private ArgumentCaptor<Outbox> outboxCaptor;
 
-    private final String username = "testUser";
+    private final String username = "testuser";
     private final BigDecimal amount = new BigDecimal("100.00");
     private final BigDecimal newBalance = new BigDecimal("500.00");
 
@@ -75,6 +75,7 @@ class CashServiceTest {
 
         assertThat(response.newBalance()).isEqualByComparingTo(newBalance);
         assertThat(response.transactionId()).isEqualTo(transactionId.toString());
+        assertThat(response.username()).isEqualTo(username);
 
         verify(cashTransactionRepository, times(2)).save(transactionCaptor.capture());
         CashTransaction savedPending = transactionCaptor.getAllValues().get(0);
@@ -132,7 +133,7 @@ class CashServiceTest {
         verify(cashTransactionRepository, times(2)).save(transactionCaptor.capture());
         CashTransaction failedTransaction = transactionCaptor.getAllValues().get(1);
         assertThat(failedTransaction.getStatus()).isEqualTo(CashTransactionStatus.FAILED);
-        assertThat(failedTransaction.getMessage()).isEqualTo("Аккаунт с именем:  testUser не найден");
+        assertThat(failedTransaction.getMessage()).isEqualTo("Аккаунт с именем:  testuser не найден");
 
         verify(outboxRepository, never()).save(any());
     }

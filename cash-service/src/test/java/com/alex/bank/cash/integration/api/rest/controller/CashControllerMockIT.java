@@ -62,7 +62,7 @@ public class CashControllerMockIT {
     void withdrawCash_success() throws Exception {
 
         CashRequest request = new CashRequest(CashAction.GET, BigDecimal.valueOf(100));
-        CashResponse response = new CashResponse("3131231-fdsfsd-312fd=fdsf", BigDecimal.valueOf(100));
+        CashResponse response = new CashResponse("3131231-fdsfsd-312fd=fdsf", BigDecimal.valueOf(100),"testuser");
         when(cashService.processCash(eq("testuser"), any(CashRequest.class)))
                 .thenReturn(response);
 

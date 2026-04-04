@@ -118,7 +118,7 @@ public class CashServiceImpl implements CashService {
         log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
-        return new CashResponse(transaction.getTransactionId().toString(), newBalance);
+        return new CashResponse(transaction.getTransactionId().toString(), newBalance,transaction.getAccountHolder());
 
     }
 
