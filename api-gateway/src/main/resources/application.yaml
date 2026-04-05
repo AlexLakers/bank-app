@@ -79,9 +79,14 @@ management:
     sampling:
       probability: 0
 
+
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,metrics,prometheus
 server:
   port: ${APP_PORT_GATEWAY:8888}
