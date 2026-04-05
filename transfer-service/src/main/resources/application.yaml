@@ -121,6 +121,10 @@ management:
     sampling:
       probability: 0
 
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
   endpoints:
     web:
       exposure:
