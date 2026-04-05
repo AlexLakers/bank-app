@@ -162,7 +162,7 @@ public class TransferServiceImpl implements TransferService {
     private void recordTransferFailure(String sender, String receiver, String reason, TransferTransactionStatus status) {
         String fullMessage = reason + " [%s] ".formatted(status.name());
         //business-metric
-        meterRegistry.counter("transfer.failures",
+        meterRegistry.counter("transfer_failures",
                 "sender", sender,
                 "receiver", receiver,
                 "reason", fullMessage
