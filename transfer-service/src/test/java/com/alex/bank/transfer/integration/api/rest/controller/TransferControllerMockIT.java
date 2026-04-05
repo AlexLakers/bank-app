@@ -61,11 +61,12 @@ public class TransferControllerMockIT {
 
     @Test
     void transfer_success() throws Exception {
-        TransferRequest request = new TransferRequest("alexeev", "sergeev", BigDecimal.valueOf(1200));
+        TransferRequest request = new TransferRequest("testuser1", "testuser1", BigDecimal.valueOf(1200));
         TransferResponse response = new TransferResponse(
                 UUID.randomUUID().toString(),
                 BigDecimal.valueOf(800),
-                BigDecimal.valueOf(1200)
+                BigDecimal.valueOf(1200),
+                "alexeev"
         );
         when(transferService.transfer(any(TransferRequest.class))).thenReturn(response);
 
@@ -86,7 +87,7 @@ public class TransferControllerMockIT {
 
     @Test
     void transfer_forbidden_whenMissingTransferWriteAuthority() throws Exception {
-        TransferRequest request = new TransferRequest("alexeev", "sergeev", BigDecimal.valueOf(200));
+        TransferRequest request = new TransferRequest("testuser1", "testuser", BigDecimal.valueOf(200));
 
         mockMvc.perform(post("/api/v1/transfer")
                         .with(jwt().jwt(jwt -> jwt
@@ -99,7 +100,7 @@ public class TransferControllerMockIT {
 
     @Test
     void transfer_unauthorized_whenNotAuthenticated() throws Exception {
-        TransferRequest request = new TransferRequest("alexeev", "sergeev", BigDecimal.valueOf(200));
+        TransferRequest request = new TransferRequest("testuser1", "testuser", BigDecimal.valueOf(200));
 
         mockMvc.perform(post("/api/v1/transfer")
                         .contentType(MediaType.APPLICATION_JSON)

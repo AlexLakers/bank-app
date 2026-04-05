@@ -88,7 +88,7 @@ class TransferServiceTest {
         when(accountServiceClient.withdraw(eq(fromAccount), eq(amount))).thenReturn(senderNewBalance);
         when(accountServiceClient.deposit(eq(toAccount), eq(amount))).thenReturn(receiverNewBalance);
         when(objectMapper.writeValueAsString(any(TransferResponse.class)))
-                .thenReturn("{\"transactionId\":\"" + transactionId + "\",\"newBalanceSender\":900.00,\"newBalanceReceiver\":1100.00}");
+                .thenReturn("{\"transactionId\":\"" + transactionId + "\",\"newBalanceSender\":900.00,\"newBalanceReceiver\":1100.00,\"username\":\"test\"}");
 
         TransferResponse response = transferService.transfer(request);
 

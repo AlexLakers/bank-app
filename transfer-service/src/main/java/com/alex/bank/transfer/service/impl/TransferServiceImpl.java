@@ -104,7 +104,7 @@ public class TransferServiceImpl implements TransferService {
             BigDecimal receiverBalance = accountServiceClient.deposit(request.toAccount(), request.amount());
             updateStatus(transaction, TransferTransactionStatus.SUCCESS, null);
             log.info("Перевод успешен. Отправитель: {}, сумма: {}", request.fromAccount(), request.amount());
-            return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance);
+            return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance,transaction.getFromAccount());
         } catch (Exception e) {
             boolean compensated = compensate(transaction);
             if (compensated) {

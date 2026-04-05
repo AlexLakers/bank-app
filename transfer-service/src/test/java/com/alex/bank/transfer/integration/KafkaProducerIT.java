@@ -80,7 +80,8 @@ public class KafkaProducerIT {
             Map<String, Object> payload = Map.of(
                     "transactionId", transactionId.toString(),
                     "newBalanceSender", 10000.00,
-                    "newBalanceReceiver", 15100.00
+                    "newBalanceReceiver", 15100.00,
+                    "username","testuser"
             );
 
             NotificationRequest request = new NotificationRequest(
@@ -103,6 +104,7 @@ public class KafkaProducerIT {
             assertThat(received.payload()).containsEntry("transactionId", transactionId.toString());
             assertThat(received.payload()).containsEntry("newBalanceSender", 10000.00);
             assertThat(received.payload()).containsEntry("newBalanceReceiver", 15100.00);
+            assertThat(received.payload()).containsEntry("username", "testuser");
         }
     }
 }
