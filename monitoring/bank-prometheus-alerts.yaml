@@ -1,0 +1,64 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bank-business-alerts
+  namespace: test
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+    - name: bank-business-metrics
+      rules:
+        - alert: HighCashOperationFailures
+          expr: sum(increase(cash_operation_failures_total[1m])) > 2
+          for: 1m
+          labels:
+            severity: warning
+            service: cash-service
+          annotations:
+            summary: "Много неудачных операций с наличными наличных"
+            description: "За последнюю 1 минуту произошло более 2 ошибок (снятия+пополнения)."
+
+        - alert: HighTransferFailures
+          expr: sum(increase(transfer_failures_total[1m])) > 2
+          for: 1m
+          labels:
+            severity: warning
+            service: transfer-service
+          annotations:
+            summary: "Много неудачных переводов"
+            description: "За последнюю 1 минуту произошло более 2 ошибок переводов."
+
+        - alert: HighNotificationFailures
+          expr: sum(increase(notification_send_failures_total[1m])) > 2
+          for: 1m
+          labels:
+            severity: warning
+            service: notification-service
+          annotations:
+            summary: "Проблемы с отправкой уведомлений"
+            description: "За последнюю 1 минуту произошло более 2 ошибок при обработке уведомлений"
+
+    - name: bank-http-errors
+      rules:
+        - alert: High5xxErrorRate
+          expr: |
+            (sum(rate(http_server_requests_seconds_count{status=~"5.."}[2m])) 
+             / 
+             sum(rate(http_server_requests_seconds_count[2m]))) * 100 > 5
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Высокий процент HTTP 5xx ошибок"
+            description: "Процент 5xx ошибок составляет {{ $value }}% за последние 2 минуты."
+
+
+        - alert: High4xxErrorRate
+          expr: sum(increase(http_server_requests_seconds_count{status=~"4.."}[1m])) > 2
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Много клиентских ошибок 4xx"
+            description: "За последнюю  минуту произошло более 2 ошибок 4хх."
