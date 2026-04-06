@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "bank-ui.fullname" . }}
   labels:
+    app: {{ .Chart.Name }}
     {{- include "bank-ui.labels" . | nindent 4 }}
 spec:
   type: ClusterIP

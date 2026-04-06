@@ -8,10 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Chart.Name }}
       {{- include "bank-ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Chart.Name }}
         {{- include "bank-ui.selectorLabels" . | nindent 8 }}
     spec:
       containers:
