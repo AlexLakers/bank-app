@@ -259,7 +259,7 @@ public class FrontMainControllerIT {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"id\":1,\"amount\":100.0}")));
+                        .withBody("{\"id\":1,\"amount\":100.0,\"username\":\"testuser\"}")));
 
         mockMvc.perform(post("/ui/cash")
                         .with(csrf())
@@ -278,7 +278,7 @@ public class FrontMainControllerIT {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"id\":1,\"amount\":50.0}")));
+                        .withBody("{\"id\":1,\"amount\":50.0,\"username\":\"testuser\"}")));
 
         mockMvc.perform(post("/ui/cash")
                         .with(csrf())

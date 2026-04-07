@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "notification-service.fullname" . }}-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus-stack
+    {{- include "notification-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: notification-service
+      {{- include "notification-service.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 45s

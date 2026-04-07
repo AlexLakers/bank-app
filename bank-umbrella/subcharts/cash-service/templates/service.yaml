@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "cash-service.fullname" . }}
   labels:
+    app: {{ .Chart.Name }}
     {{- include "cash-service.labels" . | nindent 4 }}
 spec:
   type: ClusterIP

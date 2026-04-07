@@ -11,6 +11,7 @@ import com.alex.bank.common.dto.cash.CashAction;
 import com.alex.bank.common.dto.notification.EventType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class CashServiceImpl implements CashService {
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
     private final Tracer tracer;
+    private final MeterRegistry meterRegistry;
 
     private CashTransaction createAndSavePendingTransaction(CashAction action, String accountHolder, BigDecimal amount) {
         var span = tracer.nextSpan().name("savePendingTransactionInDatabase").start();
@@ -116,7 +118,7 @@ public class CashServiceImpl implements CashService {
         log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
-        return new CashResponse(transaction.getTransactionId().toString(), newBalance);
+        return new CashResponse(transaction.getTransactionId().toString(), newBalance,transaction.getAccountHolder());
 
     }
 
@@ -130,6 +132,14 @@ public class CashServiceImpl implements CashService {
         }
 
         cashTransactionRepository.save(transaction);
+
+        log.info("Incrementing metric for user: {}", transaction.getAccountHolder());
+
+        // business-metric
+        meterRegistry.counter("cash_operation_failures",
+                "username", transaction.getAccountHolder(),
+                "action", transaction.getAction().name()
+        ).increment();
 
         if (isExpectedException(e)) {
             return (RuntimeException) e;

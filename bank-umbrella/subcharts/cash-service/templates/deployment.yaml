@@ -8,10 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Chart.Name }}
       {{- include "cash-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Chart.Name }}
         {{- include "cash-service.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -48,9 +50,9 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: {{ .Values.servicePort }}
-            initialDelaySeconds: 40
+            initialDelaySeconds: 60
             periodSeconds: 5
             failureThreshold: 5
-            timeoutSeconds: 1
+            timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

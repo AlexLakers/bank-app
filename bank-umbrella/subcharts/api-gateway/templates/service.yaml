@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "api-gateway.fullname" . }}
   labels:
+    app: {{ .Chart.Name }}
     {{- include "api-gateway.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}

@@ -8,10 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Chart.Name }}
       {{- include "api-gateway.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Chart.Name }}
         {{- include "api-gateway.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -40,13 +42,13 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 10
+            initialDelaySeconds: 40
             periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 12
+            initialDelaySeconds: 60
             periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
