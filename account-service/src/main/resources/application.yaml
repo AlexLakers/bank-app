@@ -74,13 +74,13 @@ spring:
 
 logging:
   level:
-    com.alex.bank.account: INFO
-    io.micrometer.tracing: DEBUG
-    org.springframework.kafka: DEBUG
+    com.alex.bank.account: DEBUG
+    #io.micrometer.tracing: DEBUG
+    #org.springframework.kafka: DEBUG
     #org.springframework.jdbc: DEBUG
     #com.zaxxer.hikari: DEBUG
     #io.micrometer.observation: DEBUG
-    zipkin2.reporter: DEBUG
+    #zipkin2.reporter: DEBUG
     root: WARN
     #file:
     #name: ${APP_DIR_ACCOUNT:/home/alexlakers}/${spring.application.name}/app.log

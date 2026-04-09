@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
@@ -39,6 +41,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getAccountByUsername(String username) {
+        log.debug("Getting account for username: {}", username);
         return accountRepository.findAccountByUsername(username)
                 .map(accountMapper::toDto)
                 .orElseThrow(() -> new AccountNotFoundException(username));
@@ -47,10 +50,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDto updateAccount(AccountEditDto accountEditDto, String username) {
+        log.info("Updating account for user: {}", username);
         var span = tracer.nextSpan().name("updateAccountInDatabase").start();
-        AccountDto dto =null;
+        AccountDto dto = null;
         try {
-             dto = accountRepository.findAccountByUsername(username)
+            dto = accountRepository.findAccountByUsername(username)
                     .map(account -> {
                         accountMapper.updateAccount(accountEditDto, account);
                         return account;
@@ -58,17 +62,16 @@ public class AccountServiceImpl implements AccountService {
                     .map(accountRepository::save)
                     .map(accountMapper::toDto)
                     .orElseThrow(() -> new AccountNotFoundException(username));
+            saveOutbox(dto);
+            log.info("Account updated successfully for user: {}", username);
+            return dto;
         } finally {
             span.end();
         }
-
-
-        saveOutbox(dto);
-
-        return dto;
     }
 
     private void saveOutbox(AccountDto payload) {
+        log.debug("Saving outbox event for user: {}", payload.username());
         var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
@@ -80,16 +83,17 @@ public class AccountServiceImpl implements AccountService {
                     .createdAt(LocalDateTime.now())
                     .build();
             outboxRepository.save(outbox);
+            log.info("Outbox event saved for user: {}", payload.username());
         } catch (JsonProcessingException e) {
             throw new CreatingPayloadOutboxException();
-        }
-        finally {
+        } finally {
             span.end();
         }
     }
 
     @Override
     public List<AccountDto> getAccountsExcludeOwner(String username) {
+        log.debug("Getting all accounts except owner: {}", username);
         return accountRepository.findAccountsByUsernameNot(username)
                 .stream()
                 .map(accountMapper::toDto)
@@ -99,6 +103,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public BigDecimal increaseBalance(String username, BigDecimal amount) {
+        log.info("Increasing balance for user: {} by amount: {}", username, amount);
         return accountRepository.increaseBalanceByUsername(username, amount)
                 .orElseThrow(() -> new AccountNotFoundException(username));
     }
@@ -106,6 +111,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public BigDecimal decreaseBalance(String username, BigDecimal amount) {
+        log.info("Decreasing balance for user: {} by amount: {}", username, amount);
         return accountRepository.decreaseBalanceByUsername(username, amount)
                 .orElseThrow(() -> {
                     if (accountRepository.existsByUsername(username)) {
