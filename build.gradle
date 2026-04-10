@@ -25,6 +25,7 @@ allprojects {
         springCloudContractVersion = '4.3.0'
         springWiremockVersion='3.9.0'
         resilience4jVersion='2.1.0'
+        logbackEncoderVersion='8.1'
     }
 
     group = rootProject.group
