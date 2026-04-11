@@ -1,0 +1,43 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: test
+spec:
+  version: 8.12.0
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      xpack.security.enabled: false
+      node.store.allow_mmap: false
+      cluster.initial_master_nodes: ["elasticsearch-es-default-0"]
+      network.host: 0.0.0.0
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "1Gi"
+          volumeMounts:
+          - name: elasticsearch-data
+            mountPath: /usr/share/elasticsearch/data
+        volumes:
+        - name: elasticsearch-data
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
