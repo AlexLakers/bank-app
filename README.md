@@ -326,7 +326,7 @@ broker 'Kafka' и REST. Для депоймента используется Kub
 упрощения описания сервисов.
 В качестве кластера будет использовано стандарное решение от разработчиков Kubernetes - ```Minikube```.
 Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами отельным релизом и брокер 'Кафка'
-отельным релизом.
+отельным релизом. Также для мониторинга будут разворачиваться компоненты для ELK-stack, для Prometheus-stack и Zipkin.
 
 - Предварительно нужно установить ```Minikube```, ```kubectl```.
 - Запускаем кластер
@@ -420,6 +420,35 @@ helm test my-bank -n test
 kubectl describe pod -n test my-bank-account-service-646d59649d-....
 
 ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/descdribe_probes.png)
+
+- Для мониторинга развернем дополнительные компоненты в нашем кластере из папки '/monitoring'':
+- Prometheus-Stack(prometheus+alertnamager+grafana)
+- Zipkin
+- ELK(elasticsearch+logstash+kibana+filebeat) в составе ECK-operator(elastic cloud on kubernetes) '/monitoring/prometheus-stack':
+  ```
+  helm install prometheus-stack prometheus-community/kube-prometheus-stack -n test -f values.yaml
+  kubectl -n test get secret prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+  ```
+- Настройки(применения) правил алертинга в комопненте 'Alert-Manager':
+  ```
+  kubectl apply -f bank-prometheus-alerts.yaml -n test
+  ```
+- Далее установим ECK-operator из скачанных исходников '/monitoring/elk-eck/', а также отдельные компоненты:
+  ```
+  kubectl create -f crds-3.3.2.yaml
+  kubectl apply -f operator-3.3.2.yaml
+  
+  kubectl apply -f elasticsearch.yaml -n test
+  kubectl apply -f logstash.yaml -n test
+  kubectl apply -f kibana.yaml -n test
+  kubectl apply -f filebeat.yaml -n test
+  ```
+- Далее установим в нашем кластере 'Zipkin' для трассировки:
+ ```
+ helm repo add zipkin https://zipkin.io/zipkin-helm
+ helm install zipkin zipkin/zipkin -f values.yaml -n test
+ kubectl -n test get svc zipkin
+ ```
 
 - После того как все сервисы поднялись и ингрис контроллер запущен, наше приложение будет доступно по внешнему адресу
   ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/new_url.png)
