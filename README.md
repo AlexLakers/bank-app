@@ -1,7 +1,7 @@
 # bank-app
 
-Это микросервисный проект с аутентификацией и авторизацией. Для взаимодействия микросервисов используется message
-broker 'Kafka' и REST.
+Это микросервисный проект банковского приложения с аутентификацией и авторизацией через Keycloak. Для взаимодействия микросервисов используется message
+broker 'Kafka' и REST. Для депоймента используется Kubernetes, Helm и Docker. Для мониторинга используется Zipkin, Prometheus-stack и ELK-stack.
 
 - Проект состоит из 5 микросервисов:
 - bank-ui(frontend)
@@ -193,7 +193,69 @@ broker 'Kafka' и REST.
 
 Видим разные события от разных микросервисов.
 
+## Мониторинг
+Для монторинга микросервисного приложения в кластере используется комплекс решений:
+-  **'Zipkin'**- для трассировки пользовательских запросов и межсервисного взаимодействия.
+   Для примера, посомтрим детализацию запроса  на перевод денег, видим детализацию различных спанов в рамках одного трейса.
+
+![Зипкин](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer-zipkin.png)
+
+- **'Filebeat'**- читает логи микросервисов прямо из /var/log/containers/*.log в кластере, обеспеспечивая буферизацию и надежность.
+  А микросервисы сосредоточнены на бизнесс-логике, просто пишут логи в консоль(stdout) как обычно, но в формате JSON.Разворачивается в рамках 'ECK-operator'.
+
+- **'Logstash'** -  принимает доги от 'Filebeat' в формате JSON с помощью плагина 'beats' на input. Далее отдает в 'output'  с помощью плагина 'elasticsearch'. Разворачивается в рамках 'ECK-operator'.
+
+- **'Elasticsearch'** - позовляет вести удобный поиск данных(по словам к примеру) и создавать индексы для логов.Разворачивается в рамках 'ECK-operator'.
+
+- **'Kibana'** - позовляет удобно просматривать, анализировать логи, фиьтровать и прочее. Тут главное создать 'index-pattern' , наш 'app-logs-*' описан ниже.
+
+![КибанаИндекс](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/kibana-index.png)
+
+А ниже можно посмотреть логи для 'cash-service' с помощью фильтра по полю 'log-file-path', а в строке поиска нипишем 'spanId' для поиска по тексту.
+
+![Кибаналоги](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/kibana-cash-service.png)
+
+- **'Prometheus + Alert-manager'** - для получения и хранения стандартных и бизнес-метрик из микросервисов в виде временных рядов и настройки алертов.
+  К прмиеру так выглядит запрос на PQL для получения скорости изменения RPS метрики за 1м с лейблом 'account-service'.
+
+![Пром](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-prom-all-req.png)
+
+Так выглядит список некоторых алертов, которые были описаны файлами 'AlertRules' и настроены с ипользованием 'alert-manager' в 'prometheus-stack'.Сейчас они неактивны.
+
+![ПромАлерт](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/prom-alerts-inactive.png)
+
+А вот так , к примеру выглядит настроенный и сработанный Alert, когда бизнес-метрика ошибок операций с наличными срабатывает в рамках минуты 'Pending' т.е. еще не 'Firling'.
+
+![ПромАлерт1](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/prom_cash_pending.png)
+
+- **'Grafana'** - позволяет добвлять дашборды и виуализации для отображения различных метрик из разных истоников данных, мы используем 'Prometheus'.
+  Можем использовать готовые дашборды(импортировать) или содавать свои. В этом проекте были созданы 2 дашборда('bank-http-metrics','bank-business-metrics').
+  Также использовал дашборд 'Spring-Boot-3.x-Statisctics' для стандартных спринговых метрик.
+
+![ГрафанаДашборды](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/dashboards.png)
+
+Настройки дашбордов можно изменять и добавлять визуализации строки между ними для компановки.Мы добавили поля для группировки, к прмиеру поля 'username' и 'service'
+
+А тут можно увидеть кастомный дашборд 'bank-http-metrics', видим что благодаря добавленному полю 'service' в дашборд мы можем фиьтровать.
+![ГрафанаДашбордыХттп](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/bank-http-metrics-list-service.png)
+
+Кастомный Дашборд для бизнесс-метрик можно увидеть ниже, но с фильтрацией по 'username' так как этот label передается со всеми бизнесс-метриками.
+![ГрафанаДашбордыБизнес](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/bussiness-metrics.png)
+
+А ниже  мы можем посомтреть JVM-метрики и стандартные Http-метирики с помощью дашборда 'Spring-Boot-3.x-Statisctics'.
+
+![ГрафанаДашДжвм](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-jvm-stat.png)
+
+![ГрафанаДашХттп](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-http-stat.png)
+
+Ну и в заключении посомтрим на алерты в 'Grafana' которые подтянулись из 'Prometheus' компонента 'Alert manager'.
+
+![ГрафанаАлерты](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/Grafana-alerts-inactive.png)
+
 ## api-gateway, consul, keycloak
+
+### ⚠️ Важное примечание
+Обратите внимание , 'Consul' используется только при локальном пуске, в кластере его нужно отключить , так как свойства будем брать из ConfigMap или Secrets, а взаимодействие на базе 'Service'.
 
 - keycloak - Сервер Авторизации(OAUTH2.0), который позволяет управлять процессом авторизации(аутентификации).
   Для работы нужно настроить пространоство, создать необходимые роли, создать клиентов(микросиервисы) и пользователя для
