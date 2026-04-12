@@ -292,6 +292,30 @@ broker 'Kafka' и REST. Для депоймента используется Kub
   docker run -d --name kafka -p 9092:9092 apache/kafka:4.0.0
 ```
 
+- Также поднимем, если необходимо можно поднять компоненты мониторинга
+
+```
+  docker run -d -p 9411:9411 \
+  -e STORAGE_TYPE=elasticsearch \\
+  -e ES_HOSTS=http://elasticsearch:9200 \\
+  openzipkin/zipkin-slim
+  
+  docker run -d --name=prometheus -p 9090:9090 prom/prometheus
+  docker run -d --name=grafana -p 3000:3000 grafana/grafana
+  
+  docker pull docker.elastic.co/logstash/logstash:9.0.0
+  docker run --rm -it -v ~/pipeline/:/usr/share/logstash/pipeline/ docker.elastic.co/logstash/logstash:9.0.0
+  
+  docker pull docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+  docker run -it --rm -v full_path_to/config:/usr/share/elasticsearch/config \ 
+  docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+  
+  docker run -d --name kibana \
+  -e ELASTICSEARCH_HOSTS=http://host.docker.internal:9200 -p 5601:5601 \
+  docker.elastic.co/kibana/kibana:8.12.0
+```
+
+
 ### ⚠️ Важное примечание
 
 - Обратите внимание , вам надо создать файл ```.env``` с перемнными, которые описаны в ```.env.example```
