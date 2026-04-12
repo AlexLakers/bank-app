@@ -66,11 +66,11 @@ spring:
 
 logging:
   level:
-    com.alex.bank.notification.service: INFO
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.kafka: DEBUG
-    com.fasterxml.jackson: DEBUG
+    #com.alex.bank.notification.service: INFO
+    #org.springframework.security: DEBUG
+    #org.springframework.web: DEBUG
+    #org.springframework.kafka: DEBUG
+    #com.fasterxml.jackson: DEBUG
     root: WARN
     #file:
     #name: ${APP_DIR_NOTIF:/home/alexlakers}/${spring.application.name}/app.log

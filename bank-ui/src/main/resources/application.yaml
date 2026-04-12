@@ -77,9 +77,9 @@ logging:
   level:
     root: WARN
     com.alex.bank.ui: DEBUG
-    com.alex.bank.ui.config: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web.client: DEBUG
+    #com.alex.bank.ui.config: DEBUG
+    #org.springframework.security: DEBUG
+    #org.springframework.web.client: DEBUG
   #file:
     #name: ${APP_DIR_UI:/home/alexlakers}/${spring.application.name}/app.log
 management:

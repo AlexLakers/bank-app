@@ -44,12 +44,15 @@ public class TransferServiceImpl implements TransferService {
             CompensationFailedException.class
     })
     public TransferResponse transfer(TransferRequest request) {
+        log.info("Transfer requested: from={}, to={}, amount={}", request.fromAccount(), request.toAccount(), request.amount());
         TransferTransaction transaction = createTransaction(request);
 
         try {
             BigDecimal newBalanceSender = withdraw(request, transaction);
             TransferResponse response = deposit(request, transaction, newBalanceSender);
             saveOutbox(response, transaction);
+            log.info("Transfer completed successfully: from={}, to={}, amount={}, transactionId={}",
+                    request.fromAccount(), request.toAccount(), request.amount(), transaction.getTransactionId());
             return response;
         } catch (AccountNotFoundException | InsufficientFundsException | AccountValidationException e) {
             updateStatus(transaction, TransferTransactionStatus.FAILED, e.getMessage());
@@ -71,6 +74,7 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private void saveOutbox(TransferResponse payload, TransferTransaction transaction) {
+        log.debug("Saving outbox for transferId={}", transaction.getTransactionId());
         var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
@@ -85,8 +89,9 @@ public class TransferServiceImpl implements TransferService {
                     .createdAt(LocalDateTime.now())
                     .build();
             outboxRepository.save(outbox);
+            log.info("Outbox saved for transferId={}", transaction.getTransactionId());
         } catch (JsonProcessingException e) {
-            log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
+            log.error("Serialize error payload for outbox, transaction ID: {}",
                     transaction.getTransactionId(), e);
         } finally {
             span.end();
@@ -94,35 +99,46 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private BigDecimal withdraw(TransferRequest request, TransferTransaction transaction) {
+        log.debug("Withdrawing {} from account {} for transferId={}",
+                request.amount(), request.fromAccount(), transaction.getTransactionId());
         BigDecimal newBalance = accountServiceClient.withdraw(request.fromAccount(), request.amount());
         updateStatus(transaction, TransferTransactionStatus.DEPOSIT_PENDING, null);
+        log.info("Withdrawal successful: from={}, amount={}, newBalance={}, transferId={}",
+                request.fromAccount(), request.amount(), newBalance, transaction.getTransactionId());
         return newBalance;
     }
 
     private TransferResponse deposit(TransferRequest request, TransferTransaction transaction, BigDecimal senderBalance) {
+        log.debug("Depositing {} to account {} for transferId={}",
+                request.amount(), request.toAccount(), transaction.getTransactionId());
         try {
             BigDecimal receiverBalance = accountServiceClient.deposit(request.toAccount(), request.amount());
             updateStatus(transaction, TransferTransactionStatus.SUCCESS, null);
-            log.info("Перевод успешен. Отправитель: {}, сумма: {}", request.fromAccount(), request.amount());
+            log.info("Deposit successful: to={}, amount={}, newBalance={}, transferId={}",
+                    request.toAccount(), request.amount(), receiverBalance, transaction.getTransactionId());
+            log.info("Transfer successful: from={}, to={}, amount={}, senderBalance={}, receiverBalance={}",
+                    request.fromAccount(), request.toAccount(), request.amount(), senderBalance, receiverBalance);
             return new TransferResponse(transaction.getTransactionId().toString(), senderBalance, receiverBalance,transaction.getFromAccount());
         } catch (Exception e) {
             boolean compensated = compensate(transaction);
             if (compensated) {
                 throw new TransferCompensatedException(
-                        "Перевод не выполнен, средства возвращены. Причина: " + getMessage(e));
+                        "Transfer is failed, amount returned. Reason: " + getMessage(e));
             } else {
                 throw new CompensationFailedException(
-                        "КРИТИЧЕСКАЯ ОШИБКА: деньги списаны, но не удалось вернуть. Причина: " + getMessage(e));
+                        "Critical error: money is increased, but not returned. Reason: " + getMessage(e));
             }
         }
     }
 
     private boolean compensate(TransferTransaction transaction) {
+        log.warn("Compensating transferId={}: returning {} to account {}",
+                transaction.getTransactionId(), transaction.getAmount(), transaction.getFromAccount());
         try {
             accountServiceClient.deposit(transaction.getFromAccount(), transaction.getAmount());
             return true;
         } catch (Exception compensationError) {
-            log.error("Ошибка при компенсации: {}", getMessage(compensationError));
+            log.error("Error during compensation: {}", getMessage(compensationError));
             return false;
         }
     }
@@ -143,7 +159,9 @@ public class TransferServiceImpl implements TransferService {
     }
 
     private TransferTransaction createTransaction(TransferRequest request) {
-        TransferTransaction pendingTransaction = null;
+        log.debug("Creating pending transfer transaction: from={}, to={}, amount={}",
+                request.fromAccount(), request.toAccount(), request.amount());
+       // TransferTransaction pendingTransaction = null;
         var span = tracer.nextSpan().name("saveTransactionInDatabase").start();
         try {
             TransferTransaction transaction = TransferTransaction.builder()
@@ -152,15 +170,18 @@ public class TransferServiceImpl implements TransferService {
                     .amount(request.amount())
                     .status(TransferTransactionStatus.WITHDRAW_PENDING)
                     .build();
-            pendingTransaction = transactionRepository.save(transaction);
+            TransferTransaction savedTransaction= transactionRepository.save(transaction);
+            log.debug("Transfer transaction created with id: {}", savedTransaction.getTransactionId());
+            return savedTransaction;
         } finally {
             span.end();
         }
-        return pendingTransaction;
     }
 
     private void recordTransferFailure(String sender, String receiver, String reason, TransferTransactionStatus status) {
         String fullMessage = reason + " [%s] ".formatted(status.name());
+        log.warn("Transfer failure recorded: sender={}, receiver={}, reason={}, status={}",
+                sender, receiver, reason, status);
         //business-metric
         meterRegistry.counter("transfer_failures",
                 "sender", sender,

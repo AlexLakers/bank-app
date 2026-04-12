@@ -78,11 +78,12 @@ cash:
 logging:
   level:
     com.alex.bank.cash: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.kafka: DEBUG
+    #org.springframework.security: DEBUG
+    #org.springframework.web: DEBUG
+    #org.springframework.kafka: DEBUG
   #file:
     #name: ${APP_DIR_CASH:/home/alexlakers}/${spring.application.name}/app.log
+    root: WARN
 
 resilience4j:
   circuitbreaker:

@@ -41,8 +41,8 @@ public class CashServiceImpl implements CashService {
     private final MeterRegistry meterRegistry;
 
     private CashTransaction createAndSavePendingTransaction(CashAction action, String accountHolder, BigDecimal amount) {
+        log.debug("Creating pending transaction for user: {}, action: {}, amount: {}", accountHolder, action, amount);
         var span = tracer.nextSpan().name("savePendingTransactionInDatabase").start();
-        CashTransaction pendingTransaction;
         try {
             CashTransaction transaction = CashTransaction.builder()
                     .action(action)
@@ -50,12 +50,13 @@ public class CashServiceImpl implements CashService {
                     .status(CashTransactionStatus.PENDING)
                     .amount(amount)
                     .build();
-            pendingTransaction = cashTransactionRepository.save(transaction);
+            CashTransaction savedTransaction = cashTransactionRepository.save(transaction);
+            log.debug("Pending transaction created with id: {}", savedTransaction.getTransactionId());
+            return savedTransaction;
         } finally {
             span.end();
         }
 
-        return pendingTransaction;
     }
 
     @Transactional(noRollbackFor = {
@@ -65,12 +66,14 @@ public class CashServiceImpl implements CashService {
             ExternalServiceException.class
     })
     public CashResponse processCash(String username, CashRequest request) {
+        log.info("Processing cash operation: user={}, action={}, amount={}", username, request.action(), request.amount());
         CashAction action = request.action();
         CashTransaction transaction = createAndSavePendingTransaction(action, username, request.amount());
         try {
             BigDecimal newBalance = performCashOperation(action, username, request.amount());
             CashResponse cashResponse = handleSuccess(transaction, newBalance, action, request.amount());
             saveOutbox(cashResponse, transaction);
+            log.info("Cash operation completed successfully for user: {}", username);
             return cashResponse;
         } catch (Exception e) {
             throw handleFailure(transaction, e);
@@ -79,6 +82,7 @@ public class CashServiceImpl implements CashService {
     }
 
     private void saveOutbox(CashResponse payload, CashTransaction cashTransaction) {
+        log.debug("Saving outbox for transactionId={}", cashTransaction.getTransactionId());
         var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
@@ -96,8 +100,9 @@ public class CashServiceImpl implements CashService {
                     .createdAt(LocalDateTime.now())
                     .build();
             outboxRepository.save(outbox);
+            log.info("Outbox saved for transactionId={}, eventType={}", cashTransaction.getTransactionId(), eventType);
         } catch (JsonProcessingException e) {
-            log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
+            log.error("Serialize error payload for outbox, transaction ID: {}",
                     cashTransaction.getTransactionId(), e);
         } finally {
             span.end();
@@ -105,6 +110,7 @@ public class CashServiceImpl implements CashService {
     }
 
     private BigDecimal performCashOperation(CashAction action, String username, BigDecimal amount) {
+        log.debug("Calling account-service for {} of {} for user {}", action, amount, username);
         return (action == CashAction.GET)
                 ? accountServiceClient.withdrawCash(username, amount)
                 : accountServiceClient.depositCash(username, amount);
@@ -115,7 +121,7 @@ public class CashServiceImpl implements CashService {
 
         transaction.setStatus(CashTransactionStatus.SUCCESS);
         cashTransactionRepository.save(transaction);
-        log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
+        log.info("User {} performed {} on amount {}, new balance {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
         return new CashResponse(transaction.getTransactionId().toString(), newBalance,transaction.getAccountHolder());

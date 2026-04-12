@@ -19,6 +19,7 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave' // Библиотека для отправки спанов в zipkin
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+    implementation "net.logstash.logback:logstash-logback-encoder:${logbackEncoderVersion}"
     implementation project(':dto-exceptions-common')
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"

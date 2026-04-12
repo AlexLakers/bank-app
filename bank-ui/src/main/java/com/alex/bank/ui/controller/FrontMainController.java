@@ -19,6 +19,7 @@ import com.alex.bank.common.dto.ui.*;
 //import com.alex.bank.ui.dto.transfer.TransferResponse;
 import com.alex.bank.common.dto.transfer.TransferResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/ui")
+@Slf4j
 public class FrontMainController {
 
     private final AccountServiceClient accountServiceClient;
@@ -53,6 +55,7 @@ public class FrontMainController {
     public String updateAccount(@Validated @ModelAttribute AccountEditDto accountEditDto,
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes) {
+        log.info("Start endpoint of Updating account {}", accountEditDto);
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -73,7 +76,7 @@ public class FrontMainController {
 
     @GetMapping("/account")
     public String showMainPage(Model model) {
-
+        log.debug("Start endpoint of showing main page with model");
         ApiResult<AccountDto> accountResult = accountServiceClient.getAuthAccount();
         ApiResult<List<AccountDto>> accountsResult = accountServiceClient.getAccountsExcludeAuth();
 
@@ -110,6 +113,7 @@ public class FrontMainController {
     public String cash(@Validated CashRequest request,
                        BindingResult bindingResult,
                        RedirectAttributes redirectAttributes) {
+        log.info("Start endpoint of cash request:{}",request);
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
@@ -134,7 +138,7 @@ public class FrontMainController {
                            @Validated TransferRequestUI request,
                            BindingResult bindingResult,
                            RedirectAttributes redirectAttributes) {
-
+        log.info("Start endpoint of transfer request:{}",request);
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
