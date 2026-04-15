@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: openzipkin/zipkin-slim
+  pullPolicy: IfNotPresent
+  tag: ""
+
+service:
+  type: NodePort
+  port: 9411
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 4096Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

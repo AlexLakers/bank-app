@@ -8,10 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Chart.Name }}
       {{- include "api-gateway.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Chart.Name }}
         {{- include "api-gateway.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -25,39 +27,29 @@ spec:
               value: {{ .Values.keycloakExternalUrl }}
             - name: SPRING_CONFIG_IMPORT
               value: "optional:file:/config/application.yml"
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "api-gateway.fullname" . }}-config
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          #Probes
-          startupProbe:
-            httpGet:
-              path: /actuator/health
-              port: {{ .Values.service.port }}
-            initialDelaySeconds: 7
-            periodSeconds: 5
-            failureThreshold: 3
-            timeoutSeconds: 1
+          volumeMounts:
+            - name: config
+              mountPath: /config
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 10
+            initialDelaySeconds: 40
             periodSeconds: 5
-            failureThreshold: 5
-            timeoutSeconds: 1
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 12
+            initialDelaySeconds: 60
             periodSeconds: 5
-            failureThreshold: 5
-            timeoutSeconds: 1
-                   
-           
-          volumeMounts:
-            - name: config
-              mountPath: /config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

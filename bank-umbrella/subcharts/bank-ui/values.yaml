@@ -22,6 +22,7 @@ accountServiceUrl: "http://account-service:8082"
 transferServiceUrl: "http://transfer-service:8085"
 cashServiceUrl: "http://cash-service:8084"
 appBaseUrl: "http://{{ .Release.Name }}-ingress"
+zipkinUrl: "http://zipkin:9411"
 
 servicePort: 8083
 

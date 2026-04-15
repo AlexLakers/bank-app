@@ -18,7 +18,12 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	implementation 'org.springframework.boot:spring-boot-testcontainers'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	//implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 	implementation project(':dto-exceptions-common')
 

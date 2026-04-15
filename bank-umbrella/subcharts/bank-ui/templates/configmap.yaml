@@ -17,3 +17,5 @@ data:
   ACCOUNT_SERVICE_URL: {{ tpl .Values.accountServiceUrl $ }}
   TRANSFER_SERVICE_URL: {{ tpl .Values.transferServiceUrl $ }}
   CASH_SERVICE_URL: {{ tpl .Values.cashServiceUrl $ }}
+  ZIPKIN_URL: {{ coalesce .Values.zipkinUrl .Values.global.zipkinUrl "zipkin:9411" | quote }}
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: {{ coalesce .Values.zipkinUrl .Values.global.zipkinUrl "http://zipkin:9411" }}/api/v2/spans

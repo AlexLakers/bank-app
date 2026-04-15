@@ -28,11 +28,13 @@ public class RestClientConfig {
         return manager;
     }
 
-    @Bean
+    //Commented it to use deafault bean and transfer tracing context
+
+   // @Bean
    // @LoadBalanced
-    public RestClient.Builder restClientBuilder() {
-        return RestClient.builder();
-    }
+   // public RestClient.Builder restClientBuilder() {
+     //   return RestClient.builder();
+   // }
 
 
     private ClientHttpRequestInterceptor createTokenInterceptor(

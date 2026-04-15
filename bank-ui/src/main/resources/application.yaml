@@ -77,9 +77,9 @@ logging:
   level:
     root: WARN
     com.alex.bank.ui: DEBUG
-    com.alex.bank.ui.config: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web.client: DEBUG
+    #com.alex.bank.ui.config: DEBUG
+    #org.springframework.security: DEBUG
+    #org.springframework.web.client: DEBUG
   #file:
     #name: ${APP_DIR_UI:/home/alexlakers}/${spring.application.name}/app.log
 management:
@@ -87,7 +87,22 @@ management:
     health:
       probes:
         enabled: true
+
+  zipkin:
+    tracing:
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://127.0.0.1:9411/api/v2/spans} # Эндпоинт Zipkin для приёма спанов
+  tracing:
+    sampling:
+      probability: 1
+
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,metrics,prometheus

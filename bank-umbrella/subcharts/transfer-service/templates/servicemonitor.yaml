@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "transfer-service.fullname" . }}-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus-stack
+    {{- include "transfer-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      {{- include "transfer-service.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 45s

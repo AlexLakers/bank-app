@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "notification-service.fullname" . }}
   labels:
+    app: {{ .Chart.Name }}
     {{- include "notification-service.labels" . | nindent 4 }}
 spec:
   type: ClusterIP

@@ -11,6 +11,8 @@ import com.alex.bank.common.dto.cash.CashAction;
 import com.alex.bank.common.dto.notification.EventType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,6 @@ import com.alex.bank.common.exceptions.AccountValidationException;
 import com.alex.bank.common.exceptions.AccountNotFoundException;
 import com.alex.bank.common.exceptions.InsufficientFundsException;
 import com.alex.bank.common.exceptions.CreatingPayloadOutboxException;
-
 
 
 import java.math.BigDecimal;
@@ -36,15 +37,26 @@ public class CashServiceImpl implements CashService {
     private final CashTransactionRepository cashTransactionRepository;
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
+    private final Tracer tracer;
+    private final MeterRegistry meterRegistry;
 
     private CashTransaction createAndSavePendingTransaction(CashAction action, String accountHolder, BigDecimal amount) {
-        CashTransaction transaction = CashTransaction.builder()
-                .action(action)
-                .accountHolder(accountHolder)
-                .status(CashTransactionStatus.PENDING)
-                .amount(amount)
-                .build();
-        return cashTransactionRepository.save(transaction);
+        log.debug("Creating pending transaction for user: {}, action: {}, amount: {}", accountHolder, action, amount);
+        var span = tracer.nextSpan().name("savePendingTransactionInDatabase").start();
+        try {
+            CashTransaction transaction = CashTransaction.builder()
+                    .action(action)
+                    .accountHolder(accountHolder)
+                    .status(CashTransactionStatus.PENDING)
+                    .amount(amount)
+                    .build();
+            CashTransaction savedTransaction = cashTransactionRepository.save(transaction);
+            log.debug("Pending transaction created with id: {}", savedTransaction.getTransactionId());
+            return savedTransaction;
+        } finally {
+            span.end();
+        }
+
     }
 
     @Transactional(noRollbackFor = {
@@ -54,12 +66,14 @@ public class CashServiceImpl implements CashService {
             ExternalServiceException.class
     })
     public CashResponse processCash(String username, CashRequest request) {
+        log.info("Processing cash operation: user={}, action={}, amount={}", username, request.action(), request.amount());
         CashAction action = request.action();
         CashTransaction transaction = createAndSavePendingTransaction(action, username, request.amount());
         try {
             BigDecimal newBalance = performCashOperation(action, username, request.amount());
             CashResponse cashResponse = handleSuccess(transaction, newBalance, action, request.amount());
             saveOutbox(cashResponse, transaction);
+            log.info("Cash operation completed successfully for user: {}", username);
             return cashResponse;
         } catch (Exception e) {
             throw handleFailure(transaction, e);
@@ -68,6 +82,8 @@ public class CashServiceImpl implements CashService {
     }
 
     private void saveOutbox(CashResponse payload, CashTransaction cashTransaction) {
+        log.debug("Saving outbox for transactionId={}", cashTransaction.getTransactionId());
+        var span = tracer.nextSpan().name("saveOutboxInDatabase").start();
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
             EventType eventType = cashTransaction.getAction() == CashAction.GET
@@ -84,13 +100,17 @@ public class CashServiceImpl implements CashService {
                     .createdAt(LocalDateTime.now())
                     .build();
             outboxRepository.save(outbox);
+            log.info("Outbox saved for transactionId={}, eventType={}", cashTransaction.getTransactionId(), eventType);
         } catch (JsonProcessingException e) {
-            log.error("Не удалось сериализовать payload для outbox, транзакция ID: {}",
+            log.error("Serialize error payload for outbox, transaction ID: {}",
                     cashTransaction.getTransactionId(), e);
+        } finally {
+            span.end();
         }
     }
 
     private BigDecimal performCashOperation(CashAction action, String username, BigDecimal amount) {
+        log.debug("Calling account-service for {} of {} for user {}", action, amount, username);
         return (action == CashAction.GET)
                 ? accountServiceClient.withdrawCash(username, amount)
                 : accountServiceClient.depositCash(username, amount);
@@ -101,10 +121,10 @@ public class CashServiceImpl implements CashService {
 
         transaction.setStatus(CashTransactionStatus.SUCCESS);
         cashTransactionRepository.save(transaction);
-        log.info("Пользователь {} выполнил {} на сумму {}, новый баланс {}",
+        log.info("User {} performed {} on amount {}, new balance {}",
                 transaction.getAccountHolder(), action, amount, newBalance);
 
-        return new CashResponse(transaction.getTransactionId().toString(), newBalance);
+        return new CashResponse(transaction.getTransactionId().toString(), newBalance,transaction.getAccountHolder());
 
     }
 
@@ -118,6 +138,14 @@ public class CashServiceImpl implements CashService {
         }
 
         cashTransactionRepository.save(transaction);
+
+        log.info("Incrementing metric for user: {}", transaction.getAccountHolder());
+
+        // business-metric
+        meterRegistry.counter("cash_operation_failures",
+                "username", transaction.getAccountHolder(),
+                "action", transaction.getAction().name()
+        ).increment();
 
         if (isExpectedException(e)) {
             return (RuntimeException) e;

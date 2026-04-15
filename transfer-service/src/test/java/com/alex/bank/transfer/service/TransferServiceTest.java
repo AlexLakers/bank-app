@@ -88,7 +88,7 @@ class TransferServiceTest {
         when(accountServiceClient.withdraw(eq(fromAccount), eq(amount))).thenReturn(senderNewBalance);
         when(accountServiceClient.deposit(eq(toAccount), eq(amount))).thenReturn(receiverNewBalance);
         when(objectMapper.writeValueAsString(any(TransferResponse.class)))
-                .thenReturn("{\"transactionId\":\"" + transactionId + "\",\"newBalanceSender\":900.00,\"newBalanceReceiver\":1100.00}");
+                .thenReturn("{\"transactionId\":\"" + transactionId + "\",\"newBalanceSender\":900.00,\"newBalanceReceiver\":1100.00,\"username\":\"test\"}");
 
         TransferResponse response = transferService.transfer(request);
 
@@ -182,7 +182,7 @@ class TransferServiceTest {
 
         assertThatThrownBy(() -> transferService.transfer(request))
                 .isInstanceOf(TransferCompensatedException.class)
-                .hasMessageContaining("Перевод не выполнен, средства возвращены");
+                .hasMessageContaining("Transfer is failed, amount returned");
 
         verify(transactionRepository, times(3)).save(transactionCaptor.capture());
         assertThat(transactionCaptor.getAllValues().get(2).getStatus()).isEqualTo(TransferTransactionStatus.COMPENSATED);
@@ -203,7 +203,7 @@ class TransferServiceTest {
 
         assertThatThrownBy(() -> transferService.transfer(request))
                 .isInstanceOf(CompensationFailedException.class)
-                .hasMessageContaining("КРИТИЧЕСКАЯ ОШИБКА: деньги списаны, но не удалось вернуть");
+                .hasMessageContaining("Critical error: money is increased, but not returned");
 
         verify(transactionRepository, times(3)).save(transactionCaptor.capture());
         assertThat(transactionCaptor.getAllValues().get(2).getStatus()).isEqualTo(TransferTransactionStatus.COMPENSATED_FAILED);

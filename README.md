@@ -1,7 +1,7 @@
 # bank-app
 
-Это микросервисный проект с аутентификацией и авторизацией. Для взаимодействия микросервисов используется message
-broker 'Kafka' и REST.
+Это микросервисный проект банковского приложения с аутентификацией и авторизацией через Keycloak. Для взаимодействия микросервисов используется message
+broker 'Kafka' и REST. Для депоймента используется Kubernetes, Helm и Docker. Для мониторинга используется Zipkin, Prometheus-stack и ELK-stack.
 
 - Проект состоит из 5 микросервисов:
 - bank-ui(frontend)
@@ -193,7 +193,69 @@ broker 'Kafka' и REST.
 
 Видим разные события от разных микросервисов.
 
+## Мониторинг
+Для монторинга микросервисного приложения в кластере используется комплекс решений:
+-  **'Zipkin'**- для трассировки пользовательских запросов и межсервисного взаимодействия.
+   Для примера, посомтрим детализацию запроса  на перевод денег, видим детализацию различных спанов в рамках одного трейса.
+
+![Зипкин](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/transfer-zipkin.png)
+
+- **'Filebeat'**- читает логи микросервисов прямо из /var/log/containers/*.log в кластере, обеспеспечивая буферизацию и надежность.
+  А микросервисы сосредоточнены на бизнесс-логике, просто пишут логи в консоль(stdout) как обычно, но в формате JSON.Разворачивается в рамках 'ECK-operator'.
+
+- **'Logstash'** -  принимает доги от 'Filebeat' в формате JSON с помощью плагина 'beats' на input. Далее отдает в 'output'  с помощью плагина 'elasticsearch'. Разворачивается в рамках 'ECK-operator'.
+
+- **'Elasticsearch'** - позовляет вести удобный поиск данных(по словам к примеру) и создавать индексы для логов.Разворачивается в рамках 'ECK-operator'.
+
+- **'Kibana'** - позовляет удобно просматривать, анализировать логи, фиьтровать и прочее. Тут главное создать 'index-pattern' , наш 'app-logs-*' описан ниже.
+
+![КибанаИндекс](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/kibana-index.png)
+
+А ниже можно посмотреть логи для 'cash-service' с помощью фильтра по полю 'log-file-path', а в строке поиска нипишем 'spanId' для поиска по тексту.
+
+![Кибаналоги](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/kibana-cash-service.png)
+
+- **'Prometheus + Alert-manager'** - для получения и хранения стандартных и бизнес-метрик из микросервисов в виде временных рядов и настройки алертов.
+  К прмиеру так выглядит запрос на PQL для получения скорости изменения RPS метрики за 1м с лейблом 'account-service'.
+
+![Пром](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-prom-all-req.png)
+
+Так выглядит список некоторых алертов, которые были описаны файлами 'AlertRules' и настроены с ипользованием 'alert-manager' в 'prometheus-stack'.Сейчас они неактивны.
+
+![ПромАлерт](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/prom-alerts-inactive.png)
+
+А вот так , к примеру выглядит настроенный и сработанный Alert, когда бизнес-метрика ошибок операций с наличными срабатывает в рамках минуты 'Pending' т.е. еще не 'Firling'.
+
+![ПромАлерт1](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/prom_cash_pending.png)
+
+- **'Grafana'** - позволяет добвлять дашборды и виуализации для отображения различных метрик из разных истоников данных, мы используем 'Prometheus'.
+  Можем использовать готовые дашборды(импортировать) или содавать свои. В этом проекте были созданы 2 дашборда('bank-http-metrics','bank-business-metrics').
+  Также использовал дашборд 'Spring-Boot-3.x-Statisctics' для стандартных спринговых метрик.
+
+![ГрафанаДашборды](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/dashboards.png)
+
+Настройки дашбордов можно изменять и добавлять визуализации строки между ними для компановки.Мы добавили поля для группировки, к прмиеру поля 'username' и 'service'
+
+А тут можно увидеть кастомный дашборд 'bank-http-metrics', видим что благодаря добавленному полю 'service' в дашборд мы можем фиьтровать.
+![ГрафанаДашбордыХттп](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/bank-http-metrics-list-service.png)
+
+Кастомный Дашборд для бизнесс-метрик можно увидеть ниже, но с фильтрацией по 'username' так как этот label передается со всеми бизнесс-метриками.
+![ГрафанаДашбордыБизнес](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/bussiness-metrics.png)
+
+А ниже  мы можем посомтреть JVM-метрики и стандартные Http-метирики с помощью дашборда 'Spring-Boot-3.x-Statisctics'.
+
+![ГрафанаДашДжвм](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-jvm-stat.png)
+
+![ГрафанаДашХттп](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/account-http-stat.png)
+
+Ну и в заключении посомтрим на алерты в 'Grafana' которые подтянулись из 'Prometheus' компонента 'Alert manager'.
+
+![ГрафанаАлерты](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/Grafana-alerts-inactive.png)
+
 ## api-gateway, consul, keycloak
+
+### ⚠️ Важное примечание
+Обратите внимание , 'Consul' используется только при локальном пуске, в кластере его нужно отключить , так как свойства будем брать из ConfigMap или Secrets, а взаимодействие на базе 'Service'.
 
 - keycloak - Сервер Авторизации(OAUTH2.0), который позволяет управлять процессом авторизации(аутентификации).
   Для работы нужно настроить пространоство, создать необходимые роли, создать клиентов(микросиервисы) и пользователя для
@@ -230,6 +292,30 @@ broker 'Kafka' и REST.
   docker run -d --name kafka -p 9092:9092 apache/kafka:4.0.0
 ```
 
+- Также поднимем, если необходимо можно поднять компоненты мониторинга
+
+```
+  docker run -d -p 9411:9411 \
+  -e STORAGE_TYPE=elasticsearch \\
+  -e ES_HOSTS=http://elasticsearch:9200 \\
+  openzipkin/zipkin-slim
+  
+  docker run -d --name=prometheus -p 9090:9090 prom/prometheus
+  docker run -d --name=grafana -p 3000:3000 grafana/grafana
+  
+  docker pull docker.elastic.co/logstash/logstash:9.0.0
+  docker run --rm -it -v ~/pipeline/:/usr/share/logstash/pipeline/ docker.elastic.co/logstash/logstash:9.0.0
+  
+  docker pull docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+  docker run -it --rm -v full_path_to/config:/usr/share/elasticsearch/config \ 
+  docker.elastic.co/elasticsearch/elasticsearch:9.3.3
+  
+  docker run -d --name kibana \
+  -e ELASTICSEARCH_HOSTS=http://host.docker.internal:9200 -p 5601:5601 \
+  docker.elastic.co/kibana/kibana:8.12.0
+```
+
+
 ### ⚠️ Важное примечание
 
 - Обратите внимание , вам надо создать файл ```.env``` с перемнными, которые описаны в ```.env.example```
@@ -240,7 +326,7 @@ broker 'Kafka' и REST.
 упрощения описания сервисов.
 В качестве кластера будет использовано стандарное решение от разработчиков Kubernetes - ```Minikube```.
 Микросервисное приложение будет разворачиваться как зонтичный чарт с подчартами отельным релизом и брокер 'Кафка'
-отельным релизом.
+отельным релизом. Также для мониторинга будут разворачиваться компоненты для ELK-stack, для Prometheus-stack и Zipkin.
 
 - Предварительно нужно установить ```Minikube```, ```kubectl```.
 - Запускаем кластер
@@ -334,6 +420,35 @@ helm test my-bank -n test
 kubectl describe pod -n test my-bank-account-service-646d59649d-....
 
 ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/descdribe_probes.png)
+
+- Для мониторинга развернем дополнительные компоненты в нашем кластере из папки '/monitoring'':
+- Prometheus-Stack(prometheus+alertnamager+grafana)
+- Zipkin
+- ELK(elasticsearch+logstash+kibana+filebeat) в составе ECK-operator(elastic cloud on kubernetes) '/monitoring/prometheus-stack':
+  ```
+  helm install prometheus-stack prometheus-community/kube-prometheus-stack -n test -f values.yaml
+  kubectl -n test get secret prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+  ```
+- Настройки(применения) правил алертинга в комопненте 'Alert-Manager':
+  ```
+  kubectl apply -f bank-prometheus-alerts.yaml -n test
+  ```
+- Далее установим ECK-operator из скачанных исходников '/monitoring/elk-eck/', а также отдельные компоненты:
+  ```
+  kubectl create -f crds-3.3.2.yaml
+  kubectl apply -f operator-3.3.2.yaml
+  
+  kubectl apply -f elasticsearch.yaml -n test
+  kubectl apply -f logstash.yaml -n test
+  kubectl apply -f kibana.yaml -n test
+  kubectl apply -f filebeat.yaml -n test
+  ```
+- Далее установим в нашем кластере 'Zipkin' для трассировки:
+ ```
+ helm repo add zipkin https://zipkin.io/zipkin-helm
+ helm install zipkin zipkin/zipkin -f values.yaml -n test
+ kubectl -n test get svc zipkin
+ ```
 
 - После того как все сервисы поднялись и ингрис контроллер запущен, наше приложение будет доступно по внешнему адресу
   ![tests](https://raw.githubusercontent.com/AlexLakers/ParserJsonCsvToXml/master/WinFormsCsvJsonXml/App_Data/pictures/new_url.png)
